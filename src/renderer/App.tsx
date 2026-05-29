@@ -1,10 +1,32 @@
 import { useState } from 'react';
 import { SectionNav, type Section } from './components/SectionNav';
 import { AccountsPane } from './components/accounts/AccountsPane';
+import { BucketsPane } from './components/buckets/BucketsPane';
+import { FileBrowser } from './components/files/FileBrowser';
+import { MetadataPanel } from './components/files/MetadataPanel';
 
 export function App() {
   const [section, setSection] = useState<Section>('files');
-  const [selectedAccountId, setSelectedAccountId] = useState<string | null>(null);
+  const [accountId, setAccountId] = useState<string | null>(null);
+  const [bucket, setBucket] = useState<string | null>(null);
+  const [prefix, setPrefix] = useState('');
+  const [selectedKey, setSelectedKey] = useState<string | null>(null);
+
+  const selectAccount = (id: string) => {
+    setAccountId(id);
+    setBucket(null);
+    setPrefix('');
+    setSelectedKey(null);
+  };
+  const selectBucket = (b: string) => {
+    setBucket(b);
+    setPrefix('');
+    setSelectedKey(null);
+  };
+  const navigate = (p: string) => {
+    setPrefix(p);
+    setSelectedKey(null);
+  };
 
   return (
     <div className="flex h-full text-sm text-slate-800">
@@ -17,12 +39,29 @@ export function App() {
         {section === 'files' ? (
           <div className="flex h-full">
             <div className="w-60 shrink-0 border-r border-slate-200">
-              <AccountsPane selectedId={selectedAccountId} onSelect={setSelectedAccountId} />
+              <AccountsPane selectedId={accountId} onSelect={selectAccount} />
             </div>
-            <div className="w-64 shrink-0 border-r border-slate-200 p-3 text-slate-400">
-              Buckets (Plan 2b)
+            <div className="w-56 shrink-0 border-r border-slate-200">
+              <BucketsPane accountId={accountId} selectedBucket={bucket} onSelect={selectBucket} />
             </div>
-            <div className="flex-1 p-3 text-slate-400">File browser (Plan 2b)</div>
+            <div className="flex-1 overflow-hidden">
+              <FileBrowser
+                accountId={accountId}
+                bucket={bucket}
+                prefix={prefix}
+                selectedKey={selectedKey}
+                onNavigate={navigate}
+                onSelectFile={setSelectedKey}
+              />
+            </div>
+            {selectedKey !== null && (
+              <MetadataPanel
+                accountId={accountId}
+                bucket={bucket}
+                objectKey={selectedKey}
+                onClose={() => setSelectedKey(null)}
+              />
+            )}
           </div>
         ) : (
           <div className="flex h-full items-center justify-center text-slate-400">Coming soon</div>

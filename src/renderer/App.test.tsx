@@ -6,7 +6,11 @@ import { App } from './App';
 
 beforeEach(() => {
   (window as unknown as { s3: unknown }).s3 = {
-    accounts: { list: vi.fn().mockResolvedValue({ ok: true, data: [] }) },
+    accounts: { list: vi.fn().mockResolvedValue({ ok: true, data: [{ id: 'a', label: 'AWS prod', provider: 'amazon-s3', region: 'eu-central-1', accessKeyId: 'AK', createdAt: 1 }] }) },
+    listBuckets: vi.fn().mockResolvedValue({ ok: true, data: ['assets'] }),
+    listObjects: vi.fn().mockResolvedValue({ ok: true, data: { folders: [], files: [{ name: 'logo.png', key: 'logo.png', size: 5, lastModified: null, storageClass: null, etag: null }], nextToken: null } }),
+    headObject: vi.fn().mockResolvedValue({ ok: true, data: { size: 5, contentType: 'image/png', lastModified: null, storageClass: null, etag: null, metadata: {} } }),
+    objectVisibility: vi.fn().mockResolvedValue({ ok: true, data: 'private' }),
   };
 });
 
@@ -19,17 +23,19 @@ function renderApp() {
   );
 }
 
-describe('App', () => {
-  it('renders the shell with the product name and Files section active by default', async () => {
+describe('App — Files browsing', () => {
+  it('drills from account to bucket to object and opens the metadata panel', async () => {
     renderApp();
-    expect(screen.getByText('S3 Manager')).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Files' })).toHaveAttribute('aria-current', 'page');
-    expect(await screen.findByText('No accounts yet')).toBeInTheDocument();
+    await userEvent.click(await screen.findByText('AWS prod'));
+    await userEvent.click(await screen.findByText('assets'));
+    await userEvent.click(await screen.findByText('logo.png'));
+    expect(await screen.findByText('Details')).toBeInTheDocument();
+    expect(await screen.findByText('private')).toBeInTheDocument();
   });
 
-  it('switches to a placeholder section', async () => {
+  it('still shows Coming soon for non-Files sections', async () => {
     renderApp();
-    await userEvent.click(screen.getByRole('button', { name: 'CORS' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Settings' }));
     expect(screen.getByText('Coming soon')).toBeInTheDocument();
   });
 });
