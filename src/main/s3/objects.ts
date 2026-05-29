@@ -4,6 +4,7 @@ import {
   ListObjectsV2Command,
   HeadObjectCommand,
   GetObjectCommand,
+  PutObjectCommand,
   DeleteObjectCommand,
   DeleteObjectsCommand,
 } from '@aws-sdk/client-s3';
@@ -98,6 +99,22 @@ export async function presignGetUrl(
     const url = await getSignedUrl(
       client,
       new GetObjectCommand({ Bucket: args.bucket, Key: args.key }),
+      { expiresIn: args.expiresIn },
+    );
+    return ok(url);
+  } catch (e) {
+    return toErr(e);
+  }
+}
+
+export async function presignPutUrl(
+  client: S3Client,
+  args: { bucket: string; key: string; expiresIn: number },
+): Promise<Result<string>> {
+  try {
+    const url = await getSignedUrl(
+      client,
+      new PutObjectCommand({ Bucket: args.bucket, Key: args.key }),
       { expiresIn: args.expiresIn },
     );
     return ok(url);

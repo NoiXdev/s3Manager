@@ -8,7 +8,7 @@ import {
   DeleteObjectCommand,
   DeleteObjectsCommand,
 } from '@aws-sdk/client-s3';
-import { listBuckets, listObjects, headObject, deleteObject, deleteFolder } from './objects';
+import { listBuckets, listObjects, headObject, deleteObject, deleteFolder, presignPutUrl } from './objects';
 
 const s3Mock = mockClient(S3Client);
 beforeEach(() => s3Mock.reset());
@@ -95,5 +95,18 @@ describe('deleteFolder guard', () => {
     const r = await deleteFolder(new S3Client({}), { bucket: 'b', prefix: '' });
     expect(r.ok).toBe(false);
     if (!r.ok) expect(r.error.code).toBe('InvalidPrefix');
+  });
+});
+
+describe('presignPutUrl', () => {
+  it('returns a signed https PUT URL for the key with the requested expiry', async () => {
+    const client = new S3Client({ region: 'us-east-1', credentials: { accessKeyId: 'AK', secretAccessKey: 'SK' } });
+    const r = await presignPutUrl(client, { bucket: 'b', key: 'images/report.pdf', expiresIn: 3600 });
+    expect(r.ok).toBe(true);
+    if (r.ok) {
+      expect(r.data).toMatch(/^https:\/\//);
+      expect(r.data).toContain('report.pdf');
+      expect(r.data).toContain('X-Amz-Expires=3600');
+    }
   });
 });
