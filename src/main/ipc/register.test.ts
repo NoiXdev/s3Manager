@@ -1,8 +1,12 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { mockClient } from 'aws-sdk-client-mock';
 import { S3Client, ListBucketsCommand } from '@aws-sdk/client-s3';
+import { writeFileSync, mkdtempSync } from 'node:fs';
+import { join } from 'node:path';
+import { tmpdir } from 'node:os';
+import { PutObjectCommand } from '@aws-sdk/client-s3';
 import { registerIpc, type IpcMainLike } from './register';
-import { CH } from './channels';
+import { CH, UPLOAD_PROGRESS_CHANNEL } from './channels';
 import { openDatabase } from '../storage/db';
 import { createAccountsRepo } from '../storage/accountsRepo';
 import { createSecretsStore, type Crypto } from '../storage/secrets';
@@ -19,8 +23,12 @@ const fakeCrypto: Crypto = {
 
 function buildHarness() {
   const handlers = new Map<string, (...a: unknown[]) => unknown>();
+  const progressEvents: { channel: string; payload: unknown }[] = [];
   const ipcMain: IpcMainLike = {
-    handle: (channel, listener) => handlers.set(channel, (...a) => listener({}, ...a)),
+    handle: (channel, listener) =>
+      handlers.set(channel, (...a) =>
+        listener({ sender: { send: (c: string, p: unknown) => progressEvents.push({ channel: c, payload: p }) } }, ...a),
+      ),
   };
   const db = openDatabase(':memory:');
   const deps = {
@@ -31,7 +39,7 @@ function buildHarness() {
     db,
   };
   registerIpc(ipcMain, deps);
-  return { handlers, deps };
+  return { handlers, deps, progressEvents };
 }
 
 describe('registerIpc', () => {
@@ -92,5 +100,26 @@ describe('registerIpc', () => {
     })) as { ok: boolean };
     expect(res.ok).toBe(false);
     expect(deps.accounts.list()).toHaveLength(0); // rolled back
+  });
+});
+
+describe('uploadObject handler progress', () => {
+  it('uploads and emits a progress event carrying the uploadId', async () => {
+    const { handlers, progressEvents } = buildHarness();
+    const created = (await handlers.get(CH.accountsCreate)!({
+      label: 'AWS', provider: 'amazon-s3', region: 'us-east-1', accessKeyId: 'AK', secretAccessKey: 'SK',
+    })) as { data: { id: string } };
+    s3Mock.on(PutObjectCommand).resolves({});
+
+    const dir = mkdtempSync(join(tmpdir(), 's3m-up-'));
+    const file = join(dir, 'hello.txt');
+    writeFileSync(file, 'hello world');
+
+    const res = (await handlers.get(CH.uploadObject)!({
+      accountId: created.data.id, bucket: 'b', key: 'hello.txt', filePath: file, uploadId: 'up-1',
+    })) as { ok: boolean };
+    expect(res.ok).toBe(true);
+    expect(progressEvents.every((e) => e.channel === UPLOAD_PROGRESS_CHANNEL)).toBe(true);
+    expect(progressEvents.every((e) => (e.payload as { uploadId: string }).uploadId === 'up-1')).toBe(true);
   });
 });

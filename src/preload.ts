@@ -1,6 +1,6 @@
 import { contextBridge, ipcRenderer } from 'electron';
-import { CH } from './main/ipc/channels';
-import type { ApiMap } from './main/ipc/channels';
+import { CH, UPLOAD_PROGRESS_CHANNEL } from './main/ipc/channels';
+import type { ApiMap, UploadProgress } from './main/ipc/channels';
 
 type Channel = keyof ApiMap;
 
@@ -25,6 +25,11 @@ const api = {
   deleteFolder: (a: ApiMap[typeof CH.deleteFolder]['args'][0]) => invoke(CH.deleteFolder, a),
   uploadObject: (a: ApiMap[typeof CH.uploadObject]['args'][0]) => invoke(CH.uploadObject, a),
   downloadObject: (a: ApiMap[typeof CH.downloadObject]['args'][0]) => invoke(CH.downloadObject, a),
+  onUploadProgress: (cb: (progress: UploadProgress) => void) => {
+    const listener = (_event: unknown, payload: unknown) => cb(payload as UploadProgress);
+    ipcRenderer.on(UPLOAD_PROGRESS_CHANNEL, listener);
+    return () => ipcRenderer.removeListener(UPLOAD_PROGRESS_CHANNEL, listener);
+  },
 };
 
 export type S3Api = typeof api;

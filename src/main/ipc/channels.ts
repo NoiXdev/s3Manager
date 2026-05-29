@@ -43,6 +43,16 @@ export interface ApiMap {
   [CH.presignGet]: { args: [{ accountId: string; bucket: string; key: string; expiresIn: number }]; res: Result<string> };
   [CH.deleteObject]: { args: [{ accountId: string; bucket: string; key: string }]; res: Result<number> };
   [CH.deleteFolder]: { args: [{ accountId: string; bucket: string; prefix: string }]; res: Result<number> };
-  [CH.uploadObject]: { args: [{ accountId: string; bucket: string; key: string; filePath: string; contentType?: string }]; res: Result<{ key: string }> };
+  [CH.uploadObject]: { args: [{ accountId: string; bucket: string; key: string; filePath: string; contentType?: string; uploadId: string }]; res: Result<{ key: string }> };
   [CH.downloadObject]: { args: [{ accountId: string; bucket: string; key: string; destPath: string }]; res: Result<{ path: string }> };
+}
+
+/** One-way main→renderer channel for upload progress (not an invoke channel,
+ *  so intentionally not part of CH/ApiMap). */
+export const UPLOAD_PROGRESS_CHANNEL = 's3:uploadProgress';
+
+export interface UploadProgress {
+  uploadId: string;
+  loaded: number;
+  total: number | null;
 }

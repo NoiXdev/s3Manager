@@ -1,4 +1,4 @@
-import { CH, type CreateAccountInput } from './channels';
+import { CH, UPLOAD_PROGRESS_CHANNEL, type CreateAccountInput } from './channels';
 import { ok, err, type Result } from '../shared/result';
 import { resolveEndpoint, getProvider, PROVIDERS } from '../s3/providers';
 import { createClient } from '../s3/clientFactory';
@@ -117,9 +117,24 @@ export function registerIpc(ipcMain: IpcMainLike, deps: RegisterDeps): void {
     deleteFolder(clientFor(a.accountId), { bucket: a.bucket, prefix: a.prefix }),
   );
 
-  h(CH.uploadObject, (a: { accountId: string; bucket: string; key: string; filePath: string; contentType?: string }) =>
-    uploadObject(clientFor(a.accountId), { bucket: a.bucket, key: a.key, filePath: a.filePath, contentType: a.contentType }),
-  );
+  ipcMain.handle(CH.uploadObject, async (event, ...args) => {
+    const a = args[0] as {
+      accountId: string; bucket: string; key: string; filePath: string; contentType?: string; uploadId: string;
+    };
+    const sender = (event as { sender: { send(channel: string, payload: unknown): void } }).sender;
+    try {
+      return await uploadObject(clientFor(a.accountId), {
+        bucket: a.bucket,
+        key: a.key,
+        filePath: a.filePath,
+        contentType: a.contentType,
+        onProgress: (loaded, total) =>
+          sender.send(UPLOAD_PROGRESS_CHANNEL, { uploadId: a.uploadId, loaded, total: total ?? null }),
+      });
+    } catch (e) {
+      return toErr(e);
+    }
+  });
 
   h(CH.downloadObject, (a: { accountId: string; bucket: string; key: string; destPath: string }) =>
     downloadObject(clientFor(a.accountId), { bucket: a.bucket, key: a.key, destPath: a.destPath }),
