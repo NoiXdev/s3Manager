@@ -1,0 +1,114 @@
+import { CH, type CreateAccountInput } from './channels';
+import { ok, err, type Result } from '../shared/result';
+import { resolveEndpoint, getProvider } from '../s3/providers';
+import { createClient } from '../s3/clientFactory';
+import { createClientForAccount } from '../s3/accountClients';
+import {
+  listBuckets,
+  listObjects,
+  headObject,
+  presignGetUrl,
+  deleteObject,
+  deleteFolder,
+  uploadObject,
+  downloadObject,
+  toErr,
+} from '../s3/objects';
+import { getObjectVisibility } from '../s3/visibility';
+import type { AccountsRepo } from '../storage/accountsRepo';
+import type { SecretsStore, Crypto } from '../storage/secrets';
+import type { SettingsRepo } from '../storage/settingsRepo';
+
+export interface IpcMainLike {
+  handle(channel: string, listener: (event: unknown, ...args: never[]) => unknown): void;
+}
+
+export interface RegisterDeps {
+  accounts: AccountsRepo;
+  secrets: SecretsStore;
+  settings: SettingsRepo;
+  crypto: Crypto;
+}
+
+export function registerIpc(ipcMain: IpcMainLike, deps: RegisterDeps): void {
+  const clientFor = (accountId: string) => createClientForAccount(accountId, deps);
+
+  const h = <T>(channel: string, fn: (...args: never[]) => Promise<Result<T>> | Result<T>) =>
+    ipcMain.handle(channel, async (_e, ...args) => {
+      try {
+        return await fn(...args);
+      } catch (e) {
+        return toErr(e);
+      }
+    });
+
+  h(CH.accountsList, () => ok(deps.accounts.list()));
+
+  h(CH.encryptionAvailable, () => ok(deps.crypto.isEncryptionAvailable()));
+
+  h(CH.accountsCreate, (input: CreateAccountInput) => {
+    const endpoint = resolveEndpoint(input.provider, input.region);
+    const account = deps.accounts.create({
+      label: input.label,
+      provider: input.provider,
+      endpoint,
+      region: input.region,
+      accessKeyId: input.accessKeyId,
+    });
+    deps.secrets.set(account.id, input.secretAccessKey);
+    return ok(account);
+  });
+
+  h(CH.accountsRemove, (id: string) => {
+    deps.secrets.remove(id);
+    deps.accounts.remove(id);
+    return ok(true as const);
+  });
+
+  h(CH.accountsTest, async (input: CreateAccountInput) => {
+    const client = createClient({
+      provider: input.provider,
+      region: input.region,
+      endpoint: resolveEndpoint(input.provider, input.region),
+      forcePathStyle: getProvider(input.provider).forcePathStyle,
+      accessKeyId: input.accessKeyId,
+      secretAccessKey: input.secretAccessKey,
+    });
+    const r = await listBuckets(client);
+    return r.ok ? ok(true as const) : err(r.error.code, r.error.message);
+  });
+
+  h(CH.listBuckets, (accountId: string) => listBuckets(clientFor(accountId)));
+
+  h(CH.listObjects, (a: { accountId: string; bucket: string; prefix: string; continuationToken?: string }) =>
+    listObjects(clientFor(a.accountId), { bucket: a.bucket, prefix: a.prefix, continuationToken: a.continuationToken }),
+  );
+
+  h(CH.headObject, (a: { accountId: string; bucket: string; key: string }) =>
+    headObject(clientFor(a.accountId), { bucket: a.bucket, key: a.key }),
+  );
+
+  h(CH.objectVisibility, (a: { accountId: string; bucket: string; key: string }) =>
+    getObjectVisibility(clientFor(a.accountId), { bucket: a.bucket, key: a.key }),
+  );
+
+  h(CH.presignGet, (a: { accountId: string; bucket: string; key: string; expiresIn: number }) =>
+    presignGetUrl(clientFor(a.accountId), { bucket: a.bucket, key: a.key, expiresIn: a.expiresIn }),
+  );
+
+  h(CH.deleteObject, (a: { accountId: string; bucket: string; key: string }) =>
+    deleteObject(clientFor(a.accountId), { bucket: a.bucket, key: a.key }),
+  );
+
+  h(CH.deleteFolder, (a: { accountId: string; bucket: string; prefix: string }) =>
+    deleteFolder(clientFor(a.accountId), { bucket: a.bucket, prefix: a.prefix }),
+  );
+
+  h(CH.uploadObject, (a: { accountId: string; bucket: string; key: string; filePath: string; contentType?: string }) =>
+    uploadObject(clientFor(a.accountId), { bucket: a.bucket, key: a.key, filePath: a.filePath, contentType: a.contentType }),
+  );
+
+  h(CH.downloadObject, (a: { accountId: string; bucket: string; key: string; destPath: string }) =>
+    downloadObject(clientFor(a.accountId), { bucket: a.bucket, key: a.key, destPath: a.destPath }),
+  );
+}
