@@ -91,5 +91,5 @@ typings/
 # Electron-Forge
 out/
 
-# Superpowers
-superpowers/
+# Superpowers (visual-companion scratch dir only; keep docs/superpowers tracked)
+.superpowers/
