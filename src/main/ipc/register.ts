@@ -20,7 +20,7 @@ import type { SecretsStore, Crypto } from '../storage/secrets';
 import type { SettingsRepo } from '../storage/settingsRepo';
 
 export interface IpcMainLike {
-  handle(channel: string, listener: (event: unknown, ...args: never[]) => unknown): void;
+  handle(channel: string, listener: (event: unknown, ...args: unknown[]) => unknown): void;
 }
 
 export interface RegisterDeps {
@@ -33,7 +33,8 @@ export interface RegisterDeps {
 export function registerIpc(ipcMain: IpcMainLike, deps: RegisterDeps): void {
   const clientFor = (accountId: string) => createClientForAccount(accountId, deps);
 
-  const h = <T>(channel: string, fn: (...args: never[]) => Promise<Result<T>> | Result<T>) =>
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const h = <T>(channel: string, fn: (...args: any[]) => Promise<Result<T>> | Result<T>) =>
     ipcMain.handle(channel, async (_e, ...args) => {
       try {
         return await fn(...args);

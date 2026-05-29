@@ -16,5 +16,5 @@
     "outDir": "dist",
     "types": ["node"]
   },
-  "include": ["src", "forge.config.ts", "*.config.ts"]
+  "include": ["src", "forge.config.ts", "*.config.ts", "forge.env.d.ts"]
 }
