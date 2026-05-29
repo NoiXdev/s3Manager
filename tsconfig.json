@@ -16,5 +16,5 @@
     "outDir": "dist",
     "types": ["node", "@testing-library/jest-dom"]
   },
-  "include": ["src", "forge.config.ts", "*.config.ts", "forge.env.d.ts"]
+  "include": ["src", "forge.config.ts", "*.config.ts", "*.config.mts", "forge.env.d.ts"]
 }
