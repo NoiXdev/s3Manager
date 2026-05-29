@@ -34,4 +34,24 @@ describe('useObjectDetails', () => {
     expect(result.current.metadata.fetchStatus).toBe('idle');
     expect(head).not.toHaveBeenCalled();
   });
+
+  it('setVisibility calls window.s3.setObjectVisibility and invalidates the visibility query', async () => {
+    let client: QueryClient;
+    const spyWrapper = () => {
+      client = new QueryClient({ defaultOptions: { queries: { retry: false }, mutations: { retry: false } } });
+      return ({ children }: { children: ReactNode }) => (
+        <QueryClientProvider client={client}>{children}</QueryClientProvider>
+      );
+    };
+    (window as unknown as { s3: unknown }).s3 = {
+      headObject: vi.fn().mockResolvedValue({ ok: true, data: { size: 1, contentType: null, lastModified: null, storageClass: null, etag: null, metadata: {} } }),
+      objectVisibility: vi.fn().mockResolvedValue({ ok: true, data: 'private' }),
+      setObjectVisibility: vi.fn().mockResolvedValue({ ok: true, data: 'public' }),
+    };
+    const { result } = renderHook(() => useObjectDetails('a', 'b', 'k'), { wrapper: spyWrapper() });
+    const spy = vi.spyOn(client!, 'invalidateQueries');
+    await result.current.setVisibility.mutateAsync('public');
+    expect(window.s3.setObjectVisibility).toHaveBeenCalledWith({ accountId: 'a', bucket: 'b', key: 'k', visibility: 'public' });
+    expect(spy).toHaveBeenCalledWith({ queryKey: ['objectVisibility', 'a', 'b', 'k'] });
+  });
 });
