@@ -134,3 +134,16 @@ describe('FileBrowser transfer ops', () => {
     await waitFor(() => expect(moveFolder).toHaveBeenCalledWith({ accountId: 'acc-1', bucket: 'assets', sourcePrefix: 'images/thumbs/', destPrefix: 'images/thumbnails/' }));
   });
 });
+
+describe('FileBrowser upload link', () => {
+  it('opens the Upload link dialog from the toolbar', async () => {
+    (window as unknown as { s3: unknown }).s3 = {
+      listObjects: vi.fn().mockResolvedValue({ ok: true, data: { folders: [], files: [], nextToken: null } }),
+      getDropPath: vi.fn(), uploadObject: vi.fn(), onUploadProgress: vi.fn(() => () => {}),
+    };
+    wrap(<FileBrowser {...baseProps} />);
+    await screen.findByText('This folder is empty');
+    await userEvent.click(screen.getByRole('button', { name: 'Upload link…' }));
+    expect(screen.getByLabelText('File name')).toBeInTheDocument();
+  });
+});

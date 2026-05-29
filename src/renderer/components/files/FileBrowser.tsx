@@ -12,6 +12,7 @@ import { parentPrefix } from '../../lib/keys';
 import { NameDialog } from '../transfer/NameDialog';
 import { MoveDialog, type MoveItem } from '../transfer/MoveDialog';
 import { useToast } from '../ui/ToastProvider';
+import { UploadLinkDialog } from './UploadLinkDialog';
 
 export function FileBrowser({
   accountId,
@@ -35,6 +36,7 @@ export function FileBrowser({
   const transfer = useTransfer(accountId ?? '', bucket ?? '');
   const { show } = useToast();
   const [newFolderOpen, setNewFolderOpen] = useState(false);
+  const [uploadLinkOpen, setUploadLinkOpen] = useState(false);
   const [folderToRename, setFolderToRename] = useState<{ name: string; prefix: string } | null>(null);
   const [itemToMove, setItemToMove] = useState<MoveItem | null>(null);
 
@@ -48,13 +50,22 @@ export function FileBrowser({
     <div className="flex h-full flex-col">
       <div className="flex items-center justify-between border-b border-slate-200 p-2">
         <Breadcrumb prefix={prefix} onNavigate={onNavigate} />
-        <button
-          type="button"
-          className="rounded border border-slate-300 px-2 py-1 text-xs hover:bg-slate-50"
-          onClick={() => setNewFolderOpen(true)}
-        >
-          New folder
-        </button>
+        <div className="flex gap-2">
+          <button
+            type="button"
+            className="rounded border border-slate-300 px-2 py-1 text-xs hover:bg-slate-50"
+            onClick={() => setUploadLinkOpen(true)}
+          >
+            Upload link…
+          </button>
+          <button
+            type="button"
+            className="rounded border border-slate-300 px-2 py-1 text-xs hover:bg-slate-50"
+            onClick={() => setNewFolderOpen(true)}
+          >
+            New folder
+          </button>
+        </div>
       </div>
 
       {query.isLoading && <p className="p-3 text-slate-500">Loading…</p>}
@@ -193,6 +204,15 @@ export function FileBrowser({
 
       {itemToMove && (
         <MoveDialog accountId={accountId ?? ''} bucket={bucket ?? ''} item={itemToMove} onClose={() => setItemToMove(null)} />
+      )}
+
+      {uploadLinkOpen && (
+        <UploadLinkDialog
+          accountId={accountId ?? ''}
+          bucket={bucket ?? ''}
+          prefix={prefix}
+          onClose={() => setUploadLinkOpen(false)}
+        />
       )}
     </div>
   );

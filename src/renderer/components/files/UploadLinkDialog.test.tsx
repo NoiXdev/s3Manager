@@ -50,4 +50,13 @@ describe('UploadLinkDialog', () => {
       expect(window.s3.presignPut).toHaveBeenCalledWith({ accountId: 'a', bucket: 'b', key: 'f.bin', expiresIn: 604800 }),
     );
   });
+
+  it('shows an error toast and no URL when presigning fails', async () => {
+    (window.s3.presignPut as ReturnType<typeof vi.fn>).mockResolvedValue({ ok: false, error: { code: 'AccessDenied', message: 'nope' } });
+    wrap(<UploadLinkDialog accountId="a" bucket="b" prefix="" onClose={() => {}} />);
+    await userEvent.type(screen.getByLabelText('File name'), 'f.bin');
+    await userEvent.click(screen.getByRole('button', { name: 'Generate link' }));
+    expect(await screen.findByText('AccessDenied: nope')).toBeInTheDocument();
+    expect(screen.queryByLabelText('Upload URL')).toBeNull();
+  });
 });
