@@ -101,3 +101,36 @@ describe('FileBrowser operations', () => {
     await waitFor(() => expect(deleteFolder).toHaveBeenCalledWith({ accountId: 'acc-1', bucket: 'assets', prefix: 'images/thumbs/' }));
   });
 });
+
+describe('FileBrowser transfer ops', () => {
+  it('creates a folder via the New folder button', async () => {
+    const createFolder = vi.fn().mockResolvedValue({ ok: true, data: { key: 'images/reports/' } });
+    (window as unknown as { s3: unknown }).s3 = {
+      listObjects: vi.fn().mockResolvedValue({ ok: true, data: { folders: [], files: [], nextToken: null } }),
+      getDropPath: vi.fn(), uploadObject: vi.fn(), onUploadProgress: vi.fn(() => () => {}),
+      createFolder,
+    };
+    wrap(<FileBrowser {...baseProps} />);
+    await screen.findByText('This folder is empty');
+    await userEvent.click(screen.getByRole('button', { name: 'New folder' }));
+    await userEvent.type(screen.getByLabelText('Name'), 'reports');
+    await userEvent.click(screen.getByRole('button', { name: 'Create' }));
+    await waitFor(() => expect(createFolder).toHaveBeenCalledWith({ accountId: 'acc-1', bucket: 'assets', prefix: 'images/', name: 'reports' }));
+  });
+
+  it('renames a folder via the row Rename button', async () => {
+    const moveFolder = vi.fn().mockResolvedValue({ ok: true, data: { count: 1 } });
+    (window as unknown as { s3: unknown }).s3 = {
+      listObjects: vi.fn().mockResolvedValue({ ok: true, data: { folders: [{ name: 'thumbs', prefix: 'images/thumbs/' }], files: [], nextToken: null } }),
+      getDropPath: vi.fn(), uploadObject: vi.fn(), onUploadProgress: vi.fn(() => () => {}),
+      moveFolder,
+    };
+    wrap(<FileBrowser {...baseProps} />);
+    await userEvent.click(await screen.findByRole('button', { name: 'Rename folder thumbs' }));
+    const input = screen.getByLabelText('Name');
+    await userEvent.clear(input);
+    await userEvent.type(input, 'thumbnails');
+    await userEvent.click(screen.getByRole('button', { name: 'Rename' }));
+    await waitFor(() => expect(moveFolder).toHaveBeenCalledWith({ accountId: 'acc-1', bucket: 'assets', sourcePrefix: 'images/thumbs/', destPrefix: 'images/thumbnails/' }));
+  });
+});
