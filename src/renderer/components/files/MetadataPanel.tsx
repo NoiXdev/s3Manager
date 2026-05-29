@@ -3,6 +3,11 @@ import { useObjectDetails } from '../../hooks/useObjectDetails';
 import { formatBytes, formatTimestamp } from '../../lib/format';
 import { useObjectActions } from '../../hooks/useObjectActions';
 import { ConfirmDialog } from '../ui/ConfirmDialog';
+import { useTransfer } from '../../hooks/useTransfer';
+import { useToast } from '../ui/ToastProvider';
+import { parentPrefix, baseName } from '../../lib/keys';
+import { NameDialog } from '../transfer/NameDialog';
+import { MoveDialog } from '../transfer/MoveDialog';
 
 function Row({ label, value }: { label: string; value: string }) {
   return (
@@ -27,6 +32,10 @@ export function MetadataPanel({
   const { metadata, visibility } = useObjectDetails(accountId, bucket, objectKey);
   const actions = useObjectActions(accountId ?? '', bucket ?? '');
   const [confirming, setConfirming] = useState(false);
+  const transfer = useTransfer(accountId ?? '', bucket ?? '');
+  const { show } = useToast();
+  const [renaming, setRenaming] = useState(false);
+  const [moving, setMoving] = useState(false);
 
   return (
     <div className="flex h-full w-80 flex-col border-l border-slate-200 bg-white">
@@ -43,6 +52,14 @@ export function MetadataPanel({
         </button>
         <button type="button" className="rounded border border-slate-300 px-2 py-1 text-xs hover:bg-slate-50" onClick={() => void actions.copyPresignedUrl(objectKey)}>
           Copy URL
+        </button>
+        {!renaming && (
+          <button type="button" className="rounded border border-slate-300 px-2 py-1 text-xs hover:bg-slate-50" onClick={() => setRenaming(true)}>
+            Rename
+          </button>
+        )}
+        <button type="button" className="rounded border border-slate-300 px-2 py-1 text-xs hover:bg-slate-50" onClick={() => setMoving(true)}>
+          Move
         </button>
         {!confirming && (
           <button type="button" className="rounded border border-red-300 px-2 py-1 text-xs text-red-600 hover:bg-red-50" onClick={() => setConfirming(true)}>
@@ -61,6 +78,35 @@ export function MetadataPanel({
             await actions.deleteObject(objectKey);
             onClose();
           }}
+        />
+      )}
+
+      {renaming && (
+        <NameDialog
+          title={`Rename ${baseName(objectKey)}`}
+          initialValue={baseName(objectKey)}
+          confirmLabel="Rename"
+          onCancel={() => setRenaming(false)}
+          onConfirm={async (name) => {
+            setRenaming(false);
+            try {
+              await transfer.moveObject.mutateAsync({ sourceKey: objectKey, destKey: `${parentPrefix(objectKey)}${name}` });
+              show('Renamed');
+              onClose();
+            } catch (e) {
+              show((e as Error).message, 'error');
+            }
+          }}
+        />
+      )}
+
+      {moving && (
+        <MoveDialog
+          accountId={accountId ?? ''}
+          bucket={bucket ?? ''}
+          item={{ kind: 'file', name: baseName(objectKey), parent: parentPrefix(objectKey), key: objectKey }}
+          onClose={() => setMoving(false)}
+          onMoved={onClose}
         />
       )}
 

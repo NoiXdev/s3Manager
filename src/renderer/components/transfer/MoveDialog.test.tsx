@@ -45,6 +45,40 @@ describe('MoveDialog', () => {
     expect(await screen.findByRole('button', { name: 'Move here' })).toBeDisabled();
   });
 
+  it('calls onMoved before onClose on a successful move', async () => {
+    const calls: string[] = [];
+    wrap(
+      <MoveDialog
+        accountId="acc-1"
+        bucket="assets"
+        item={{ kind: 'file', name: 'logo.png', parent: '', key: 'logo.png' }}
+        onClose={() => calls.push('close')}
+        onMoved={() => calls.push('moved')}
+      />,
+    );
+    await userEvent.click(await screen.findByRole('button', { name: 'docs' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Move here' }));
+    expect(calls).toEqual(['moved', 'close']);
+  });
+
+  it('calls only onClose (not onMoved) when cancelled', async () => {
+    const onClose = vi.fn();
+    const onMoved = vi.fn();
+    wrap(
+      <MoveDialog
+        accountId="acc-1"
+        bucket="assets"
+        item={{ kind: 'file', name: 'logo.png', parent: '', key: 'logo.png' }}
+        onClose={onClose}
+        onMoved={onMoved}
+      />,
+    );
+    await userEvent.click(await screen.findByRole('button', { name: 'Cancel' }));
+    expect(onClose).toHaveBeenCalledTimes(1);
+    expect(onMoved).not.toHaveBeenCalled();
+    expect(window.s3.moveObject).not.toHaveBeenCalled();
+  });
+
   it('disables Move here inside the folder being moved (into-itself)', async () => {
     wrap(<MoveDialog accountId="acc-1" bucket="assets" item={{ kind: 'folder', name: 'docs', parent: '', prefix: 'docs/' }} onClose={() => {}} />);
     await userEvent.click(await screen.findByRole('button', { name: 'docs' }));

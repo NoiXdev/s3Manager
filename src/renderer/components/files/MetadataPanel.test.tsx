@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import type { ReactNode } from 'react';
@@ -71,5 +71,28 @@ describe('MetadataPanel actions', () => {
     await userEvent.click(screen.getByRole('button', { name: 'Delete' })); // confirm in dialog
     expect(window.s3.deleteObject).toHaveBeenCalledWith({ accountId: 'acc-1', bucket: 'assets', key: 'logo.png' });
     expect(onClose).toHaveBeenCalled();
+  });
+});
+
+describe('MetadataPanel rename/move', () => {
+  beforeEach(() => {
+    (window as unknown as { s3: unknown }).s3 = {
+      headObject: vi.fn().mockResolvedValue({ ok: true, data: { size: 1, contentType: null, lastModified: null, storageClass: null, etag: null, metadata: {} } }),
+      objectVisibility: vi.fn().mockResolvedValue({ ok: true, data: 'private' }),
+      moveObject: vi.fn().mockResolvedValue({ ok: true, data: { key: 'images/new.png' } }),
+      listObjects: vi.fn().mockResolvedValue({ ok: true, data: { folders: [], files: [], nextToken: null } }),
+    };
+  });
+
+  it('renames a file and closes the panel', async () => {
+    const onClose = vi.fn();
+    wrap(<MetadataPanel accountId="acc-1" bucket="assets" objectKey="images/logo.png" onClose={onClose} />);
+    await userEvent.click(screen.getByRole('button', { name: 'Rename' }));
+    const input = screen.getByLabelText('Name');
+    await userEvent.clear(input);
+    await userEvent.type(input, 'new.png');
+    await userEvent.click(screen.getByRole('button', { name: 'Rename' }));
+    await waitFor(() => expect(window.s3.moveObject).toHaveBeenCalledWith({ accountId: 'acc-1', bucket: 'assets', sourceKey: 'images/logo.png', destKey: 'images/new.png' }));
+    await waitFor(() => expect(onClose).toHaveBeenCalled());
   });
 });

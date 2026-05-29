@@ -11,11 +11,15 @@ export function MoveDialog({
   bucket,
   item,
   onClose,
+  onMoved,
 }: {
   accountId: string;
   bucket: string;
   item: MoveItem;
+  /** Dismiss the dialog (cancel, and after a successful move). */
   onClose: () => void;
+  /** Called on a successful move, before onClose — e.g. to close a panel whose object no longer exists. */
+  onMoved?: () => void;
 }) {
   const transfer = useTransfer(accountId, bucket);
   const { show } = useToast();
@@ -34,6 +38,7 @@ export function MoveDialog({
         await transfer.moveFolder.mutateAsync({ sourcePrefix: item.prefix, destPrefix: `${dest}${item.name}/` });
       }
       show('Moved');
+      onMoved?.();
       onClose();
     } catch (e) {
       show((e as Error).message, 'error');
