@@ -5,6 +5,7 @@ export type DB = Database.Database;
 export function openDatabase(filename: string): DB {
   const db = new Database(filename);
   db.pragma('journal_mode = WAL');
+  db.pragma('foreign_keys = ON');
   migrate(db);
   return db;
 }
