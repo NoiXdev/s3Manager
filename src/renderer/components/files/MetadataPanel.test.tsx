@@ -44,3 +44,32 @@ describe('MetadataPanel', () => {
     expect(await screen.findByText('unavailable')).toBeInTheDocument();
   });
 });
+
+describe('MetadataPanel actions', () => {
+  beforeEach(() => {
+    (window as unknown as { s3: unknown }).s3 = {
+      headObject: vi.fn().mockResolvedValue({ ok: true, data: { size: 1, contentType: null, lastModified: null, storageClass: null, etag: null, metadata: {} } }),
+      objectVisibility: vi.fn().mockResolvedValue({ ok: true, data: 'private' }),
+      presignGet: vi.fn().mockResolvedValue({ ok: true, data: 'https://signed/x' }),
+      downloadObject: vi.fn().mockResolvedValue({ ok: true, data: { path: '/tmp/x' } }),
+      deleteObject: vi.fn().mockResolvedValue({ ok: true, data: 1 }),
+    };
+    Object.assign(navigator, { clipboard: { writeText: vi.fn().mockResolvedValue(undefined) } });
+  });
+
+  it('copies a presigned URL', async () => {
+    wrap(<MetadataPanel accountId="acc-1" bucket="assets" objectKey="logo.png" onClose={() => {}} />);
+    await userEvent.click(screen.getByRole('button', { name: 'Copy URL' }));
+    expect(window.s3.presignGet).toHaveBeenCalledWith({ accountId: 'acc-1', bucket: 'assets', key: 'logo.png', expiresIn: 3600 });
+    expect(navigator.clipboard.writeText).toHaveBeenCalledWith('https://signed/x');
+  });
+
+  it('deletes after confirmation and closes the panel', async () => {
+    const onClose = vi.fn();
+    wrap(<MetadataPanel accountId="acc-1" bucket="assets" objectKey="logo.png" onClose={onClose} />);
+    await userEvent.click(screen.getByRole('button', { name: 'Delete' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Delete' })); // confirm in dialog
+    expect(window.s3.deleteObject).toHaveBeenCalledWith({ accountId: 'acc-1', bucket: 'assets', key: 'logo.png' });
+    expect(onClose).toHaveBeenCalled();
+  });
+});

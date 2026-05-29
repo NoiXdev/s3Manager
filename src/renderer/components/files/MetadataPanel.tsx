@@ -1,5 +1,8 @@
+import { useState } from 'react';
 import { useObjectDetails } from '../../hooks/useObjectDetails';
 import { formatBytes, formatTimestamp } from '../../lib/format';
+import { useObjectActions } from '../../hooks/useObjectActions';
+import { ConfirmDialog } from '../ui/ConfirmDialog';
 
 function Row({ label, value }: { label: string; value: string }) {
   return (
@@ -22,6 +25,8 @@ export function MetadataPanel({
   onClose: () => void;
 }) {
   const { metadata, visibility } = useObjectDetails(accountId, bucket, objectKey);
+  const actions = useObjectActions(accountId ?? '', bucket ?? '');
+  const [confirming, setConfirming] = useState(false);
 
   return (
     <div className="flex h-full w-80 flex-col border-l border-slate-200 bg-white">
@@ -31,6 +36,33 @@ export function MetadataPanel({
           ✕
         </button>
       </div>
+
+      <div className="flex gap-1 border-b border-slate-200 p-2">
+        <button type="button" className="rounded border border-slate-300 px-2 py-1 text-xs hover:bg-slate-50" onClick={() => void actions.download(objectKey)}>
+          Download
+        </button>
+        <button type="button" className="rounded border border-slate-300 px-2 py-1 text-xs hover:bg-slate-50" onClick={() => void actions.copyPresignedUrl(objectKey)}>
+          Copy URL
+        </button>
+        {!confirming && (
+          <button type="button" className="rounded border border-red-300 px-2 py-1 text-xs text-red-600 hover:bg-red-50" onClick={() => setConfirming(true)}>
+            Delete
+          </button>
+        )}
+      </div>
+
+      {confirming && (
+        <ConfirmDialog
+          message={`Delete ${objectKey}?`}
+          confirmLabel="Delete"
+          onCancel={() => setConfirming(false)}
+          onConfirm={async () => {
+            setConfirming(false);
+            await actions.deleteObject(objectKey);
+            onClose();
+          }}
+        />
+      )}
 
       <div className="flex-1 overflow-auto p-3 text-sm">
         <Row label="Key" value={objectKey} />
