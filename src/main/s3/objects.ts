@@ -4,6 +4,8 @@ import {
   ListObjectsV2Command,
   HeadObjectCommand,
   GetObjectCommand,
+  DeleteObjectCommand,
+  DeleteObjectsCommand,
 } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { ok, err, type Result } from '../shared/result';
@@ -95,6 +97,52 @@ export async function presignGetUrl(
       { expiresIn: args.expiresIn },
     );
     return ok(url);
+  } catch (e) {
+    return toErr(e);
+  }
+}
+
+export async function deleteObject(
+  client: S3Client,
+  args: { bucket: string; key: string },
+): Promise<Result<number>> {
+  try {
+    await client.send(new DeleteObjectCommand({ Bucket: args.bucket, Key: args.key }));
+    return ok(1);
+  } catch (e) {
+    return toErr(e);
+  }
+}
+
+export async function deleteFolder(
+  client: S3Client,
+  args: { bucket: string; prefix: string },
+): Promise<Result<number>> {
+  try {
+    let token: string | undefined;
+    let deleted = 0;
+    do {
+      const listed = await client.send(
+        new ListObjectsV2Command({
+          Bucket: args.bucket,
+          Prefix: args.prefix,
+          ContinuationToken: token,
+        }),
+      );
+      const keys = (listed.Contents ?? []).map((c) => c.Key!).filter(Boolean);
+      for (let i = 0; i < keys.length; i += 1000) {
+        const batch = keys.slice(i, i + 1000);
+        await client.send(
+          new DeleteObjectsCommand({
+            Bucket: args.bucket,
+            Delete: { Objects: batch.map((Key) => ({ Key })) },
+          }),
+        );
+        deleted += batch.length;
+      }
+      token = listed.NextContinuationToken;
+    } while (token);
+    return ok(deleted);
   } catch (e) {
     return toErr(e);
   }

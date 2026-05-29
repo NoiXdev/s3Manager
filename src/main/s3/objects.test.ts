@@ -5,8 +5,10 @@ import {
   ListBucketsCommand,
   ListObjectsV2Command,
   HeadObjectCommand,
+  DeleteObjectCommand,
+  DeleteObjectsCommand,
 } from '@aws-sdk/client-s3';
-import { listBuckets, listObjects, headObject } from './objects';
+import { listBuckets, listObjects, headObject, deleteObject, deleteFolder } from './objects';
 
 const s3Mock = mockClient(S3Client);
 beforeEach(() => s3Mock.reset());
@@ -65,5 +67,25 @@ describe('headObject', () => {
         metadata: { owner: 'me' },
       });
     }
+  });
+});
+
+describe('deleteObject', () => {
+  it('deletes a single key', async () => {
+    s3Mock.on(DeleteObjectCommand).resolves({});
+    const r = await deleteObject(new S3Client({}), { bucket: 'b', key: 'k' });
+    expect(r).toEqual({ ok: true, data: 1 });
+  });
+});
+
+describe('deleteFolder', () => {
+  it('lists all keys under the prefix and deletes them, returning the count', async () => {
+    s3Mock
+      .on(ListObjectsV2Command)
+      .resolvesOnce({ Contents: [{ Key: 'p/a' }, { Key: 'p/b' }], NextContinuationToken: 'T' })
+      .resolves({ Contents: [{ Key: 'p/c' }] });
+    s3Mock.on(DeleteObjectsCommand).resolves({ Deleted: [] });
+    const r = await deleteFolder(new S3Client({}), { bucket: 'b', prefix: 'p/' });
+    expect(r).toEqual({ ok: true, data: 3 });
   });
 });
