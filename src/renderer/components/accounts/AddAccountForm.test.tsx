@@ -46,4 +46,16 @@ describe('AddAccountForm', () => {
     await userEvent.click(screen.getByRole('button', { name: 'Test connection' }));
     expect(await screen.findByText('Connection OK')).toBeInTheDocument();
   });
+
+  it('shows the error message when the connection test fails', async () => {
+    (window as unknown as { s3: unknown }).s3 = {
+      accounts: { test: vi.fn().mockResolvedValue({ ok: false, error: { code: 'AccessDenied', message: 'bad key' } }) },
+    };
+    wrap(<AddAccountForm onSubmit={vi.fn()} onCancel={() => {}} />);
+    await userEvent.type(screen.getByLabelText('Region'), 'fsn1');
+    await userEvent.type(screen.getByLabelText('Access key ID'), 'AK');
+    await userEvent.type(screen.getByLabelText('Secret access key'), 'SK');
+    await userEvent.click(screen.getByRole('button', { name: 'Test connection' }));
+    expect(await screen.findByText('AccessDenied: bad key')).toBeInTheDocument();
+  });
 });

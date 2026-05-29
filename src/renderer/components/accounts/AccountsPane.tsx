@@ -56,7 +56,12 @@ export function AccountsPane({
               role="button"
               tabIndex={0}
               onClick={() => onSelect(acc.id)}
-              onKeyDown={(e) => e.key === 'Enter' && onSelect(acc.id)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault();
+                  onSelect(acc.id);
+                }
+              }}
               className={`flex cursor-pointer items-center justify-between gap-2 px-3 py-2 ${
                 acc.id === selectedId ? 'bg-slate-100' : 'hover:bg-slate-50'
               }`}

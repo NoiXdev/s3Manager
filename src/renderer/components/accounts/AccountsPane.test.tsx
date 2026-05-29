@@ -41,4 +41,24 @@ describe('AccountsPane', () => {
     await userEvent.click(await screen.findByRole('button', { name: '+ Add account' }));
     expect(screen.getByLabelText('Label')).toBeInTheDocument();
   });
+
+  it('removes an account via the ✕ button without triggering selection', async () => {
+    const onSelect = vi.fn();
+    const remove = vi.fn().mockResolvedValue({ ok: true, data: true });
+    (window as unknown as { s3: unknown }).s3 = {
+      accounts: { list: vi.fn().mockResolvedValue({ ok: true, data: oneAccount }), remove },
+    };
+    wrap(<AccountsPane selectedId={null} onSelect={onSelect} />);
+    await userEvent.click(await screen.findByRole('button', { name: 'Remove AWS prod' }));
+    expect(remove).toHaveBeenCalledWith('a');
+    expect(onSelect).not.toHaveBeenCalled();
+  });
+
+  it('shows an error message when the account list fails to load', async () => {
+    (window as unknown as { s3: unknown }).s3 = {
+      accounts: { list: vi.fn().mockResolvedValue({ ok: false, error: { code: 'AccessDenied', message: 'no perms' } }) },
+    };
+    wrap(<AccountsPane selectedId={null} onSelect={() => {}} />);
+    expect(await screen.findByText('AccessDenied: no perms')).toBeInTheDocument();
+  });
 });
