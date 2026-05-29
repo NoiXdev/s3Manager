@@ -198,3 +198,17 @@ describe('Object Lock handlers', () => {
     expect(res.data.defaultRetention?.days).toBe(30);
   });
 });
+
+describe('transfer handlers', () => {
+  it('s3:createFolder creates the folder marker via the account client', async () => {
+    const { handlers } = buildHarness();
+    const created = (await handlers.get(CH.accountsCreate)!({
+      label: 'AWS', provider: 'amazon-s3', region: 'us-east-1', accessKeyId: 'AK', secretAccessKey: 'SK',
+    })) as { data: { id: string } };
+    s3Mock.on(PutObjectCommand).resolves({});
+    const res = (await handlers.get(CH.createFolder)!({ accountId: created.data.id, bucket: 'b', prefix: 'p/', name: 'new' })) as {
+      ok: boolean; data: { key: string };
+    };
+    expect(res).toEqual({ ok: true, data: { key: 'p/new/' } });
+  });
+});

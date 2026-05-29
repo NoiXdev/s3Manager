@@ -26,6 +26,9 @@ export const CH = {
   deleteBucketCors: 's3:deleteBucketCors',
   getObjectLockConfig: 's3:getObjectLockConfig',
   putObjectLockConfig: 's3:putObjectLockConfig',
+  createFolder: 's3:createFolder',
+  moveObject: 's3:moveObject',
+  moveFolder: 's3:moveFolder',
 } as const;
 
 export interface CreateAccountInput {
@@ -57,6 +60,9 @@ export interface ApiMap {
   [CH.deleteBucketCors]: { args: [{ accountId: string; bucket: string }]; res: Result<true> };
   [CH.getObjectLockConfig]: { args: [{ accountId: string; bucket: string }]; res: Result<ObjectLockStatus> };
   [CH.putObjectLockConfig]: { args: [{ accountId: string; bucket: string; retention: DefaultRetention | null }]; res: Result<true> };
+  [CH.createFolder]: { args: [{ accountId: string; bucket: string; prefix: string; name: string }]; res: Result<{ key: string }> };
+  [CH.moveObject]: { args: [{ accountId: string; bucket: string; sourceKey: string; destKey: string }]; res: Result<{ key: string }> };
+  [CH.moveFolder]: { args: [{ accountId: string; bucket: string; sourcePrefix: string; destPrefix: string }]; res: Result<{ count: number }> };
 }
 
 /** One-way main→renderer channel for upload progress (not an invoke channel,

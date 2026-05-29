@@ -30,6 +30,9 @@ const api = {
   deleteBucketCors: (a: ApiMap[typeof CH.deleteBucketCors]['args'][0]) => invoke(CH.deleteBucketCors, a),
   getObjectLockConfig: (a: ApiMap[typeof CH.getObjectLockConfig]['args'][0]) => invoke(CH.getObjectLockConfig, a),
   putObjectLockConfig: (a: ApiMap[typeof CH.putObjectLockConfig]['args'][0]) => invoke(CH.putObjectLockConfig, a),
+  createFolder: (a: ApiMap[typeof CH.createFolder]['args'][0]) => invoke(CH.createFolder, a),
+  moveObject: (a: ApiMap[typeof CH.moveObject]['args'][0]) => invoke(CH.moveObject, a),
+  moveFolder: (a: ApiMap[typeof CH.moveFolder]['args'][0]) => invoke(CH.moveFolder, a),
   onUploadProgress: (cb: (progress: UploadProgress) => void) => {
     const listener = (_event: unknown, payload: unknown) => cb(payload as UploadProgress);
     ipcRenderer.on(UPLOAD_PROGRESS_CHANNEL, listener);

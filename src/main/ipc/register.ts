@@ -19,6 +19,7 @@ import { getObjectVisibility } from '../s3/visibility';
 import { getBucketCors, putBucketCors, deleteBucketCors } from '../s3/cors';
 import type { CorsRule } from '../s3/cors';
 import { getObjectLockConfig, putObjectLockConfig } from '../s3/objectLock';
+import { createFolder, moveObject, moveFolder } from '../s3/transfer';
 import type { DefaultRetention } from '../s3/objectLock';
 import type { AccountsRepo } from '../storage/accountsRepo';
 import type { SecretsStore, Crypto } from '../storage/secrets';
@@ -168,5 +169,17 @@ export function registerIpc(ipcMain: IpcMainLike, deps: RegisterDeps): void {
 
   h(CH.putObjectLockConfig, (a: { accountId: string; bucket: string; retention: DefaultRetention | null }) =>
     putObjectLockConfig(clientFor(a.accountId), a.bucket, a.retention),
+  );
+
+  h(CH.createFolder, (a: { accountId: string; bucket: string; prefix: string; name: string }) =>
+    createFolder(clientFor(a.accountId), { bucket: a.bucket, prefix: a.prefix, name: a.name }),
+  );
+
+  h(CH.moveObject, (a: { accountId: string; bucket: string; sourceKey: string; destKey: string }) =>
+    moveObject(clientFor(a.accountId), { bucket: a.bucket, sourceKey: a.sourceKey, destKey: a.destKey }),
+  );
+
+  h(CH.moveFolder, (a: { accountId: string; bucket: string; sourcePrefix: string; destPrefix: string }) =>
+    moveFolder(clientFor(a.accountId), { bucket: a.bucket, sourcePrefix: a.sourcePrefix, destPrefix: a.destPrefix }),
   );
 }
