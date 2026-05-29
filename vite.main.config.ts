@@ -1,12 +1,12 @@
 import { defineConfig } from 'vite';
 
-// better-sqlite3 is a native module; it must be resolved at runtime from
-// node_modules (unpacked by @electron-forge/plugin-auto-unpack-natives), not
-// bundled by Vite/Rollup.
+// node-sqlite3-wasm ships a .wasm asset and resolves it relative to its own
+// package directory at runtime, so it must be left external (resolved from
+// node_modules) rather than bundled by Vite/Rollup.
 export default defineConfig({
   build: {
     rollupOptions: {
-      external: ['better-sqlite3'],
+      external: ['node-sqlite3-wasm'],
     },
   },
 });
