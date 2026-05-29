@@ -96,3 +96,42 @@ describe('MetadataPanel rename/move', () => {
     await waitFor(() => expect(onClose).toHaveBeenCalled());
   });
 });
+
+describe('MetadataPanel visibility editing', () => {
+  it('makes a private object public after confirmation', async () => {
+    const setObjectVisibility = vi.fn().mockResolvedValue({ ok: true, data: 'public' });
+    (window as unknown as { s3: unknown }).s3 = {
+      headObject: vi.fn().mockResolvedValue({ ok: true, data: { size: 1, contentType: null, lastModified: null, storageClass: null, etag: null, metadata: {} } }),
+      objectVisibility: vi.fn().mockResolvedValue({ ok: true, data: 'private' }),
+      setObjectVisibility,
+    };
+    wrap(<MetadataPanel accountId="acc-1" bucket="assets" objectKey="k" onClose={() => {}} />);
+    await userEvent.click(await screen.findByRole('button', { name: 'Make public' }));
+    // The trigger hides while confirming, so this resolves the dialog's confirm button.
+    await userEvent.click(screen.getByRole('button', { name: 'Make public' }));
+    await waitFor(() => expect(setObjectVisibility).toHaveBeenCalledWith({ accountId: 'acc-1', bucket: 'assets', key: 'k', visibility: 'public' }));
+  });
+
+  it('makes a public object private immediately (no confirm)', async () => {
+    const setObjectVisibility = vi.fn().mockResolvedValue({ ok: true, data: 'private' });
+    (window as unknown as { s3: unknown }).s3 = {
+      headObject: vi.fn().mockResolvedValue({ ok: true, data: { size: 1, contentType: null, lastModified: null, storageClass: null, etag: null, metadata: {} } }),
+      objectVisibility: vi.fn().mockResolvedValue({ ok: true, data: 'public' }),
+      setObjectVisibility,
+    };
+    wrap(<MetadataPanel accountId="acc-1" bucket="assets" objectKey="k" onClose={() => {}} />);
+    await userEvent.click(await screen.findByRole('button', { name: 'Make private' }));
+    await waitFor(() => expect(setObjectVisibility).toHaveBeenCalledWith({ accountId: 'acc-1', bucket: 'assets', key: 'k', visibility: 'private' }));
+  });
+
+  it('shows no visibility toggle when ACLs are unsupported', async () => {
+    (window as unknown as { s3: unknown }).s3 = {
+      headObject: vi.fn().mockResolvedValue({ ok: true, data: { size: 1, contentType: null, lastModified: null, storageClass: null, etag: null, metadata: {} } }),
+      objectVisibility: vi.fn().mockResolvedValue({ ok: true, data: 'unknown' }),
+    };
+    wrap(<MetadataPanel accountId="acc-1" bucket="assets" objectKey="k" onClose={() => {}} />);
+    expect(await screen.findByText('unknown')).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Make public' })).toBeNull();
+    expect(screen.queryByRole('button', { name: 'Make private' })).toBeNull();
+  });
+});

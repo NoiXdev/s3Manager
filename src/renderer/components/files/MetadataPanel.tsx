@@ -29,9 +29,10 @@ export function MetadataPanel({
   objectKey: string;
   onClose: () => void;
 }) {
-  const { metadata, visibility } = useObjectDetails(accountId, bucket, objectKey);
+  const { metadata, visibility, setVisibility } = useObjectDetails(accountId, bucket, objectKey);
   const actions = useObjectActions(accountId ?? '', bucket ?? '');
   const [confirming, setConfirming] = useState(false);
+  const [confirmingPublic, setConfirmingPublic] = useState(false);
   const transfer = useTransfer(accountId ?? '', bucket ?? '');
   const { show } = useToast();
   const [renaming, setRenaming] = useState(false);
@@ -110,6 +111,23 @@ export function MetadataPanel({
         />
       )}
 
+      {confirmingPublic && (
+        <ConfirmDialog
+          message="Make this object publicly readable by anyone?"
+          confirmLabel="Make public"
+          onCancel={() => setConfirmingPublic(false)}
+          onConfirm={async () => {
+            setConfirmingPublic(false);
+            try {
+              await setVisibility.mutateAsync('public');
+              show('Made public');
+            } catch (e) {
+              show((e as Error).message, 'error');
+            }
+          }}
+        />
+      )}
+
       <div className="flex-1 overflow-auto p-3 text-sm">
         <Row label="Key" value={objectKey} />
 
@@ -130,6 +148,27 @@ export function MetadataPanel({
               '…'
             )}
           </span>
+          {visibility.isSuccess && (visibility.data === 'public' || visibility.data === 'private') && !confirmingPublic && (
+            <button
+              type="button"
+              disabled={setVisibility.isPending}
+              className="mt-1 self-start rounded border border-slate-300 px-2 py-0.5 text-xs hover:bg-slate-50 disabled:opacity-40"
+              onClick={async () => {
+                if (visibility.data === 'private') {
+                  setConfirmingPublic(true);
+                  return;
+                }
+                try {
+                  await setVisibility.mutateAsync('private');
+                  show('Made private');
+                } catch (e) {
+                  show((e as Error).message, 'error');
+                }
+              }}
+            >
+              {visibility.data === 'public' ? 'Make private' : 'Make public'}
+            </button>
+          )}
         </div>
 
         {metadata.isLoading && <p className="py-2 text-slate-500">Loading…</p>}
