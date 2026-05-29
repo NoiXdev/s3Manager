@@ -4,6 +4,7 @@ import { ok, type Result } from '../shared/result';
 import { toErr } from './objects';
 import { diffListings, type SyncObject, type SyncOp } from './syncDiff';
 import { encodeCopyKey } from './transfer';
+import { runPool } from './pool';
 import type { Readable } from 'node:stream';
 
 export interface Endpoint {
@@ -88,19 +89,6 @@ export async function planSync(
 }
 
 const CONCURRENCY = 6;
-
-/** Run `worker` over `items` with at most `limit` in flight at once. */
-async function runPool<T>(items: T[], limit: number, worker: (item: T) => Promise<void>): Promise<void> {
-  let next = 0;
-  const runners = Array.from({ length: Math.min(limit, items.length) }, async () => {
-    while (next < items.length) {
-      const idx = next;
-      next += 1;
-      await worker(items[idx]);
-    }
-  });
-  await Promise.all(runners);
-}
 
 export async function copyOne(
   srcClient: S3Client,
