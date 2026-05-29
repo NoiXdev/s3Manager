@@ -98,4 +98,31 @@ describe('App — Sync', () => {
     await userEvent.click(screen.getByRole('button', { name: 'Sync' }));
     expect(await screen.findByText('Sync (bucket → bucket)')).toBeInTheDocument();
   });
+
+  it('keeps a running sync visible (and uncancelled) after navigating away and back', async () => {
+    const s3 = window.s3 as unknown as Record<string, ReturnType<typeof vi.fn>>;
+    s3.selectSyncDirectory = vi.fn().mockResolvedValue({ ok: true, data: '/data' });
+    s3.localSyncPlan = vi.fn().mockResolvedValue({ ok: true, data: { toCopy: 1, upToDate: 0, bytesToCopy: 10, sample: [] } });
+    s3.localSyncRun = vi.fn(() => new Promise(() => {})); // never resolves: the run stays in-flight
+    s3.cancelSync = vi.fn().mockResolvedValue({ ok: true, data: true });
+
+    renderApp();
+    await userEvent.click(screen.getByRole('button', { name: 'Sync' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Local ↔ Bucket' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Choose folder…' }));
+    await screen.findByText('/data');
+    await userEvent.selectOptions(screen.getByLabelText('Bucket account'), 'a');
+    await userEvent.selectOptions(await screen.findByLabelText('Bucket bucket'), 'assets');
+    await userEvent.click(screen.getByRole('button', { name: 'Preview' }));
+    await userEvent.click(await screen.findByRole('button', { name: 'Run sync' }));
+    expect(await screen.findByText('Listing both sides…')).toBeInTheDocument();
+
+    // Navigate away to another section and back.
+    await userEvent.click(screen.getByRole('button', { name: 'Settings' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Sync' }));
+
+    // Progress is still shown (run state survived navigation) and nothing aborted it.
+    expect(screen.getByText('Listing both sides…')).toBeInTheDocument();
+    expect(window.s3.cancelSync).not.toHaveBeenCalled();
+  });
 });

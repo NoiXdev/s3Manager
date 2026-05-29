@@ -16,6 +16,14 @@ export function App() {
   const [bucket, setBucket] = useState<string | null>(null);
   const [prefix, setPrefix] = useState('');
   const [selectedKey, setSelectedKey] = useState<string | null>(null);
+  // Once Sync is opened, keep it mounted (hidden when inactive) so an in-flight
+  // sync's progress/result and active sub-tab survive navigating to other sections.
+  const [syncVisited, setSyncVisited] = useState(false);
+
+  const goToSection = (s: Section) => {
+    setSection(s);
+    if (s === 'sync') setSyncVisited(true);
+  };
 
   const selectAccount = (id: string) => {
     setAccountId(id);
@@ -45,7 +53,7 @@ export function App() {
       <div className="flex h-full text-sm text-slate-800">
         <aside className="w-48 shrink-0 border-r border-slate-200 bg-slate-50 p-3">
           <h1 className="px-2 pb-3 text-base font-semibold">S3 Manager</h1>
-          <SectionNav active={section} onSelect={setSection} />
+          <SectionNav active={section} onSelect={goToSection} />
         </aside>
 
         <main className="flex-1 overflow-hidden">
@@ -85,10 +93,16 @@ export function App() {
             <CorsEditor initialAccountId={accountId} initialBucket={bucket} />
           ) : section === 'objectLock' ? (
             <ObjectLockEditor initialAccountId={accountId} initialBucket={bucket} />
-          ) : section === 'sync' ? (
-            <SyncSection initialAccountId={accountId} initialBucket={bucket} />
-          ) : (
+          ) : section === 'sync' ? null : (
             <div className="flex h-full items-center justify-center text-slate-400">Coming soon</div>
+          )}
+
+          {/* Sync stays mounted once opened (hidden when inactive) so a running
+              sync keeps its progress, result, and active sub-tab across navigation. */}
+          {syncVisited && (
+            <div className={section === 'sync' ? 'h-full' : 'hidden'}>
+              <SyncSection initialAccountId={accountId} initialBucket={bucket} />
+            </div>
           )}
         </main>
       </div>
