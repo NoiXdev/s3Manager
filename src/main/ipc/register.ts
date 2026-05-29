@@ -1,3 +1,4 @@
+import { basename } from 'node:path';
 import { CH, UPLOAD_PROGRESS_CHANNEL, type CreateAccountInput } from './channels';
 import { ok, err, type Result } from '../shared/result';
 import { resolveEndpoint, getProvider, PROVIDERS } from '../s3/providers';
@@ -30,6 +31,8 @@ export interface RegisterDeps {
   settings: SettingsRepo;
   crypto: Crypto;
   db: DB;
+  /** Shows a native save dialog; resolves the chosen path, or null if cancelled. */
+  saveDialog: (defaultFileName: string) => Promise<string | null>;
 }
 
 export function registerIpc(ipcMain: IpcMainLike, deps: RegisterDeps): void {
@@ -136,7 +139,10 @@ export function registerIpc(ipcMain: IpcMainLike, deps: RegisterDeps): void {
     }
   });
 
-  h(CH.downloadObject, (a: { accountId: string; bucket: string; key: string; destPath: string }) =>
-    downloadObject(clientFor(a.accountId), { bucket: a.bucket, key: a.key, destPath: a.destPath }),
-  );
+  h(CH.downloadObject, async (a: { accountId: string; bucket: string; key: string }) => {
+    const dest = await deps.saveDialog(basename(a.key));
+    if (!dest) return ok({ path: null });
+    const r = await downloadObject(clientFor(a.accountId), { bucket: a.bucket, key: a.key, destPath: dest });
+    return r.ok ? ok({ path: dest as string | null }) : r;
+  });
 }

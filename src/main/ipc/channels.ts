@@ -44,7 +44,7 @@ export interface ApiMap {
   [CH.deleteObject]: { args: [{ accountId: string; bucket: string; key: string }]; res: Result<number> };
   [CH.deleteFolder]: { args: [{ accountId: string; bucket: string; prefix: string }]; res: Result<number> };
   [CH.uploadObject]: { args: [{ accountId: string; bucket: string; key: string; filePath: string; contentType?: string; uploadId: string }]; res: Result<{ key: string }> };
-  [CH.downloadObject]: { args: [{ accountId: string; bucket: string; key: string; destPath: string }]; res: Result<{ path: string }> };
+  [CH.downloadObject]: { args: [{ accountId: string; bucket: string; key: string }]; res: Result<{ path: string | null }> };
 }
 
 /** One-way main→renderer channel for upload progress (not an invoke channel,

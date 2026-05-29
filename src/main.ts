@@ -1,4 +1,4 @@
-import { app, BrowserWindow, ipcMain, safeStorage } from 'electron';
+import { app, BrowserWindow, ipcMain, safeStorage, dialog } from 'electron';
 import path from 'node:path';
 import started from 'electron-squirrel-startup';
 import { openDatabase } from './main/storage/db';
@@ -16,7 +16,14 @@ function initBackend() {
   const accounts = createAccountsRepo(db);
   const settings = createSettingsRepo(db);
   const secrets = createSecretsStore(db, safeStorage);
-  registerIpc(ipcMain, { accounts, settings, secrets, crypto: safeStorage, db });
+  const saveDialog = async (defaultFileName: string): Promise<string | null> => {
+    const win = BrowserWindow.getFocusedWindow();
+    const result = win
+      ? await dialog.showSaveDialog(win, { defaultPath: defaultFileName })
+      : await dialog.showSaveDialog({ defaultPath: defaultFileName });
+    return result.canceled || !result.filePath ? null : result.filePath;
+  };
+  registerIpc(ipcMain, { accounts, settings, secrets, crypto: safeStorage, db, saveDialog });
 }
 
 const createWindow = () => {

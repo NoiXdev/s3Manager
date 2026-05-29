@@ -1,10 +1,12 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { mockClient } from 'aws-sdk-client-mock';
-import { S3Client, ListBucketsCommand } from '@aws-sdk/client-s3';
-import { writeFileSync, mkdtempSync } from 'node:fs';
+import { S3Client, ListBucketsCommand, GetObjectCommand } from '@aws-sdk/client-s3';
+import { writeFileSync, mkdtempSync, readFileSync } from 'node:fs';
+import { Readable } from 'node:stream';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
 import { PutObjectCommand } from '@aws-sdk/client-s3';
+import { vi } from 'vitest';
 import { registerIpc, type IpcMainLike } from './register';
 import { CH, UPLOAD_PROGRESS_CHANNEL } from './channels';
 import { openDatabase } from '../storage/db';
@@ -37,6 +39,7 @@ function buildHarness() {
     settings: createSettingsRepo(db),
     crypto: fakeCrypto,
     db,
+    saveDialog: vi.fn().mockResolvedValue(null),
   };
   registerIpc(ipcMain, deps);
   return { handlers, deps, progressEvents };
@@ -93,6 +96,7 @@ describe('registerIpc', () => {
       settings: createSettingsRepo(db),
       crypto: brokenCrypto,
       db,
+      saveDialog: vi.fn().mockResolvedValue(null),
     };
     registerIpc(ipcMain, deps);
     const res = (await handlers.get(CH.accountsCreate)!({
@@ -121,5 +125,39 @@ describe('uploadObject handler progress', () => {
     expect(res.ok).toBe(true);
     expect(progressEvents.every((e) => e.channel === UPLOAD_PROGRESS_CHANNEL)).toBe(true);
     expect(progressEvents.every((e) => (e.payload as { uploadId: string }).uploadId === 'up-1')).toBe(true);
+  });
+});
+
+describe('downloadObject handler', () => {
+  it('returns { path: null } and performs no download when the save dialog is cancelled', async () => {
+    const { handlers, deps } = buildHarness();
+    (deps.saveDialog as ReturnType<typeof vi.fn>).mockResolvedValue(null);
+    const created = (await handlers.get(CH.accountsCreate)!({
+      label: 'AWS', provider: 'amazon-s3', region: 'us-east-1', accessKeyId: 'AK', secretAccessKey: 'SK',
+    })) as { data: { id: string } };
+
+    const res = (await handlers.get(CH.downloadObject)!({ accountId: created.data.id, bucket: 'b', key: 'x.txt' })) as {
+      ok: boolean; data: { path: string | null };
+    };
+    expect(res).toEqual({ ok: true, data: { path: null } });
+    expect(s3Mock.commandCalls(GetObjectCommand).length).toBe(0);
+  });
+
+  it('downloads to the chosen path when the dialog returns one', async () => {
+    const { handlers, deps } = buildHarness();
+    const dir = mkdtempSync(join(tmpdir(), 's3m-dl-'));
+    const dest = join(dir, 'out.txt');
+    (deps.saveDialog as ReturnType<typeof vi.fn>).mockResolvedValue(dest);
+    s3Mock.on(GetObjectCommand).resolves({ Body: Readable.from([Buffer.from('payload')]) as never });
+    const created = (await handlers.get(CH.accountsCreate)!({
+      label: 'AWS', provider: 'amazon-s3', region: 'us-east-1', accessKeyId: 'AK', secretAccessKey: 'SK',
+    })) as { data: { id: string } };
+
+    const res = (await handlers.get(CH.downloadObject)!({ accountId: created.data.id, bucket: 'b', key: 'docs/out.txt' })) as {
+      ok: boolean; data: { path: string | null };
+    };
+    expect(res).toEqual({ ok: true, data: { path: dest } });
+    expect(readFileSync(dest, 'utf8')).toBe('payload');
+    expect(deps.saveDialog).toHaveBeenCalledWith('out.txt');
   });
 });
