@@ -1,10 +1,10 @@
 import { useState } from 'react';
 import { useLocalSync } from '../../hooks/useLocalSync';
-import { useToast } from '../ui/ToastProvider';
+import { useSyncRun } from './SyncRunProvider';
 import { formatBytes } from '../../lib/format';
 import { EndpointPicker, type EndpointValue } from './EndpointPicker';
 import { LocalFolderPicker } from './LocalFolderPicker';
-import type { SyncPlan, SyncResult } from '../../../main/s3/sync';
+import type { SyncPlan } from '../../../main/s3/sync';
 import type { LocalSyncArgs } from '../../../main/s3/localSync';
 
 export function LocalSyncScreen({
@@ -17,15 +17,13 @@ export function LocalSyncScreen({
   const [direction, setDirection] = useState<'upload' | 'download'>('upload');
   const [localPath, setLocalPath] = useState<string | null>(null);
   const [remote, setRemote] = useState<EndpointValue>({ accountId: initialAccountId, bucket: initialBucket, prefix: '' });
-  const lsync = useLocalSync();
-  const { show } = useToast();
+  const { plan: planMutation } = useLocalSync();
+  const run = useSyncRun();
   const [plan, setPlan] = useState<SyncPlan | null>(null);
-  const [result, setResult] = useState<SyncResult | null>(null);
-  const [running, setRunning] = useState(false);
 
   const ready = !!(localPath && remote.accountId && remote.bucket);
-  const canPreview = ready && !running && !lsync.plan.isPending;
-  const clearOutputs = () => { setPlan(null); setResult(null); };
+  const canPreview = ready && !run.running && !planMutation.isPending;
+  const clearOutputs = () => { setPlan(null); run.clearResult(); };
 
   const toArgs = (): LocalSyncArgs => ({
     direction,
@@ -34,27 +32,20 @@ export function LocalSyncScreen({
   });
 
   const onPreview = async () => {
-    setResult(null);
+    run.clearResult();
     try {
-      setPlan(await lsync.plan.mutateAsync(toArgs()));
-    } catch (e) {
-      show((e as Error).message, 'error');
+      setPlan(await planMutation.mutateAsync(toArgs()));
+    } catch {
+      // planMutation surfaces its own error
     }
   };
 
   const onRun = async () => {
-    setRunning(true);
-    setResult(null);
     try {
-      const r = await lsync.run(toArgs());
-      setResult(r);
+      await run.runLocal(toArgs());
       setPlan(null);
-      show(r.canceled ? 'Sync canceled' : `Synced ${r.copied} object(s)`);
-    } catch (e) {
-      show((e as Error).message, 'error');
-    } finally {
-      setRunning(false);
-      lsync.resetProgress();
+    } catch {
+      // error toasted by the provider
     }
   };
 
@@ -95,16 +86,16 @@ export function LocalSyncScreen({
         >
           Preview
         </button>
-        {running && (
-          <button type="button" className="rounded border border-red-300 px-3 py-1 text-sm text-red-600 hover:bg-red-50" onClick={lsync.cancel}>
+        {run.running && (
+          <button type="button" className="rounded border border-red-300 px-3 py-1 text-sm text-red-600 hover:bg-red-50" onClick={run.cancel}>
             Cancel
           </button>
         )}
       </div>
 
-      {lsync.plan.isPending && <p className="mt-4 text-slate-500">Computing plan…</p>}
+      {planMutation.isPending && <p className="mt-4 text-slate-500">Computing plan…</p>}
 
-      {plan && !running && (
+      {plan && !run.running && (
         <div className="mt-4 rounded border border-slate-200 p-3">
           {plan.toCopy === 0 ? (
             <p className="text-slate-600">Already in sync — nothing to copy ({plan.upToDate} up-to-date).</p>
@@ -129,28 +120,28 @@ export function LocalSyncScreen({
         </div>
       )}
 
-      {running && lsync.progress && (
+      {run.running && run.progress && (
         <div className="mt-4 rounded border border-slate-200 p-3 text-sm text-slate-700">
-          {lsync.progress.phase === 'listing' ? (
+          {run.progress.phase === 'listing' ? (
             <p>Listing both sides…</p>
           ) : (
             <>
-              <p>{lsync.progress.copied} / {lsync.progress.total} objects · {formatBytes(lsync.progress.bytesCopied)} / {formatBytes(lsync.progress.bytesTotal)}</p>
-              {lsync.progress.currentKey && <p className="truncate text-xs text-slate-400">{lsync.progress.currentKey}</p>}
+              <p>{run.progress.copied} / {run.progress.total} objects · {formatBytes(run.progress.bytesCopied)} / {formatBytes(run.progress.bytesTotal)}</p>
+              {run.progress.currentKey && <p className="truncate text-xs text-slate-400">{run.progress.currentKey}</p>}
             </>
           )}
         </div>
       )}
 
-      {result && (
+      {run.result && (
         <div className="mt-4 rounded border border-slate-200 p-3 text-sm">
           <p className="text-slate-700">
-            {result.canceled ? 'Canceled — ' : ''}Copied {result.copied} object(s), {formatBytes(result.bytesCopied)}
-            {result.failed.length > 0 ? ` · ${result.failed.length} failed` : ''}
+            {run.result.canceled ? 'Canceled — ' : ''}Copied {run.result.copied} object(s), {formatBytes(run.result.bytesCopied)}
+            {run.result.failed.length > 0 ? ` · ${run.result.failed.length} failed` : ''}
           </p>
-          {result.failed.length > 0 && (
+          {run.result.failed.length > 0 && (
             <ul className="mt-2 max-h-40 overflow-auto text-xs text-red-600">
-              {result.failed.map((f) => (
+              {run.result.failed.map((f) => (
                 <li key={f.key}>{f.key} — {f.code}: {f.message}</li>
               ))}
             </ul>

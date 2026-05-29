@@ -4,13 +4,16 @@ import userEvent from '@testing-library/user-event';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import type { ReactNode } from 'react';
 import { ToastProvider } from '../ui/ToastProvider';
+import { SyncRunProvider } from './SyncRunProvider';
 import { LocalSyncScreen } from './LocalSyncScreen';
 
 function wrap(node: ReactNode) {
   const client = new QueryClient({ defaultOptions: { queries: { retry: false }, mutations: { retry: false } } });
   return render(
     <QueryClientProvider client={client}>
-      <ToastProvider>{node}</ToastProvider>
+      <ToastProvider>
+        <SyncRunProvider>{node}</SyncRunProvider>
+      </ToastProvider>
     </QueryClientProvider>,
   );
 }
