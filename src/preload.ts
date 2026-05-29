@@ -1,4 +1,4 @@
-import { contextBridge, ipcRenderer } from 'electron';
+import { contextBridge, ipcRenderer, webUtils } from 'electron';
 import { CH, UPLOAD_PROGRESS_CHANNEL } from './main/ipc/channels';
 import type { ApiMap, UploadProgress } from './main/ipc/channels';
 
@@ -30,6 +30,8 @@ const api = {
     ipcRenderer.on(UPLOAD_PROGRESS_CHANNEL, listener);
     return () => ipcRenderer.removeListener(UPLOAD_PROGRESS_CHANNEL, listener);
   },
+  /** Resolve the absolute filesystem path of a dropped/selected File (sandbox-safe). */
+  getDropPath: (file: File) => webUtils.getPathForFile(file),
 };
 
 export type S3Api = typeof api;
