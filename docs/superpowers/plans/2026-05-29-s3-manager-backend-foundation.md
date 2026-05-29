@@ -10,6 +10,32 @@
 
 ---
 
+## Status: COMPLETE (2026-05-29)
+
+All 20 tasks implemented on branch `feat/backend-foundation`. Final state: `npx tsc --noEmit` clean, **45 tests passing** across 15 files.
+
+**Deviations from the plan as written (all intentional, verified):**
+- `uuid` dependency dropped in favor of Node's built-in `crypto.randomUUID()`.
+- `db.ts` sets `PRAGMA foreign_keys = ON` (the `account_secrets → accounts` `ON DELETE CASCADE` now functions); the secrets test seeds a parent account row.
+- The upload test constructs its `S3Client` with a `region` because `@aws-sdk/lib-storage`'s `Upload` resolves region before dispatch (otherwise "Region is missing").
+- `vitest.config.ts` sets `passWithNoTests: true`.
+- `IpcMainLike.handle` uses `unknown[]` (not `never[]`); the internal `h` helper bridges with a locally-scoped `any[]`. `tsconfig` includes `forge.env.d.ts` so the Vite globals type-check.
+
+**Post-implementation hardening (from final review, commit `harden: …`):**
+- `deleteFolder` rejects an empty/root prefix (`InvalidPrefix`) — prevents accidental whole-bucket deletion.
+- `accountsCreate` wraps account-row insert + secret-set in a `better-sqlite3` transaction (atomic; rolls back if the secret fails).
+- `accountsCreate`/`accountsTest` validate `provider` against the registry (`InvalidProvider`).
+
+**Deferred to Plan 2 (File Manager UI) or later — NOT implemented here:**
+- Live Electron GUI boot smoke test (replaced by `tsc` + full test suite verification; the GUI boot remains a manual step — note that `npm start` runs `electron-rebuild` for `better-sqlite3`, which then requires `npm rebuild better-sqlite3` before `npm test` works again under Node).
+- Per-file **upload progress transport** over IPC (`onProgress` exists on the op but no `webContents.send` channel yet).
+- **Content-Security-Policy** on the renderer.
+- **Versioned** schema migrations (current `migrate()` is `CREATE TABLE IF NOT EXISTS` only).
+- `settingsRepo` has no IPC channel yet (wired into main, unused at the boundary).
+- `deleteFolder` ignores the `DeleteObjects` per-key `Errors[]` (reports attempted count).
+
+---
+
 ## File Structure
 
 ```
