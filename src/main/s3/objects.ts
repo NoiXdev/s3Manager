@@ -3,7 +3,9 @@ import {
   ListBucketsCommand,
   ListObjectsV2Command,
   HeadObjectCommand,
+  GetObjectCommand,
 } from '@aws-sdk/client-s3';
+import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { ok, err, type Result } from '../shared/result';
 import { transformListing, type Listing } from './listTransform';
 
@@ -77,6 +79,22 @@ export async function headObject(
       etag: out.ETag ?? null,
       metadata: out.Metadata ?? {},
     });
+  } catch (e) {
+    return toErr(e);
+  }
+}
+
+export async function presignGetUrl(
+  client: S3Client,
+  args: { bucket: string; key: string; expiresIn: number },
+): Promise<Result<string>> {
+  try {
+    const url = await getSignedUrl(
+      client,
+      new GetObjectCommand({ Bucket: args.bucket, Key: args.key }),
+      { expiresIn: args.expiresIn },
+    );
+    return ok(url);
   } catch (e) {
     return toErr(e);
   }
