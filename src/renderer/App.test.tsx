@@ -20,6 +20,8 @@ beforeEach(() => {
     getBucketCors: vi.fn().mockResolvedValue({ ok: true, data: [] }),
     putBucketCors: vi.fn().mockResolvedValue({ ok: true, data: true }),
     deleteBucketCors: vi.fn().mockResolvedValue({ ok: true, data: true }),
+    getObjectLockConfig: vi.fn().mockResolvedValue({ ok: true, data: { enabled: false, defaultRetention: null } }),
+    putObjectLockConfig: vi.fn().mockResolvedValue({ ok: true, data: true }),
   };
 });
 
@@ -65,6 +67,15 @@ describe('App — CORS', () => {
     renderApp();
     await userEvent.click(screen.getByRole('button', { name: 'CORS' }));
     expect(await screen.findByText('CORS configuration')).toBeInTheDocument();
+    expect(screen.getByLabelText('Account')).toBeInTheDocument();
+  });
+});
+
+describe('App — Object Lock', () => {
+  it('renders the Object Lock editor for the Object Lock section', async () => {
+    renderApp();
+    await userEvent.click(screen.getByRole('button', { name: 'Object Lock' }));
+    expect(await screen.findByRole('heading', { name: 'Object Lock' })).toBeInTheDocument();
     expect(screen.getByLabelText('Account')).toBeInTheDocument();
   });
 });
