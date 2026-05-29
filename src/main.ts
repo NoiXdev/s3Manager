@@ -23,7 +23,14 @@ function initBackend() {
       : await dialog.showSaveDialog({ defaultPath: defaultFileName });
     return result.canceled || !result.filePath ? null : result.filePath;
   };
-  registerIpc(ipcMain, { accounts, settings, secrets, crypto: safeStorage, db, saveDialog });
+  const selectDirectory = async (): Promise<string | null> => {
+    const win = BrowserWindow.getFocusedWindow();
+    const result = win
+      ? await dialog.showOpenDialog(win, { properties: ['openDirectory'] })
+      : await dialog.showOpenDialog({ properties: ['openDirectory'] });
+    return result.canceled || !result.filePaths[0] ? null : result.filePaths[0];
+  };
+  registerIpc(ipcMain, { accounts, settings, secrets, crypto: safeStorage, db, saveDialog, selectDirectory });
 }
 
 const createWindow = () => {

@@ -21,6 +21,8 @@ import type { CorsRule } from '../s3/cors';
 import { getObjectLockConfig, putObjectLockConfig } from '../s3/objectLock';
 import { createFolder, moveObject, moveFolder } from '../s3/transfer';
 import { planSync, runSync, type Endpoint } from '../s3/sync';
+import { planLocalSync, runLocalSync } from '../s3/localSync';
+import type { LocalSyncArgs } from '../s3/localSync';
 import type { DefaultRetention } from '../s3/objectLock';
 import type { AccountsRepo } from '../storage/accountsRepo';
 import type { SecretsStore, Crypto } from '../storage/secrets';
@@ -39,6 +41,8 @@ export interface RegisterDeps {
   db: DB;
   /** Shows a native save dialog; resolves the chosen path, or null if cancelled. */
   saveDialog: (defaultFileName: string) => Promise<string | null>;
+  /** Shows a native folder picker; resolves the chosen directory, or null if cancelled. */
+  selectDirectory: () => Promise<string | null>;
 }
 
 export function registerIpc(ipcMain: IpcMainLike, deps: RegisterDeps): void {
@@ -213,4 +217,26 @@ export function registerIpc(ipcMain: IpcMainLike, deps: RegisterDeps): void {
     activeSync?.abort();
     return ok(true as const);
   });
+
+  h(CH.localSyncPlan, (a: LocalSyncArgs) => planLocalSync(clientFor(a.remote.accountId), a));
+
+  ipcMain.handle(CH.localSyncRun, async (event, ...args) => {
+    const a = args[0] as LocalSyncArgs;
+    const sender = (event as { sender: { send(channel: string, payload: unknown): void } }).sender;
+    const controller = new AbortController();
+    activeSync?.abort();
+    activeSync = controller;
+    try {
+      return await runLocalSync(clientFor(a.remote.accountId), a, {
+        signal: controller.signal,
+        onProgress: (p) => sender.send(SYNC_PROGRESS_CHANNEL, p),
+      });
+    } catch (e) {
+      return toErr(e);
+    } finally {
+      if (activeSync === controller) activeSync = null;
+    }
+  });
+
+  h(CH.selectDirectory, async () => ok(await deps.selectDirectory()));
 }

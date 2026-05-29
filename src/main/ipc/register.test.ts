@@ -8,7 +8,7 @@ import { tmpdir } from 'node:os';
 import { PutObjectCommand } from '@aws-sdk/client-s3';
 import { vi } from 'vitest';
 import { registerIpc, type IpcMainLike } from './register';
-import { CH, UPLOAD_PROGRESS_CHANNEL } from './channels';
+import { CH, UPLOAD_PROGRESS_CHANNEL, SYNC_PROGRESS_CHANNEL } from './channels';
 import { openDatabase } from '../storage/db';
 import { createAccountsRepo } from '../storage/accountsRepo';
 import { createSecretsStore, type Crypto } from '../storage/secrets';
@@ -40,6 +40,7 @@ function buildHarness() {
     crypto: fakeCrypto,
     db,
     saveDialog: vi.fn().mockResolvedValue(null),
+    selectDirectory: vi.fn().mockResolvedValue('/picked/dir'),
   };
   registerIpc(ipcMain, deps);
   return { handlers, deps, progressEvents };
@@ -97,6 +98,7 @@ describe('registerIpc', () => {
       crypto: brokenCrypto,
       db,
       saveDialog: vi.fn().mockResolvedValue(null),
+      selectDirectory: vi.fn().mockResolvedValue('/picked/dir'),
     };
     registerIpc(ipcMain, deps);
     const res = (await handlers.get(CH.accountsCreate)!({
@@ -235,5 +237,47 @@ describe('sync handlers', () => {
     const { handlers } = buildHarness();
     const res = (await handlers.get(CH.syncCancel)!()) as { ok: boolean; data: boolean };
     expect(res).toEqual({ ok: true, data: true });
+  });
+});
+
+describe('local sync handlers', () => {
+  it('sync:localPlan diffs a local directory against the bucket', async () => {
+    const { handlers } = buildHarness();
+    const created = (await handlers.get(CH.accountsCreate)!({
+      label: 'AWS', provider: 'amazon-s3', region: 'us-east-1', accessKeyId: 'AK', secretAccessKey: 'SK',
+    })) as { data: { id: string } };
+    const dir = mkdtempSync(join(tmpdir(), 's3m-lp-'));
+    writeFileSync(join(dir, 'a.txt'), 'hello');
+    s3Mock.on(ListObjectsV2Command).resolves({ Contents: [] });
+
+    const res = (await handlers.get(CH.localSyncPlan)!({
+      direction: 'upload', localPath: dir, remote: { accountId: created.data.id, bucket: 'b', prefix: '' },
+    })) as { ok: boolean; data: { toCopy: number } };
+    expect(res.ok).toBe(true);
+    expect(res.data.toCopy).toBe(1);
+  });
+
+  it('sync:selectDirectory returns the chosen path from the dialog dep', async () => {
+    const { handlers } = buildHarness();
+    const res = (await handlers.get(CH.selectDirectory)!()) as { ok: boolean; data: string | null };
+    expect(res).toEqual({ ok: true, data: '/picked/dir' });
+  });
+
+  it('sync:localRun uploads the local dir and emits progress on the sync channel', async () => {
+    const { handlers, progressEvents } = buildHarness();
+    const created = (await handlers.get(CH.accountsCreate)!({
+      label: 'AWS', provider: 'amazon-s3', region: 'us-east-1', accessKeyId: 'AK', secretAccessKey: 'SK',
+    })) as { data: { id: string } };
+    const dir = mkdtempSync(join(tmpdir(), 's3m-lr-'));
+    writeFileSync(join(dir, 'a.txt'), 'hello');
+    s3Mock.on(ListObjectsV2Command).resolves({ Contents: [] });
+    s3Mock.on(PutObjectCommand).resolves({});
+
+    const res = (await handlers.get(CH.localSyncRun)!({
+      direction: 'upload', localPath: dir, remote: { accountId: created.data.id, bucket: 'b', prefix: '' },
+    })) as { ok: boolean; data: { copied: number } };
+    expect(res.ok).toBe(true);
+    expect(res.data.copied).toBe(1);
+    expect(progressEvents.some((e) => e.channel === SYNC_PROGRESS_CHANNEL)).toBe(true);
   });
 });

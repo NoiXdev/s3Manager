@@ -6,6 +6,7 @@ import type { Account } from '../storage/accountsRepo';
 import type { CorsRule } from '../s3/cors';
 import type { ObjectLockStatus, DefaultRetention } from '../s3/objectLock';
 import type { Endpoint, SyncPlan, SyncResult } from '../s3/sync';
+import type { LocalSyncArgs } from '../s3/localSync';
 
 export const CH = {
   accountsList: 'accounts:list',
@@ -33,6 +34,9 @@ export const CH = {
   syncPlan: 'sync:plan',
   syncRun: 'sync:run',
   syncCancel: 'sync:cancel',
+  localSyncPlan: 'sync:localPlan',
+  localSyncRun: 'sync:localRun',
+  selectDirectory: 'sync:selectDirectory',
 } as const;
 
 export interface CreateAccountInput {
@@ -70,6 +74,9 @@ export interface ApiMap {
   [CH.syncPlan]: { args: [{ source: Endpoint; dest: Endpoint }]; res: Result<SyncPlan> };
   [CH.syncRun]: { args: [{ source: Endpoint; dest: Endpoint }]; res: Result<SyncResult> };
   [CH.syncCancel]: { args: []; res: Result<true> };
+  [CH.localSyncPlan]: { args: [LocalSyncArgs]; res: Result<SyncPlan> };
+  [CH.localSyncRun]: { args: [LocalSyncArgs]; res: Result<SyncResult> };
+  [CH.selectDirectory]: { args: []; res: Result<string | null> };
 }
 
 /** One-way main→renderer channel for upload progress (not an invoke channel,
