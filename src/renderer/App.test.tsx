@@ -125,4 +125,27 @@ describe('App — Sync', () => {
     expect(screen.getByText('Listing both sides…')).toBeInTheDocument();
     expect(window.s3.cancelSync).not.toHaveBeenCalled();
   });
+
+  it('shows a sidebar sync indicator while a run is active and clicking it opens Sync', async () => {
+    const s3 = window.s3 as unknown as Record<string, ReturnType<typeof vi.fn>>;
+    s3.selectSyncDirectory = vi.fn().mockResolvedValue({ ok: true, data: '/data' });
+    s3.localSyncPlan = vi.fn().mockResolvedValue({ ok: true, data: { toCopy: 1, upToDate: 0, bytesToCopy: 10, sample: [] } });
+    s3.localSyncRun = vi.fn(() => new Promise(() => {})); // hangs: run stays active
+
+    renderApp();
+    await userEvent.click(screen.getByRole('button', { name: 'Sync' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Local ↔ Bucket' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Choose folder…' }));
+    await screen.findByText('/data');
+    await userEvent.selectOptions(screen.getByLabelText('Bucket account'), 'a');
+    await userEvent.selectOptions(await screen.findByLabelText('Bucket bucket'), 'assets');
+    await userEvent.click(screen.getByRole('button', { name: 'Preview' }));
+    await userEvent.click(await screen.findByRole('button', { name: 'Run sync' }));
+
+    // Navigate away; the sidebar indicator stays visible, and clicking it returns to Sync.
+    await userEvent.click(screen.getByRole('button', { name: 'Settings' }));
+    const indicator = await screen.findByRole('button', { name: 'Listing…' });
+    await userEvent.click(indicator);
+    expect(screen.getByText('Sync (local ↔ bucket)')).toBeInTheDocument();
+  });
 });
