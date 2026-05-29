@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { mockClient } from 'aws-sdk-client-mock';
-import { S3Client, ListBucketsCommand, GetObjectCommand, GetBucketCorsCommand, GetObjectLockConfigurationCommand, ListObjectsV2Command } from '@aws-sdk/client-s3';
+import { S3Client, ListBucketsCommand, GetObjectCommand, GetBucketCorsCommand, GetObjectLockConfigurationCommand, ListObjectsV2Command, PutObjectAclCommand } from '@aws-sdk/client-s3';
 import { writeFileSync, mkdtempSync, readFileSync } from 'node:fs';
 import { Readable } from 'node:stream';
 import { join } from 'node:path';
@@ -279,5 +279,20 @@ describe('local sync handlers', () => {
     expect(res.ok).toBe(true);
     expect(res.data.copied).toBe(1);
     expect(progressEvents.some((e) => e.channel === SYNC_PROGRESS_CHANNEL)).toBe(true);
+  });
+});
+
+describe('setObjectVisibility handler', () => {
+  it('s3:setObjectVisibility sets the ACL via the account client', async () => {
+    const { handlers } = buildHarness();
+    const created = (await handlers.get(CH.accountsCreate)!({
+      label: 'AWS', provider: 'amazon-s3', region: 'us-east-1', accessKeyId: 'AK', secretAccessKey: 'SK',
+    })) as { data: { id: string } };
+    s3Mock.on(PutObjectAclCommand).resolves({});
+
+    const res = (await handlers.get(CH.setObjectVisibility)!({
+      accountId: created.data.id, bucket: 'b', key: 'k', visibility: 'public',
+    })) as { ok: boolean; data: string };
+    expect(res).toEqual({ ok: true, data: 'public' });
   });
 });

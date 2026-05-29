@@ -18,6 +18,7 @@ export const CH = {
   listObjects: 's3:listObjects',
   headObject: 's3:headObject',
   objectVisibility: 's3:objectVisibility',
+  setObjectVisibility: 's3:setObjectVisibility',
   presignGet: 's3:presignGet',
   deleteObject: 's3:deleteObject',
   deleteFolder: 's3:deleteFolder',
@@ -58,6 +59,7 @@ export interface ApiMap {
   [CH.listObjects]: { args: [{ accountId: string; bucket: string; prefix: string; continuationToken?: string }]; res: Result<ListObjectsResult> };
   [CH.headObject]: { args: [{ accountId: string; bucket: string; key: string }]; res: Result<ObjectMetadata> };
   [CH.objectVisibility]: { args: [{ accountId: string; bucket: string; key: string }]; res: Result<Visibility> };
+  [CH.setObjectVisibility]: { args: [{ accountId: string; bucket: string; key: string; visibility: 'public' | 'private' }]; res: Result<Visibility> };
   [CH.presignGet]: { args: [{ accountId: string; bucket: string; key: string; expiresIn: number }]; res: Result<string> };
   [CH.deleteObject]: { args: [{ accountId: string; bucket: string; key: string }]; res: Result<number> };
   [CH.deleteFolder]: { args: [{ accountId: string; bucket: string; prefix: string }]; res: Result<number> };

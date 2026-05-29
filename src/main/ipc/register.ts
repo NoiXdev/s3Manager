@@ -15,7 +15,7 @@ import {
   downloadObject,
   toErr,
 } from '../s3/objects';
-import { getObjectVisibility } from '../s3/visibility';
+import { getObjectVisibility, setObjectVisibility } from '../s3/visibility';
 import { getBucketCors, putBucketCors, deleteBucketCors } from '../s3/cors';
 import type { CorsRule } from '../s3/cors';
 import { getObjectLockConfig, putObjectLockConfig } from '../s3/objectLock';
@@ -116,6 +116,10 @@ export function registerIpc(ipcMain: IpcMainLike, deps: RegisterDeps): void {
 
   h(CH.objectVisibility, (a: { accountId: string; bucket: string; key: string }) =>
     getObjectVisibility(clientFor(a.accountId), { bucket: a.bucket, key: a.key }),
+  );
+
+  h(CH.setObjectVisibility, (a: { accountId: string; bucket: string; key: string; visibility: 'public' | 'private' }) =>
+    setObjectVisibility(clientFor(a.accountId), { bucket: a.bucket, key: a.key, visibility: a.visibility }),
   );
 
   h(CH.presignGet, (a: { accountId: string; bucket: string; key: string; expiresIn: number }) =>
