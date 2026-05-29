@@ -61,4 +61,16 @@ describe('ObjectLockEditor', () => {
     wrap(<ObjectLockEditor initialAccountId="acc-1" initialBucket="assets" />);
     expect(await screen.findByRole('button', { name: 'Save' })).toBeDisabled();
   });
+
+  it('shows an inline error when the query fails', async () => {
+    (window as unknown as { s3: unknown }).s3 = {
+      accounts: { list: vi.fn().mockResolvedValue({ ok: true, data: [account] }) },
+      listBuckets: vi.fn().mockResolvedValue({ ok: true, data: ['assets'] }),
+      getObjectLockConfig: vi.fn().mockResolvedValue({ ok: false, error: { code: 'AccessDenied', message: 'no perms' } }),
+      putObjectLockConfig: vi.fn(),
+    };
+    wrap(<ObjectLockEditor initialAccountId="acc-1" initialBucket="assets" />);
+    expect(await screen.findByText('AccessDenied: no perms')).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Save' })).not.toBeInTheDocument();
+  });
 });
