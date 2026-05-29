@@ -28,6 +28,8 @@ const api = {
   getBucketCors: (a: ApiMap[typeof CH.getBucketCors]['args'][0]) => invoke(CH.getBucketCors, a),
   putBucketCors: (a: ApiMap[typeof CH.putBucketCors]['args'][0]) => invoke(CH.putBucketCors, a),
   deleteBucketCors: (a: ApiMap[typeof CH.deleteBucketCors]['args'][0]) => invoke(CH.deleteBucketCors, a),
+  getObjectLockConfig: (a: ApiMap[typeof CH.getObjectLockConfig]['args'][0]) => invoke(CH.getObjectLockConfig, a),
+  putObjectLockConfig: (a: ApiMap[typeof CH.putObjectLockConfig]['args'][0]) => invoke(CH.putObjectLockConfig, a),
   onUploadProgress: (cb: (progress: UploadProgress) => void) => {
     const listener = (_event: unknown, payload: unknown) => cb(payload as UploadProgress);
     ipcRenderer.on(UPLOAD_PROGRESS_CHANNEL, listener);

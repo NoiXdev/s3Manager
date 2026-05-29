@@ -18,6 +18,8 @@ import {
 import { getObjectVisibility } from '../s3/visibility';
 import { getBucketCors, putBucketCors, deleteBucketCors } from '../s3/cors';
 import type { CorsRule } from '../s3/cors';
+import { getObjectLockConfig, putObjectLockConfig } from '../s3/objectLock';
+import type { DefaultRetention } from '../s3/objectLock';
 import type { AccountsRepo } from '../storage/accountsRepo';
 import type { SecretsStore, Crypto } from '../storage/secrets';
 import type { SettingsRepo } from '../storage/settingsRepo';
@@ -158,5 +160,13 @@ export function registerIpc(ipcMain: IpcMainLike, deps: RegisterDeps): void {
 
   h(CH.deleteBucketCors, (a: { accountId: string; bucket: string }) =>
     deleteBucketCors(clientFor(a.accountId), a.bucket),
+  );
+
+  h(CH.getObjectLockConfig, (a: { accountId: string; bucket: string }) =>
+    getObjectLockConfig(clientFor(a.accountId), a.bucket),
+  );
+
+  h(CH.putObjectLockConfig, (a: { accountId: string; bucket: string; retention: DefaultRetention | null }) =>
+    putObjectLockConfig(clientFor(a.accountId), a.bucket, a.retention),
   );
 }

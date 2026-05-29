@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { mockClient } from 'aws-sdk-client-mock';
-import { S3Client, ListBucketsCommand, GetObjectCommand, GetBucketCorsCommand } from '@aws-sdk/client-s3';
+import { S3Client, ListBucketsCommand, GetObjectCommand, GetBucketCorsCommand, GetObjectLockConfigurationCommand } from '@aws-sdk/client-s3';
 import { writeFileSync, mkdtempSync, readFileSync } from 'node:fs';
 import { Readable } from 'node:stream';
 import { join } from 'node:path';
@@ -177,5 +177,24 @@ describe('CORS handlers', () => {
     };
     expect(res.ok).toBe(true);
     expect(res.data[0].allowedMethods).toEqual(['GET']);
+  });
+});
+
+describe('Object Lock handlers', () => {
+  it('s3:getObjectLockConfig returns the bucket lock status via the account client', async () => {
+    const { handlers } = buildHarness();
+    const created = (await handlers.get(CH.accountsCreate)!({
+      label: 'AWS', provider: 'amazon-s3', region: 'us-east-1', accessKeyId: 'AK', secretAccessKey: 'SK',
+    })) as { data: { id: string } };
+    s3Mock.on(GetObjectLockConfigurationCommand).resolves({
+      ObjectLockConfiguration: { ObjectLockEnabled: 'Enabled', Rule: { DefaultRetention: { Mode: 'GOVERNANCE', Days: 30 } } },
+    });
+
+    const res = (await handlers.get(CH.getObjectLockConfig)!({ accountId: created.data.id, bucket: 'b' })) as {
+      ok: boolean; data: { enabled: boolean; defaultRetention: { days: number | null } | null };
+    };
+    expect(res.ok).toBe(true);
+    expect(res.data.enabled).toBe(true);
+    expect(res.data.defaultRetention?.days).toBe(30);
   });
 });

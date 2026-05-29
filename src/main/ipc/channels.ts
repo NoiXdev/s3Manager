@@ -4,6 +4,7 @@ import type { ListObjectsResult, ObjectMetadata } from '../s3/objects';
 import type { Visibility } from '../s3/visibility';
 import type { Account } from '../storage/accountsRepo';
 import type { CorsRule } from '../s3/cors';
+import type { ObjectLockStatus, DefaultRetention } from '../s3/objectLock';
 
 export const CH = {
   accountsList: 'accounts:list',
@@ -23,6 +24,8 @@ export const CH = {
   getBucketCors: 's3:getBucketCors',
   putBucketCors: 's3:putBucketCors',
   deleteBucketCors: 's3:deleteBucketCors',
+  getObjectLockConfig: 's3:getObjectLockConfig',
+  putObjectLockConfig: 's3:putObjectLockConfig',
 } as const;
 
 export interface CreateAccountInput {
@@ -52,6 +55,8 @@ export interface ApiMap {
   [CH.getBucketCors]: { args: [{ accountId: string; bucket: string }]; res: Result<CorsRule[]> };
   [CH.putBucketCors]: { args: [{ accountId: string; bucket: string; rules: CorsRule[] }]; res: Result<true> };
   [CH.deleteBucketCors]: { args: [{ accountId: string; bucket: string }]; res: Result<true> };
+  [CH.getObjectLockConfig]: { args: [{ accountId: string; bucket: string }]; res: Result<ObjectLockStatus> };
+  [CH.putObjectLockConfig]: { args: [{ accountId: string; bucket: string; retention: DefaultRetention | null }]; res: Result<true> };
 }
 
 /** One-way main→renderer channel for upload progress (not an invoke channel,
