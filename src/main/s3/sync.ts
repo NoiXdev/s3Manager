@@ -1,7 +1,10 @@
-import { S3Client, ListObjectsV2Command } from '@aws-sdk/client-s3';
+import { S3Client, ListObjectsV2Command, CopyObjectCommand, GetObjectCommand } from '@aws-sdk/client-s3';
+import { Upload } from '@aws-sdk/lib-storage';
 import { ok, type Result } from '../shared/result';
 import { toErr } from './objects';
 import { diffListings, type SyncObject, type SyncOp } from './syncDiff';
+import { encodeCopyKey } from './transfer';
+import type { Readable } from 'node:stream';
 
 export interface Endpoint {
   accountId: string;
@@ -79,6 +82,106 @@ export async function planSync(
       bytesToCopy,
       sample: ops.slice(0, SAMPLE_LIMIT),
     });
+  } catch (e) {
+    return toErr(e);
+  }
+}
+
+const CONCURRENCY = 6;
+
+/** Run `worker` over `items` with at most `limit` in flight at once. */
+async function runPool<T>(items: T[], limit: number, worker: (item: T) => Promise<void>): Promise<void> {
+  let next = 0;
+  const runners = Array.from({ length: Math.min(limit, items.length) }, async () => {
+    while (next < items.length) {
+      const idx = next;
+      next += 1;
+      await worker(items[idx]);
+    }
+  });
+  await Promise.all(runners);
+}
+
+export async function copyOne(
+  srcClient: S3Client,
+  dstClient: S3Client,
+  source: Endpoint,
+  dest: Endpoint,
+  op: SyncOp,
+  sameAccount: boolean,
+): Promise<void> {
+  const sourceKey = source.prefix + op.relKey;
+  const destKey = dest.prefix + op.relKey;
+  if (sameAccount) {
+    await dstClient.send(
+      new CopyObjectCommand({
+        Bucket: dest.bucket,
+        CopySource: `${source.bucket}/${encodeCopyKey(sourceKey)}`,
+        Key: destKey,
+      }),
+    );
+    return;
+  }
+  const out = await srcClient.send(new GetObjectCommand({ Bucket: source.bucket, Key: sourceKey }));
+  await new Upload({
+    client: dstClient,
+    params: { Bucket: dest.bucket, Key: destKey, Body: out.Body as Readable, ContentType: out.ContentType },
+  }).done();
+}
+
+export interface RunSyncOptions {
+  sameAccount: boolean;
+  onProgress?: (p: SyncProgress) => void;
+  signal?: AbortSignal;
+}
+
+export async function runSync(
+  srcClient: S3Client,
+  dstClient: S3Client,
+  source: Endpoint,
+  dest: Endpoint,
+  opts: RunSyncOptions,
+): Promise<Result<SyncResult>> {
+  const { sameAccount, onProgress, signal } = opts;
+  try {
+    onProgress?.({ phase: 'listing', copied: 0, total: 0, bytesCopied: 0, bytesTotal: 0, failed: 0 });
+    const [srcList, dstList] = await Promise.all([
+      listAll(srcClient, source.bucket, source.prefix),
+      listAll(dstClient, dest.bucket, dest.prefix),
+    ]);
+    const ops = diffListings(srcList, dstList);
+    const total = ops.length;
+    const bytesTotal = ops.reduce((n, o) => n + o.size, 0);
+
+    let copied = 0;
+    let bytesCopied = 0;
+    let canceled = false;
+    const failed: SyncFailure[] = [];
+    const emit = (currentKey?: string) =>
+      onProgress?.({ phase: 'copying', copied, total, bytesCopied, bytesTotal, failed: failed.length, currentKey });
+
+    await runPool(ops, CONCURRENCY, async (op) => {
+      if (signal?.aborted) {
+        canceled = true;
+        return;
+      }
+      try {
+        await copyOne(srcClient, dstClient, source, dest, op, sameAccount);
+        copied += 1;
+        bytesCopied += op.size;
+        emit(op.relKey);
+      } catch (e) {
+        failed.push({
+          key: source.prefix + op.relKey,
+          code: (e as { name?: string })?.name ?? 'UnknownError',
+          message: (e as { message?: string })?.message ?? 'Unexpected error',
+        });
+        emit(op.relKey);
+      }
+    });
+
+    onProgress?.({ phase: 'done', copied, total, bytesCopied, bytesTotal, failed: failed.length });
+    return ok({ copied, bytesCopied, failed, canceled });
   } catch (e) {
     return toErr(e);
   }
