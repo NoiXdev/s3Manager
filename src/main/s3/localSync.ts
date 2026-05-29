@@ -1,5 +1,5 @@
 import { readdir, stat, mkdir } from 'node:fs/promises';
-import { join, relative, sep, dirname } from 'node:path';
+import { join, relative, resolve, sep, dirname } from 'node:path';
 import type { S3Client } from '@aws-sdk/client-s3';
 import { ok, type Result } from '../shared/result';
 import { diffListings, type SyncObject, type SyncOp } from './syncDiff';
@@ -90,6 +90,12 @@ export async function uploadOne(client: S3Client, args: LocalSyncArgs, op: SyncO
 
 export async function downloadOne(client: S3Client, args: LocalSyncArgs, op: SyncOp): Promise<void> {
   const destPath = join(args.localPath, ...op.relKey.split('/'));
+  // Guard against a malicious object key (e.g. containing "..") writing outside the chosen folder.
+  const root = resolve(args.localPath);
+  const resolved = resolve(destPath);
+  if (resolved !== root && !resolved.startsWith(root + sep)) {
+    throw Object.assign(new Error(`Refusing to write outside the target folder: ${op.relKey}`), { name: 'UnsafePath' });
+  }
   await mkdir(dirname(destPath), { recursive: true });
   throwIfErr(await downloadObject(client, { bucket: args.remote.bucket, key: args.remote.prefix + op.relKey, destPath }));
 }

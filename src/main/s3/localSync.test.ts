@@ -119,4 +119,18 @@ describe('runLocalSync (download)', () => {
     }
     expect(existsSync(join(dir, 'ok.txt'))).toBe(true);
   });
+
+  it('refuses to write an object whose key escapes the target folder', async () => {
+    s3Mock.on(ListObjectsV2Command).resolves({ Contents: [{ Key: 'safe.txt', Size: 2 }, { Key: '../escape.txt', Size: 2 }] });
+    s3Mock.on(GetObjectCommand, { Key: 'safe.txt' }).resolves({ Body: Readable.from(Buffer.from('hi')) as never });
+    s3Mock.on(GetObjectCommand, { Key: '../escape.txt' }).resolves({ Body: Readable.from(Buffer.from('no')) as never });
+    const r = await runLocalSync(new S3Client({}), { direction: 'download', localPath: dir, remote: { accountId: 'x', bucket: 'b', prefix: '' } }, {});
+    expect(r.ok).toBe(true);
+    if (r.ok) {
+      expect(r.data.copied).toBe(1);
+      expect(r.data.failed.map((f) => f.code)).toEqual(['UnsafePath']);
+    }
+    expect(existsSync(join(dir, 'safe.txt'))).toBe(true);
+    expect(existsSync(join(dir, '..', 'escape.txt'))).toBe(false);
+  });
 });
