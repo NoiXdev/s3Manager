@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { mockClient } from 'aws-sdk-client-mock';
-import { S3Client, ListBucketsCommand, GetObjectCommand, GetBucketCorsCommand, GetObjectLockConfigurationCommand, ListObjectsV2Command, PutObjectAclCommand } from '@aws-sdk/client-s3';
+import { S3Client, ListBucketsCommand, GetObjectCommand, GetBucketCorsCommand, GetObjectLockConfigurationCommand, ListObjectsV2Command, PutObjectAclCommand, GetObjectRetentionCommand, PutObjectLegalHoldCommand } from '@aws-sdk/client-s3';
 import { writeFileSync, mkdtempSync, readFileSync } from 'node:fs';
 import { Readable } from 'node:stream';
 import { join } from 'node:path';
@@ -310,5 +310,33 @@ describe('setObjectVisibility handler', () => {
       accountId: created.data.id, bucket: 'b', key: 'k', visibility: 'public',
     })) as { ok: boolean; data: string };
     expect(res).toEqual({ ok: true, data: 'public' });
+  });
+});
+
+describe('retention & legal hold handlers', () => {
+  it('s3:getObjectRetention returns none when unset', async () => {
+    const { handlers } = buildHarness();
+    const created = (await handlers.get(CH.accountsCreate)!({
+      label: 'AWS', provider: 'amazon-s3', region: 'us-east-1', accessKeyId: 'AK', secretAccessKey: 'SK',
+    })) as { data: { id: string } };
+    s3Mock.on(GetObjectRetentionCommand).rejects(Object.assign(new Error('none'), { name: 'NoSuchObjectLockConfiguration' }));
+
+    const res = (await handlers.get(CH.getObjectRetention)!({ accountId: created.data.id, bucket: 'b', key: 'k' })) as {
+      ok: boolean; data: { mode: string | null; retainUntil: string | null };
+    };
+    expect(res).toEqual({ ok: true, data: { mode: null, retainUntil: null } });
+  });
+
+  it('s3:putObjectLegalHold sets the hold via the account client', async () => {
+    const { handlers } = buildHarness();
+    const created = (await handlers.get(CH.accountsCreate)!({
+      label: 'AWS', provider: 'amazon-s3', region: 'us-east-1', accessKeyId: 'AK', secretAccessKey: 'SK',
+    })) as { data: { id: string } };
+    s3Mock.on(PutObjectLegalHoldCommand).resolves({});
+
+    const res = (await handlers.get(CH.putObjectLegalHold)!({ accountId: created.data.id, bucket: 'b', key: 'k', status: 'ON' })) as {
+      ok: boolean; data: boolean;
+    };
+    expect(res).toEqual({ ok: true, data: true });
   });
 });

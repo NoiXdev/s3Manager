@@ -20,6 +20,8 @@ import { getObjectVisibility, setObjectVisibility } from '../s3/visibility';
 import { getBucketCors, putBucketCors, deleteBucketCors } from '../s3/cors';
 import type { CorsRule } from '../s3/cors';
 import { getObjectLockConfig, putObjectLockConfig } from '../s3/objectLock';
+import { getObjectRetention, putObjectRetention, getObjectLegalHold, putObjectLegalHold } from '../s3/objectRetention';
+import type { LegalHoldStatus } from '../s3/objectRetention';
 import { createFolder, moveObject, moveFolder } from '../s3/transfer';
 import { planSync, runSync, type Endpoint } from '../s3/sync';
 import { planLocalSync, runLocalSync } from '../s3/localSync';
@@ -183,6 +185,19 @@ export function registerIpc(ipcMain: IpcMainLike, deps: RegisterDeps): void {
 
   h(CH.putObjectLockConfig, (a: { accountId: string; bucket: string; retention: DefaultRetention | null }) =>
     putObjectLockConfig(clientFor(a.accountId), a.bucket, a.retention),
+  );
+
+  h(CH.getObjectRetention, (a: { accountId: string; bucket: string; key: string }) =>
+    getObjectRetention(clientFor(a.accountId), { bucket: a.bucket, key: a.key }),
+  );
+  h(CH.putObjectRetention, (a: { accountId: string; bucket: string; key: string; retainUntil: string }) =>
+    putObjectRetention(clientFor(a.accountId), { bucket: a.bucket, key: a.key, retainUntil: a.retainUntil }),
+  );
+  h(CH.getObjectLegalHold, (a: { accountId: string; bucket: string; key: string }) =>
+    getObjectLegalHold(clientFor(a.accountId), { bucket: a.bucket, key: a.key }),
+  );
+  h(CH.putObjectLegalHold, (a: { accountId: string; bucket: string; key: string; status: LegalHoldStatus }) =>
+    putObjectLegalHold(clientFor(a.accountId), { bucket: a.bucket, key: a.key, status: a.status }),
   );
 
   h(CH.createFolder, (a: { accountId: string; bucket: string; prefix: string; name: string }) =>

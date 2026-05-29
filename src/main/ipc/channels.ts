@@ -5,6 +5,7 @@ import type { Visibility } from '../s3/visibility';
 import type { Account } from '../storage/accountsRepo';
 import type { CorsRule } from '../s3/cors';
 import type { ObjectLockStatus, DefaultRetention } from '../s3/objectLock';
+import type { ObjectRetention, LegalHoldStatus } from '../s3/objectRetention';
 import type { Endpoint, SyncPlan, SyncResult } from '../s3/sync';
 import type { LocalSyncArgs } from '../s3/localSync';
 
@@ -30,6 +31,10 @@ export const CH = {
   deleteBucketCors: 's3:deleteBucketCors',
   getObjectLockConfig: 's3:getObjectLockConfig',
   putObjectLockConfig: 's3:putObjectLockConfig',
+  getObjectRetention: 's3:getObjectRetention',
+  putObjectRetention: 's3:putObjectRetention',
+  getObjectLegalHold: 's3:getObjectLegalHold',
+  putObjectLegalHold: 's3:putObjectLegalHold',
   createFolder: 's3:createFolder',
   moveObject: 's3:moveObject',
   moveFolder: 's3:moveFolder',
@@ -72,6 +77,10 @@ export interface ApiMap {
   [CH.deleteBucketCors]: { args: [{ accountId: string; bucket: string }]; res: Result<true> };
   [CH.getObjectLockConfig]: { args: [{ accountId: string; bucket: string }]; res: Result<ObjectLockStatus> };
   [CH.putObjectLockConfig]: { args: [{ accountId: string; bucket: string; retention: DefaultRetention | null }]; res: Result<true> };
+  [CH.getObjectRetention]: { args: [{ accountId: string; bucket: string; key: string }]; res: Result<ObjectRetention> };
+  [CH.putObjectRetention]: { args: [{ accountId: string; bucket: string; key: string; retainUntil: string }]; res: Result<true> };
+  [CH.getObjectLegalHold]: { args: [{ accountId: string; bucket: string; key: string }]; res: Result<LegalHoldStatus> };
+  [CH.putObjectLegalHold]: { args: [{ accountId: string; bucket: string; key: string; status: LegalHoldStatus }]; res: Result<true> };
   [CH.createFolder]: { args: [{ accountId: string; bucket: string; prefix: string; name: string }]; res: Result<{ key: string }> };
   [CH.moveObject]: { args: [{ accountId: string; bucket: string; sourceKey: string; destKey: string }]; res: Result<{ key: string }> };
   [CH.moveFolder]: { args: [{ accountId: string; bucket: string; sourcePrefix: string; destPrefix: string }]; res: Result<{ count: number }> };
