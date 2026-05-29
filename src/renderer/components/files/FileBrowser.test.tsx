@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import type { ReactNode } from 'react';
@@ -20,6 +20,9 @@ beforeEach(() => {
         nextToken: null,
       },
     }),
+    getDropPath: vi.fn((f: File) => `/local/${f.name}`),
+    uploadObject: vi.fn().mockResolvedValue({ ok: true, data: {} }),
+    onUploadProgress: vi.fn(() => () => {}),
   };
 });
 
@@ -57,8 +60,44 @@ describe('FileBrowser', () => {
   it('shows an empty state for an empty prefix', async () => {
     (window as unknown as { s3: unknown }).s3 = {
       listObjects: vi.fn().mockResolvedValue({ ok: true, data: { folders: [], files: [], nextToken: null } }),
+      getDropPath: vi.fn(),
+      uploadObject: vi.fn().mockResolvedValue({ ok: true, data: {} }),
+      onUploadProgress: vi.fn(() => () => {}),
     };
     wrap(<FileBrowser {...baseProps} />);
     expect(await screen.findByText('This folder is empty')).toBeInTheDocument();
+  });
+});
+
+describe('FileBrowser operations', () => {
+  it('uploads dropped files to the current prefix', async () => {
+    const uploadObject = vi.fn().mockResolvedValue({ ok: true, data: { key: 'images/a.txt' } });
+    (window as unknown as { s3: unknown }).s3 = {
+      listObjects: vi.fn().mockResolvedValue({ ok: true, data: { folders: [], files: [], nextToken: null } }),
+      getDropPath: vi.fn((f: File) => `/local/${f.name}`),
+      uploadObject,
+      onUploadProgress: vi.fn(() => () => {}),
+    };
+    wrap(<FileBrowser {...baseProps} />);
+    await screen.findByText('This folder is empty');
+    const file = new File(['x'], 'a.txt');
+    fireEvent.drop(screen.getByTestId('dropzone'), { dataTransfer: { files: [file], types: ['Files'] } });
+    await waitFor(() => expect(uploadObject).toHaveBeenCalled());
+    expect(uploadObject.mock.calls[0][0]).toMatchObject({ bucket: 'assets', key: 'images/a.txt', filePath: '/local/a.txt' });
+  });
+
+  it('deletes a folder after confirmation', async () => {
+    const deleteFolder = vi.fn().mockResolvedValue({ ok: true, data: 1 });
+    (window as unknown as { s3: unknown }).s3 = {
+      listObjects: vi.fn().mockResolvedValue({ ok: true, data: { folders: [{ name: 'thumbs', prefix: 'images/thumbs/' }], files: [], nextToken: null } }),
+      getDropPath: vi.fn(),
+      uploadObject: vi.fn(),
+      onUploadProgress: vi.fn(() => () => {}),
+      deleteFolder,
+    };
+    wrap(<FileBrowser {...baseProps} />);
+    await userEvent.click(await screen.findByRole('button', { name: 'Delete folder thumbs' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Delete' }));
+    await waitFor(() => expect(deleteFolder).toHaveBeenCalledWith({ accountId: 'acc-1', bucket: 'assets', prefix: 'images/thumbs/' }));
   });
 });

@@ -11,6 +11,9 @@ beforeEach(() => {
     listObjects: vi.fn().mockResolvedValue({ ok: true, data: { folders: [], files: [{ name: 'logo.png', key: 'logo.png', size: 5, lastModified: null, storageClass: null, etag: null }], nextToken: null } }),
     headObject: vi.fn().mockResolvedValue({ ok: true, data: { size: 5, contentType: 'image/png', lastModified: null, storageClass: null, etag: null, metadata: {} } }),
     objectVisibility: vi.fn().mockResolvedValue({ ok: true, data: 'private' }),
+    getDropPath: vi.fn((f: File) => `/local/${f.name}`),
+    uploadObject: vi.fn().mockResolvedValue({ ok: true, data: {} }),
+    onUploadProgress: vi.fn(() => () => {}),
   };
 });
 
