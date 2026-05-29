@@ -12,7 +12,10 @@
 
 ## Status: COMPLETE (2026-05-29)
 
-All 20 tasks implemented on branch `feat/backend-foundation`. Final state: `npx tsc --noEmit` clean, **45 tests passing** across 15 files.
+All 20 tasks implemented on branch `feat/backend-foundation`, merged to `develop`. Final state: `npx tsc --noEmit` clean, **45 tests passing** across 15 files, and `electron-forge start` boots cleanly.
+
+**Post-merge fix — storage engine swapped (commit `fix: replace better-sqlite3 …`):**
+`better-sqlite3` 12.10.0 (latest) calls the 2-arg `v8::External` API that Electron 42's V8 removed (`External::New`/`Value` now require an `ExternalPointerTypeTag`), so `node-gyp` could not rebuild it and the app failed to launch. Replaced with **`node-sqlite3-wasm`** (pure WASM, **no native build**) behind a thin adapter in `db.ts` that preserves the better-sqlite3 surface the repos use (`prepare().run/get/all`, `transaction()`, `exec()`; `Uint8Array`→`Buffer` on BLOB read; `BEGIN/COMMIT/ROLLBACK` for transactions). No other source files changed; all 45 tests still pass. This also **eliminates the Node-vs-Electron ABI rebuild dance entirely** (the earlier caveat below is now moot). WAL journal mode was dropped (not applicable to the WASM file backend); `foreign_keys = ON` retained.
 
 **Deviations from the plan as written (all intentional, verified):**
 - `uuid` dependency dropped in favor of Node's built-in `crypto.randomUUID()`.
@@ -27,7 +30,7 @@ All 20 tasks implemented on branch `feat/backend-foundation`. Final state: `npx 
 - `accountsCreate`/`accountsTest` validate `provider` against the registry (`InvalidProvider`).
 
 **Deferred to Plan 2 (File Manager UI) or later — NOT implemented here:**
-- Live Electron GUI boot smoke test (replaced by `tsc` + full test suite verification; the GUI boot remains a manual step — note that `npm start` runs `electron-rebuild` for `better-sqlite3`, which then requires `npm rebuild better-sqlite3` before `npm test` works again under Node).
+- Verify `node-sqlite3-wasm`'s `.wasm` asset loads from a **packaged** (asar) build — dev (`electron-forge start`) boots fine; for `electron-forge package`, confirm the wasm resolves (Electron's fs reads from asar transparently, but add to `asar.unpack` if needed).
 - Per-file **upload progress transport** over IPC (`onProgress` exists on the op but no `webContents.send` channel yet).
 - **Content-Security-Policy** on the renderer.
 - **Versioned** schema migrations (current `migrate()` is `CREATE TABLE IF NOT EXISTS` only).
