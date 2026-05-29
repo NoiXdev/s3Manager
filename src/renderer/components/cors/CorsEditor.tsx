@@ -95,7 +95,7 @@ export function CorsEditor({
           </div>
 
           {showJson && (
-            <pre className="overflow-auto rounded bg-slate-900 p-3 text-xs text-slate-100">{JSON.stringify(rules, null, 2)}</pre>
+            <pre data-testid="cors-json" className="overflow-auto rounded bg-slate-900 p-3 text-xs text-slate-100">{JSON.stringify(rules, null, 2)}</pre>
           )}
 
           <div className="flex gap-2">

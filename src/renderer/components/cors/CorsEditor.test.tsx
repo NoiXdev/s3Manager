@@ -56,4 +56,29 @@ describe('CorsEditor', () => {
     await userEvent.click(await screen.findByRole('button', { name: '+ Add rule' }));
     expect(screen.getByRole('button', { name: 'Remove rule' })).toBeInTheDocument();
   });
+
+  it('JSON preview reflects edits (working set, not just server data)', async () => {
+    wrap(<CorsEditor initialAccountId="acc-1" initialBucket="assets" />);
+    await screen.findByRole('checkbox', { name: 'GET' });
+    await userEvent.click(screen.getByRole('button', { name: '+ Add rule' })); // now 2 rules in working set
+    await userEvent.click(screen.getByRole('button', { name: 'Show JSON' }));
+    const parsed = JSON.parse(screen.getByTestId('cors-json').textContent ?? '[]');
+    expect(parsed).toHaveLength(2);
+  });
+
+  it('shows an error toast and preserves edits when Save fails', async () => {
+    (window as unknown as { s3: unknown }).s3 = {
+      accounts: { list: vi.fn().mockResolvedValue({ ok: true, data: [account] }) },
+      listBuckets: vi.fn().mockResolvedValue({ ok: true, data: ['assets'] }),
+      getBucketCors: vi.fn().mockResolvedValue({ ok: true, data: [rule] }),
+      putBucketCors: vi.fn().mockResolvedValue({ ok: false, error: { code: 'AccessDenied', message: 'no perms' } }),
+      deleteBucketCors: vi.fn(),
+    };
+    wrap(<CorsEditor initialAccountId="acc-1" initialBucket="assets" />);
+    await screen.findByRole('checkbox', { name: 'GET' });
+    await userEvent.click(screen.getByRole('button', { name: 'Save' }));
+    expect(await screen.findByText('AccessDenied: no perms')).toBeInTheDocument();
+    // edits preserved: the rule card is still present
+    expect(screen.getByRole('checkbox', { name: 'GET' })).toBeInTheDocument();
+  });
 });
