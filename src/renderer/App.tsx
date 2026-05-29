@@ -6,6 +6,7 @@ import { FileBrowser } from './components/files/FileBrowser';
 import { MetadataPanel } from './components/files/MetadataPanel';
 import { ToastProvider } from './components/ui/ToastProvider';
 import { Dashboard } from './components/dashboard/Dashboard';
+import { CorsEditor } from './components/cors/CorsEditor';
 
 export function App() {
   const [section, setSection] = useState<Section>('files');
@@ -78,6 +79,8 @@ export function App() {
               onOpenAccount={(id) => openInFiles(id, null)}
               onOpenBucket={(id, b) => openInFiles(id, b)}
             />
+          ) : section === 'cors' ? (
+            <CorsEditor initialAccountId={accountId} initialBucket={bucket} />
           ) : (
             <div className="flex h-full items-center justify-center text-slate-400">Coming soon</div>
           )}

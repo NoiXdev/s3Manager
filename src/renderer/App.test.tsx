@@ -17,6 +17,9 @@ beforeEach(() => {
     getDropPath: vi.fn((f: File) => `/local/${f.name}`),
     uploadObject: vi.fn().mockResolvedValue({ ok: true, data: { key: 'logo.png' } }),
     onUploadProgress: vi.fn(() => () => {}),
+    getBucketCors: vi.fn().mockResolvedValue({ ok: true, data: [] }),
+    putBucketCors: vi.fn().mockResolvedValue({ ok: true, data: true }),
+    deleteBucketCors: vi.fn().mockResolvedValue({ ok: true, data: true }),
   };
 });
 
@@ -54,6 +57,15 @@ describe('App — operations feedback', () => {
     await userEvent.click(await screen.findByText('logo.png'));
     await userEvent.click(await screen.findByRole('button', { name: 'Copy URL' }));
     expect(await screen.findByText('Signed URL copied')).toBeInTheDocument();
+  });
+});
+
+describe('App — CORS', () => {
+  it('renders the CORS editor for the CORS section', async () => {
+    renderApp();
+    await userEvent.click(screen.getByRole('button', { name: 'CORS' }));
+    expect(await screen.findByText('CORS configuration')).toBeInTheDocument();
+    expect(screen.getByLabelText('Account')).toBeInTheDocument();
   });
 });
 
