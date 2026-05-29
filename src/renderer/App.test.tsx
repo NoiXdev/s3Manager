@@ -5,14 +5,17 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { App } from './App';
 
 beforeEach(() => {
+  Object.assign(navigator, { clipboard: { writeText: vi.fn().mockResolvedValue(undefined) } });
   (window as unknown as { s3: unknown }).s3 = {
     accounts: { list: vi.fn().mockResolvedValue({ ok: true, data: [{ id: 'a', label: 'AWS prod', provider: 'amazon-s3', region: 'eu-central-1', accessKeyId: 'AK', createdAt: 1 }] }) },
     listBuckets: vi.fn().mockResolvedValue({ ok: true, data: ['assets'] }),
     listObjects: vi.fn().mockResolvedValue({ ok: true, data: { folders: [], files: [{ name: 'logo.png', key: 'logo.png', size: 5, lastModified: null, storageClass: null, etag: null }], nextToken: null } }),
     headObject: vi.fn().mockResolvedValue({ ok: true, data: { size: 5, contentType: 'image/png', lastModified: null, storageClass: null, etag: null, metadata: {} } }),
     objectVisibility: vi.fn().mockResolvedValue({ ok: true, data: 'private' }),
+    presignGet: vi.fn().mockResolvedValue({ ok: true, data: 'https://signed/x' }),
+    deleteObject: vi.fn().mockResolvedValue({ ok: true, data: 1 }),
     getDropPath: vi.fn((f: File) => `/local/${f.name}`),
-    uploadObject: vi.fn().mockResolvedValue({ ok: true, data: {} }),
+    uploadObject: vi.fn().mockResolvedValue({ ok: true, data: { key: 'logo.png' } }),
     onUploadProgress: vi.fn(() => () => {}),
   };
 });
@@ -40,5 +43,16 @@ describe('App — Files browsing', () => {
     renderApp();
     await userEvent.click(screen.getByRole('button', { name: 'Settings' }));
     expect(screen.getByText('Coming soon')).toBeInTheDocument();
+  });
+});
+
+describe('App — operations feedback', () => {
+  it('shows a toast after copying a presigned URL from the metadata panel', async () => {
+    renderApp();
+    await userEvent.click(await screen.findByText('AWS prod'));
+    await userEvent.click(await screen.findByText('assets'));
+    await userEvent.click(await screen.findByText('logo.png'));
+    await userEvent.click(await screen.findByRole('button', { name: 'Copy URL' }));
+    expect(await screen.findByText('Signed URL copied')).toBeInTheDocument();
   });
 });
