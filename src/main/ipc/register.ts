@@ -1,6 +1,6 @@
 import { CH, type CreateAccountInput } from './channels';
 import { ok, err, type Result } from '../shared/result';
-import { resolveEndpoint, getProvider } from '../s3/providers';
+import { resolveEndpoint, getProvider, PROVIDERS } from '../s3/providers';
 import { createClient } from '../s3/clientFactory';
 import { createClientForAccount } from '../s3/accountClients';
 import {
@@ -18,6 +18,7 @@ import { getObjectVisibility } from '../s3/visibility';
 import type { AccountsRepo } from '../storage/accountsRepo';
 import type { SecretsStore, Crypto } from '../storage/secrets';
 import type { SettingsRepo } from '../storage/settingsRepo';
+import type { DB } from '../storage/db';
 
 export interface IpcMainLike {
   handle(channel: string, listener: (event: unknown, ...args: unknown[]) => unknown): void;
@@ -28,9 +29,11 @@ export interface RegisterDeps {
   secrets: SecretsStore;
   settings: SettingsRepo;
   crypto: Crypto;
+  db: DB;
 }
 
 export function registerIpc(ipcMain: IpcMainLike, deps: RegisterDeps): void {
+  const isKnownProvider = (p: string) => PROVIDERS.some((x) => x.id === p);
   const clientFor = (accountId: string) => createClientForAccount(accountId, deps);
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -48,15 +51,21 @@ export function registerIpc(ipcMain: IpcMainLike, deps: RegisterDeps): void {
   h(CH.encryptionAvailable, () => ok(deps.crypto.isEncryptionAvailable()));
 
   h(CH.accountsCreate, (input: CreateAccountInput) => {
+    if (!isKnownProvider(input.provider)) {
+      return err('InvalidProvider', `Unknown provider: ${input.provider}`);
+    }
     const endpoint = resolveEndpoint(input.provider, input.region);
-    const account = deps.accounts.create({
-      label: input.label,
-      provider: input.provider,
-      endpoint,
-      region: input.region,
-      accessKeyId: input.accessKeyId,
-    });
-    deps.secrets.set(account.id, input.secretAccessKey);
+    const account = deps.db.transaction(() => {
+      const created = deps.accounts.create({
+        label: input.label,
+        provider: input.provider,
+        endpoint,
+        region: input.region,
+        accessKeyId: input.accessKeyId,
+      });
+      deps.secrets.set(created.id, input.secretAccessKey);
+      return created;
+    })();
     return ok(account);
   });
 
@@ -67,6 +76,9 @@ export function registerIpc(ipcMain: IpcMainLike, deps: RegisterDeps): void {
   });
 
   h(CH.accountsTest, async (input: CreateAccountInput) => {
+    if (!isKnownProvider(input.provider)) {
+      return err('InvalidProvider', `Unknown provider: ${input.provider}`);
+    }
     const client = createClient({
       provider: input.provider,
       region: input.region,

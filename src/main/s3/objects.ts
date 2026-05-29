@@ -123,6 +123,9 @@ export async function deleteFolder(
   args: { bucket: string; prefix: string },
 ): Promise<Result<number>> {
   try {
+    if (!args.prefix || !args.prefix.trim() || args.prefix === '/') {
+      return err('InvalidPrefix', 'Refusing to delete with an empty or root prefix');
+    }
     let token: string | undefined;
     let deleted = 0;
     do {

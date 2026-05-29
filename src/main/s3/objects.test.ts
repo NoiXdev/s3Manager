@@ -89,3 +89,11 @@ describe('deleteFolder', () => {
     expect(r).toEqual({ ok: true, data: 3 });
   });
 });
+
+describe('deleteFolder guard', () => {
+  it('refuses an empty prefix and makes no S3 calls', async () => {
+    const r = await deleteFolder(new S3Client({}), { bucket: 'b', prefix: '' });
+    expect(r.ok).toBe(false);
+    if (!r.ok) expect(r.error.code).toBe('InvalidPrefix');
+  });
+});

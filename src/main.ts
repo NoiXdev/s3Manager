@@ -16,7 +16,7 @@ function initBackend() {
   const accounts = createAccountsRepo(db);
   const settings = createSettingsRepo(db);
   const secrets = createSecretsStore(db, safeStorage);
-  registerIpc(ipcMain, { accounts, settings, secrets, crypto: safeStorage });
+  registerIpc(ipcMain, { accounts, settings, secrets, crypto: safeStorage, db });
 }
 
 const createWindow = () => {

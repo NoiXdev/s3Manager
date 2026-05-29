@@ -28,6 +28,7 @@ function buildHarness() {
     secrets: createSecretsStore(db, fakeCrypto),
     settings: createSettingsRepo(db),
     crypto: fakeCrypto,
+    db,
   };
   registerIpc(ipcMain, deps);
   return { handlers, deps };
@@ -61,5 +62,35 @@ describe('registerIpc', () => {
     const res = (await handlers.get(CH.listBuckets)!(created.data.id)) as { ok: boolean; data: string[] };
     expect(res).toEqual({ ok: true, data: ['b1'] });
     void deps;
+  });
+
+  it('accounts:create rejects an unknown provider and persists nothing', async () => {
+    const { handlers, deps } = buildHarness();
+    const res = (await handlers.get(CH.accountsCreate)!({
+      label: 'X', provider: 'gcs', region: 'r', accessKeyId: 'AK', secretAccessKey: 'SK',
+    })) as { ok: boolean; error?: { code: string } };
+    expect(res.ok).toBe(false);
+    expect(res.error?.code).toBe('InvalidProvider');
+    expect(deps.accounts.list()).toHaveLength(0);
+  });
+
+  it('accounts:create is atomic — a secret failure rolls back the account', async () => {
+    const handlers = new Map<string, (...a: unknown[]) => unknown>();
+    const ipcMain = { handle: (c: string, l: (e: unknown, ...a: never[]) => unknown) => handlers.set(c, (...a: unknown[]) => l({}, ...(a as never[]))) };
+    const db = openDatabase(':memory:');
+    const brokenCrypto = { ...fakeCrypto, isEncryptionAvailable: () => false };
+    const deps = {
+      accounts: createAccountsRepo(db),
+      secrets: createSecretsStore(db, brokenCrypto),
+      settings: createSettingsRepo(db),
+      crypto: brokenCrypto,
+      db,
+    };
+    registerIpc(ipcMain, deps);
+    const res = (await handlers.get(CH.accountsCreate)!({
+      label: 'X', provider: 'amazon-s3', region: 'eu-central-1', accessKeyId: 'AK', secretAccessKey: 'SK',
+    })) as { ok: boolean };
+    expect(res.ok).toBe(false);
+    expect(deps.accounts.list()).toHaveLength(0); // rolled back
   });
 });
