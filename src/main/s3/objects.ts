@@ -11,7 +11,9 @@ import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { Upload } from '@aws-sdk/lib-storage';
 import { ok, err, type Result } from '../shared/result';
 import { transformListing, type Listing } from './listTransform';
-import { createReadStream } from 'node:fs';
+import { createReadStream, createWriteStream } from 'node:fs';
+import { pipeline } from 'node:stream/promises';
+import type { Readable } from 'node:stream';
 
 export function toErr(e: unknown): Result<never> {
   const code = (e as { name?: string })?.name ?? 'UnknownError';
@@ -177,6 +179,22 @@ export async function uploadObject(
     }
     await upload.done();
     return ok({ key: args.key });
+  } catch (e) {
+    return toErr(e);
+  }
+}
+
+export async function downloadObject(
+  client: S3Client,
+  args: { bucket: string; key: string; destPath: string },
+): Promise<Result<{ path: string }>> {
+  try {
+    const out = await client.send(
+      new GetObjectCommand({ Bucket: args.bucket, Key: args.key }),
+    );
+    if (!out.Body) return err('EmptyBody', 'Object has no body');
+    await pipeline(out.Body as Readable, createWriteStream(args.destPath));
+    return ok({ path: args.destPath });
   } catch (e) {
     return toErr(e);
   }
