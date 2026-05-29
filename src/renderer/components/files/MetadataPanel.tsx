@@ -8,6 +8,8 @@ import { useToast } from '../ui/ToastProvider';
 import { parentPrefix, baseName } from '../../lib/keys';
 import { NameDialog } from '../transfer/NameDialog';
 import { MoveDialog } from '../transfer/MoveDialog';
+import { useObjectLock } from '../../hooks/useObjectLock';
+import { RetentionSection } from './RetentionSection';
 
 function Row({ label, value }: { label: string; value: string }) {
   return (
@@ -30,6 +32,7 @@ export function MetadataPanel({
   onClose: () => void;
 }) {
   const { metadata, visibility, setVisibility } = useObjectDetails(accountId, bucket, objectKey);
+  const lock = useObjectLock(accountId, bucket);
   const actions = useObjectActions(accountId ?? '', bucket ?? '');
   const [confirming, setConfirming] = useState(false);
   const [confirmingPublic, setConfirmingPublic] = useState(false);
@@ -170,6 +173,10 @@ export function MetadataPanel({
             </button>
           )}
         </div>
+
+        {lock.query.data?.enabled && (
+          <RetentionSection accountId={accountId ?? ''} bucket={bucket ?? ''} objectKey={objectKey} />
+        )}
 
         {metadata.isLoading && <p className="py-2 text-slate-500">Loading…</p>}
         {metadata.isError && <p className="py-2 text-red-600">{(metadata.error as Error).message}</p>}

@@ -14,6 +14,7 @@ beforeEach(() => {
   (window as unknown as { s3: unknown }).s3 = {
     headObject: vi.fn().mockResolvedValue({ ok: true, data: { size: 2048, contentType: 'image/png', lastModified: '2024-01-01T00:00:00.000Z', storageClass: 'STANDARD', etag: '"a"', metadata: { owner: 'me' } } }),
     objectVisibility: vi.fn().mockResolvedValue({ ok: true, data: 'public' }),
+    getObjectLockConfig: vi.fn().mockResolvedValue({ ok: true, data: { enabled: false, defaultRetention: null } }),
   };
 });
 
@@ -133,5 +134,30 @@ describe('MetadataPanel visibility editing', () => {
     expect(await screen.findByText('unknown')).toBeInTheDocument();
     expect(screen.queryByRole('button', { name: 'Make public' })).toBeNull();
     expect(screen.queryByRole('button', { name: 'Make private' })).toBeNull();
+  });
+});
+
+describe('MetadataPanel retention section', () => {
+  it('shows the Retention & legal hold section when the bucket has Object Lock enabled', async () => {
+    (window as unknown as { s3: unknown }).s3 = {
+      headObject: vi.fn().mockResolvedValue({ ok: true, data: { size: 1, contentType: null, lastModified: null, storageClass: null, etag: null, metadata: {} } }),
+      objectVisibility: vi.fn().mockResolvedValue({ ok: true, data: 'private' }),
+      getObjectLockConfig: vi.fn().mockResolvedValue({ ok: true, data: { enabled: true, defaultRetention: null } }),
+      getObjectRetention: vi.fn().mockResolvedValue({ ok: true, data: { mode: null, retainUntil: null } }),
+      getObjectLegalHold: vi.fn().mockResolvedValue({ ok: true, data: 'OFF' }),
+    };
+    wrap(<MetadataPanel accountId="acc-1" bucket="assets" objectKey="k" onClose={() => {}} />);
+    expect(await screen.findByText('Retention & legal hold')).toBeInTheDocument();
+  });
+
+  it('hides the section when Object Lock is not enabled', async () => {
+    (window as unknown as { s3: unknown }).s3 = {
+      headObject: vi.fn().mockResolvedValue({ ok: true, data: { size: 1, contentType: null, lastModified: null, storageClass: null, etag: null, metadata: {} } }),
+      objectVisibility: vi.fn().mockResolvedValue({ ok: true, data: 'private' }),
+      getObjectLockConfig: vi.fn().mockResolvedValue({ ok: true, data: { enabled: false, defaultRetention: null } }),
+    };
+    wrap(<MetadataPanel accountId="acc-1" bucket="assets" objectKey="k" onClose={() => {}} />);
+    expect(await screen.findByText('private')).toBeInTheDocument();
+    expect(screen.queryByText('Retention & legal hold')).toBeNull();
   });
 });
