@@ -282,6 +282,22 @@ describe('local sync handlers', () => {
   });
 });
 
+describe('presignPut handler', () => {
+  it('s3:presignPut returns a signed upload URL via the account client', async () => {
+    const { handlers } = buildHarness();
+    const created = (await handlers.get(CH.accountsCreate)!({
+      label: 'AWS', provider: 'amazon-s3', region: 'us-east-1', accessKeyId: 'AK', secretAccessKey: 'SK',
+    })) as { data: { id: string } };
+
+    const res = (await handlers.get(CH.presignPut)!({
+      accountId: created.data.id, bucket: 'b', key: 'k.txt', expiresIn: 86400,
+    })) as { ok: boolean; data: string };
+    expect(res.ok).toBe(true);
+    expect(res.data).toMatch(/^https:\/\//);
+    expect(res.data).toContain('X-Amz-Expires=86400');
+  });
+});
+
 describe('setObjectVisibility handler', () => {
   it('s3:setObjectVisibility sets the ACL via the account client', async () => {
     const { handlers } = buildHarness();

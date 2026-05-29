@@ -22,6 +22,7 @@ const api = {
   objectVisibility: (a: ApiMap[typeof CH.objectVisibility]['args'][0]) => invoke(CH.objectVisibility, a),
   setObjectVisibility: (a: ApiMap[typeof CH.setObjectVisibility]['args'][0]) => invoke(CH.setObjectVisibility, a),
   presignGet: (a: ApiMap[typeof CH.presignGet]['args'][0]) => invoke(CH.presignGet, a),
+  presignPut: (a: ApiMap[typeof CH.presignPut]['args'][0]) => invoke(CH.presignPut, a),
   deleteObject: (a: ApiMap[typeof CH.deleteObject]['args'][0]) => invoke(CH.deleteObject, a),
   deleteFolder: (a: ApiMap[typeof CH.deleteFolder]['args'][0]) => invoke(CH.deleteFolder, a),
   uploadObject: (a: ApiMap[typeof CH.uploadObject]['args'][0]) => invoke(CH.uploadObject, a),

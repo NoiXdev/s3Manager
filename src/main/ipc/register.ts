@@ -9,6 +9,7 @@ import {
   listObjects,
   headObject,
   presignGetUrl,
+  presignPutUrl,
   deleteObject,
   deleteFolder,
   uploadObject,
@@ -124,6 +125,10 @@ export function registerIpc(ipcMain: IpcMainLike, deps: RegisterDeps): void {
 
   h(CH.presignGet, (a: { accountId: string; bucket: string; key: string; expiresIn: number }) =>
     presignGetUrl(clientFor(a.accountId), { bucket: a.bucket, key: a.key, expiresIn: a.expiresIn }),
+  );
+
+  h(CH.presignPut, (a: { accountId: string; bucket: string; key: string; expiresIn: number }) =>
+    presignPutUrl(clientFor(a.accountId), { bucket: a.bucket, key: a.key, expiresIn: a.expiresIn }),
   );
 
   h(CH.deleteObject, (a: { accountId: string; bucket: string; key: string }) =>
