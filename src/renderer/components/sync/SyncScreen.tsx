@@ -59,8 +59,8 @@ export function SyncScreen({
       <h2 className="pb-3 text-lg font-semibold">Sync (bucket → bucket)</h2>
 
       <div className="grid max-w-2xl grid-cols-2 gap-6">
-        <EndpointPicker label="Source" value={source} onChange={(v) => { setSource(v); setPlan(null); }} />
-        <EndpointPicker label="Destination" value={dest} onChange={(v) => { setDest(v); setPlan(null); }} />
+        <EndpointPicker label="Source" value={source} onChange={(v) => { setSource(v); setPlan(null); setResult(null); }} />
+        <EndpointPicker label="Destination" value={dest} onChange={(v) => { setDest(v); setPlan(null); setResult(null); }} />
       </div>
 
       {identical && <p className="mt-3 text-sm text-red-600">Source and destination are the same.</p>}
