@@ -5,6 +5,7 @@ import { BucketsPane } from './components/buckets/BucketsPane';
 import { FileBrowser } from './components/files/FileBrowser';
 import { MetadataPanel } from './components/files/MetadataPanel';
 import { ToastProvider } from './components/ui/ToastProvider';
+import { Dashboard } from './components/dashboard/Dashboard';
 
 export function App() {
   const [section, setSection] = useState<Section>('files');
@@ -27,6 +28,13 @@ export function App() {
   const navigate = (p: string) => {
     setPrefix(p);
     setSelectedKey(null);
+  };
+  const openInFiles = (id: string, b: string | null = null) => {
+    setAccountId(id);
+    setBucket(b);
+    setPrefix('');
+    setSelectedKey(null);
+    setSection('files');
   };
 
   return (
@@ -65,6 +73,11 @@ export function App() {
                 />
               )}
             </div>
+          ) : section === 'dashboard' ? (
+            <Dashboard
+              onOpenAccount={(id) => openInFiles(id, null)}
+              onOpenBucket={(id, b) => openInFiles(id, b)}
+            />
           ) : (
             <div className="flex h-full items-center justify-center text-slate-400">Coming soon</div>
           )}

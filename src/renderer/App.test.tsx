@@ -56,3 +56,14 @@ describe('App — operations feedback', () => {
     expect(await screen.findByText('Signed URL copied')).toBeInTheDocument();
   });
 });
+
+describe('App — Dashboard', () => {
+  it('shows the dashboard and click-through opens a bucket in the Files view', async () => {
+    renderApp();
+    await userEvent.click(screen.getByRole('button', { name: 'Dashboard' }));
+    const bucketChip = await screen.findByRole('button', { name: 'assets' });
+    await userEvent.click(bucketChip);
+    expect(screen.getByRole('button', { name: 'Files' })).toHaveAttribute('aria-current', 'page');
+    expect(await screen.findByText('logo.png')).toBeInTheDocument();
+  });
+});
