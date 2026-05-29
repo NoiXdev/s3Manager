@@ -40,4 +40,38 @@ describe('useObjects', () => {
     expect(result.current.query.fetchStatus).toBe('idle');
     expect(list).not.toHaveBeenCalled();
   });
+
+  it('paginates on fetchNextPage: dedups folders and appends files across pages', async () => {
+    const list = vi
+      .fn()
+      .mockResolvedValueOnce({
+        ok: true,
+        data: {
+          folders: [{ name: 'thumbs', prefix: 'images/thumbs/' }],
+          files: [{ name: 'a.png', key: 'images/a.png', size: 1, lastModified: null, storageClass: null, etag: null }],
+          nextToken: 'TOK',
+        },
+      })
+      .mockResolvedValueOnce({
+        ok: true,
+        data: {
+          folders: [{ name: 'thumbs', prefix: 'images/thumbs/' }],
+          files: [{ name: 'b.png', key: 'images/b.png', size: 2, lastModified: null, storageClass: null, etag: null }],
+          nextToken: null,
+        },
+      });
+    (window as unknown as { s3: unknown }).s3 = { listObjects: list };
+
+    const { result } = renderHook(() => useObjects('acc-1', 'assets', 'images/'), { wrapper: wrapper() });
+    await waitFor(() => expect(result.current.query.isSuccess).toBe(true));
+    expect(result.current.query.hasNextPage).toBe(true);
+    expect(result.current.files.map((f) => f.name)).toEqual(['a.png']);
+
+    await result.current.query.fetchNextPage();
+    await waitFor(() => expect(result.current.files.length).toBe(2));
+
+    expect(result.current.folders).toEqual([{ name: 'thumbs', prefix: 'images/thumbs/' }]); // deduped across pages
+    expect(result.current.files.map((f) => f.name)).toEqual(['a.png', 'b.png']);
+    expect(result.current.query.hasNextPage).toBe(false);
+  });
 });

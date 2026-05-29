@@ -34,4 +34,13 @@ describe('MetadataPanel', () => {
     await userEvent.click(screen.getByRole('button', { name: 'Close' }));
     expect(onClose).toHaveBeenCalled();
   });
+
+  it('shows "unavailable" when the visibility check fails', async () => {
+    (window as unknown as { s3: unknown }).s3 = {
+      headObject: vi.fn().mockResolvedValue({ ok: true, data: { size: 1, contentType: null, lastModified: null, storageClass: null, etag: null, metadata: {} } }),
+      objectVisibility: vi.fn().mockResolvedValue({ ok: false, error: { code: 'AccessDenied', message: 'no' } }),
+    };
+    wrap(<MetadataPanel accountId="acc-1" bucket="assets" objectKey="k" onClose={() => {}} />);
+    expect(await screen.findByText('unavailable')).toBeInTheDocument();
+  });
 });

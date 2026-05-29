@@ -46,6 +46,8 @@ export function MetadataPanel({
               >
                 {visibility.data}
               </span>
+            ) : visibility.isError ? (
+              <span className="text-xs text-slate-400">unavailable</span>
             ) : (
               '…'
             )}
