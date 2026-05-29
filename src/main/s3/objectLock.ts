@@ -1,4 +1,4 @@
-import { S3Client, GetObjectLockConfigurationCommand } from '@aws-sdk/client-s3';
+import { S3Client, GetObjectLockConfigurationCommand, PutObjectLockConfigurationCommand, type ObjectLockConfiguration } from '@aws-sdk/client-s3';
 import { ok, type Result } from '../shared/result';
 import { toErr } from './objects';
 
@@ -11,6 +11,26 @@ export interface DefaultRetention {
 export interface ObjectLockStatus {
   enabled: boolean;
   defaultRetention: DefaultRetention | null;
+}
+
+export async function putObjectLockConfig(
+  client: S3Client,
+  bucket: string,
+  retention: DefaultRetention | null,
+): Promise<Result<true>> {
+  try {
+    const configuration: ObjectLockConfiguration = { ObjectLockEnabled: 'Enabled' };
+    if (retention) {
+      const dr: { Mode: 'GOVERNANCE' | 'COMPLIANCE'; Days?: number; Years?: number } = { Mode: retention.mode };
+      if (retention.days !== null) dr.Days = retention.days;
+      else if (retention.years !== null) dr.Years = retention.years;
+      configuration.Rule = { DefaultRetention: dr };
+    }
+    await client.send(new PutObjectLockConfigurationCommand({ Bucket: bucket, ObjectLockConfiguration: configuration }));
+    return ok(true);
+  } catch (e) {
+    return toErr(e);
+  }
 }
 
 export async function getObjectLockConfig(client: S3Client, bucket: string): Promise<Result<ObjectLockStatus>> {
