@@ -8,7 +8,7 @@ import { ToastProvider } from './components/ui/ToastProvider';
 import { Dashboard } from './components/dashboard/Dashboard';
 import { CorsEditor } from './components/cors/CorsEditor';
 import { ObjectLockEditor } from './components/objectlock/ObjectLockEditor';
-import { SyncScreen } from './components/sync/SyncScreen';
+import { SyncSection } from './components/sync/SyncSection';
 
 export function App() {
   const [section, setSection] = useState<Section>('files');
@@ -86,7 +86,7 @@ export function App() {
           ) : section === 'objectLock' ? (
             <ObjectLockEditor initialAccountId={accountId} initialBucket={bucket} />
           ) : section === 'sync' ? (
-            <SyncScreen initialAccountId={accountId} initialBucket={bucket} />
+            <SyncSection initialAccountId={accountId} initialBucket={bucket} />
           ) : (
             <div className="flex h-full items-center justify-center text-slate-400">Coming soon</div>
           )}
