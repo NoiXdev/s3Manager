@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { mockClient } from 'aws-sdk-client-mock';
-import { S3Client, ListBucketsCommand, GetObjectCommand } from '@aws-sdk/client-s3';
+import { S3Client, ListBucketsCommand, GetObjectCommand, GetBucketCorsCommand } from '@aws-sdk/client-s3';
 import { writeFileSync, mkdtempSync, readFileSync } from 'node:fs';
 import { Readable } from 'node:stream';
 import { join } from 'node:path';
@@ -159,5 +159,23 @@ describe('downloadObject handler', () => {
     expect(res).toEqual({ ok: true, data: { path: dest } });
     expect(readFileSync(dest, 'utf8')).toBe('payload');
     expect(deps.saveDialog).toHaveBeenCalledWith('out.txt');
+  });
+});
+
+describe('CORS handlers', () => {
+  it('s3:getBucketCors returns the bucket rules via the account client', async () => {
+    const { handlers } = buildHarness();
+    const created = (await handlers.get(CH.accountsCreate)!({
+      label: 'AWS', provider: 'amazon-s3', region: 'us-east-1', accessKeyId: 'AK', secretAccessKey: 'SK',
+    })) as { data: { id: string } };
+    s3Mock.on(GetBucketCorsCommand).resolves({
+      CORSRules: [{ AllowedMethods: ['GET'], AllowedOrigins: ['*'] }],
+    });
+
+    const res = (await handlers.get(CH.getBucketCors)!({ accountId: created.data.id, bucket: 'b' })) as {
+      ok: boolean; data: { allowedMethods: string[] }[];
+    };
+    expect(res.ok).toBe(true);
+    expect(res.data[0].allowedMethods).toEqual(['GET']);
   });
 });

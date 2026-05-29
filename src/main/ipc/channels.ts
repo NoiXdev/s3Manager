@@ -3,6 +3,7 @@ import type { Result } from '../shared/result';
 import type { ListObjectsResult, ObjectMetadata } from '../s3/objects';
 import type { Visibility } from '../s3/visibility';
 import type { Account } from '../storage/accountsRepo';
+import type { CorsRule } from '../s3/cors';
 
 export const CH = {
   accountsList: 'accounts:list',
@@ -19,6 +20,9 @@ export const CH = {
   deleteFolder: 's3:deleteFolder',
   uploadObject: 's3:uploadObject',
   downloadObject: 's3:downloadObject',
+  getBucketCors: 's3:getBucketCors',
+  putBucketCors: 's3:putBucketCors',
+  deleteBucketCors: 's3:deleteBucketCors',
 } as const;
 
 export interface CreateAccountInput {
@@ -45,6 +49,9 @@ export interface ApiMap {
   [CH.deleteFolder]: { args: [{ accountId: string; bucket: string; prefix: string }]; res: Result<number> };
   [CH.uploadObject]: { args: [{ accountId: string; bucket: string; key: string; filePath: string; contentType?: string; uploadId: string }]; res: Result<{ key: string }> };
   [CH.downloadObject]: { args: [{ accountId: string; bucket: string; key: string }]; res: Result<{ path: string | null }> };
+  [CH.getBucketCors]: { args: [{ accountId: string; bucket: string }]; res: Result<CorsRule[]> };
+  [CH.putBucketCors]: { args: [{ accountId: string; bucket: string; rules: CorsRule[] }]; res: Result<true> };
+  [CH.deleteBucketCors]: { args: [{ accountId: string; bucket: string }]; res: Result<true> };
 }
 
 /** One-way main→renderer channel for upload progress (not an invoke channel,

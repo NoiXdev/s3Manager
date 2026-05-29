@@ -16,6 +16,8 @@ import {
   toErr,
 } from '../s3/objects';
 import { getObjectVisibility } from '../s3/visibility';
+import { getBucketCors, putBucketCors, deleteBucketCors } from '../s3/cors';
+import type { CorsRule } from '../s3/cors';
 import type { AccountsRepo } from '../storage/accountsRepo';
 import type { SecretsStore, Crypto } from '../storage/secrets';
 import type { SettingsRepo } from '../storage/settingsRepo';
@@ -145,4 +147,16 @@ export function registerIpc(ipcMain: IpcMainLike, deps: RegisterDeps): void {
     const r = await downloadObject(clientFor(a.accountId), { bucket: a.bucket, key: a.key, destPath: dest });
     return r.ok ? ok({ path: dest as string | null }) : r;
   });
+
+  h(CH.getBucketCors, (a: { accountId: string; bucket: string }) =>
+    getBucketCors(clientFor(a.accountId), a.bucket),
+  );
+
+  h(CH.putBucketCors, (a: { accountId: string; bucket: string; rules: CorsRule[] }) =>
+    putBucketCors(clientFor(a.accountId), a.bucket, a.rules),
+  );
+
+  h(CH.deleteBucketCors, (a: { accountId: string; bucket: string }) =>
+    deleteBucketCors(clientFor(a.accountId), a.bucket),
+  );
 }
