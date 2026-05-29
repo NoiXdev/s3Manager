@@ -1,5 +1,5 @@
 import { basename } from 'node:path';
-import { CH, UPLOAD_PROGRESS_CHANNEL, type CreateAccountInput } from './channels';
+import { CH, UPLOAD_PROGRESS_CHANNEL, SYNC_PROGRESS_CHANNEL, type CreateAccountInput } from './channels';
 import { ok, err, type Result } from '../shared/result';
 import { resolveEndpoint, getProvider, PROVIDERS } from '../s3/providers';
 import { createClient } from '../s3/clientFactory';
@@ -20,6 +20,7 @@ import { getBucketCors, putBucketCors, deleteBucketCors } from '../s3/cors';
 import type { CorsRule } from '../s3/cors';
 import { getObjectLockConfig, putObjectLockConfig } from '../s3/objectLock';
 import { createFolder, moveObject, moveFolder } from '../s3/transfer';
+import { planSync, runSync, type Endpoint } from '../s3/sync';
 import type { DefaultRetention } from '../s3/objectLock';
 import type { AccountsRepo } from '../storage/accountsRepo';
 import type { SecretsStore, Crypto } from '../storage/secrets';
@@ -182,4 +183,34 @@ export function registerIpc(ipcMain: IpcMainLike, deps: RegisterDeps): void {
   h(CH.moveFolder, (a: { accountId: string; bucket: string; sourcePrefix: string; destPrefix: string }) =>
     moveFolder(clientFor(a.accountId), { bucket: a.bucket, sourcePrefix: a.sourcePrefix, destPrefix: a.destPrefix }),
   );
+
+  let activeSync: AbortController | null = null;
+
+  h(CH.syncPlan, (a: { source: Endpoint; dest: Endpoint }) =>
+    planSync(clientFor(a.source.accountId), clientFor(a.dest.accountId), a.source, a.dest),
+  );
+
+  ipcMain.handle(CH.syncRun, async (event, ...args) => {
+    const a = args[0] as { source: Endpoint; dest: Endpoint };
+    const sender = (event as { sender: { send(channel: string, payload: unknown): void } }).sender;
+    const controller = new AbortController();
+    activeSync?.abort(); // a new run supersedes any still-running one (one run at a time)
+    activeSync = controller;
+    try {
+      return await runSync(clientFor(a.source.accountId), clientFor(a.dest.accountId), a.source, a.dest, {
+        sameAccount: a.source.accountId === a.dest.accountId,
+        signal: controller.signal,
+        onProgress: (p) => sender.send(SYNC_PROGRESS_CHANNEL, p),
+      });
+    } catch (e) {
+      return toErr(e);
+    } finally {
+      if (activeSync === controller) activeSync = null;
+    }
+  });
+
+  h(CH.syncCancel, () => {
+    activeSync?.abort();
+    return ok(true as const);
+  });
 }

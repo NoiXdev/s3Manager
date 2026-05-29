@@ -1,6 +1,6 @@
 import { contextBridge, ipcRenderer, webUtils } from 'electron';
-import { CH, UPLOAD_PROGRESS_CHANNEL } from './main/ipc/channels';
-import type { ApiMap, UploadProgress } from './main/ipc/channels';
+import { CH, UPLOAD_PROGRESS_CHANNEL, SYNC_PROGRESS_CHANNEL } from './main/ipc/channels';
+import type { ApiMap, UploadProgress, SyncProgress } from './main/ipc/channels';
 
 type Channel = keyof ApiMap;
 
@@ -33,6 +33,14 @@ const api = {
   createFolder: (a: ApiMap[typeof CH.createFolder]['args'][0]) => invoke(CH.createFolder, a),
   moveObject: (a: ApiMap[typeof CH.moveObject]['args'][0]) => invoke(CH.moveObject, a),
   moveFolder: (a: ApiMap[typeof CH.moveFolder]['args'][0]) => invoke(CH.moveFolder, a),
+  planSync: (a: ApiMap[typeof CH.syncPlan]['args'][0]) => invoke(CH.syncPlan, a),
+  runSync: (a: ApiMap[typeof CH.syncRun]['args'][0]) => invoke(CH.syncRun, a),
+  cancelSync: () => invoke(CH.syncCancel),
+  onSyncProgress: (cb: (p: SyncProgress) => void) => {
+    const listener = (_event: unknown, payload: unknown) => cb(payload as SyncProgress);
+    ipcRenderer.on(SYNC_PROGRESS_CHANNEL, listener);
+    return () => ipcRenderer.removeListener(SYNC_PROGRESS_CHANNEL, listener);
+  },
   onUploadProgress: (cb: (progress: UploadProgress) => void) => {
     const listener = (_event: unknown, payload: unknown) => cb(payload as UploadProgress);
     ipcRenderer.on(UPLOAD_PROGRESS_CHANNEL, listener);

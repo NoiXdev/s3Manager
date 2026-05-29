@@ -5,6 +5,7 @@ import type { Visibility } from '../s3/visibility';
 import type { Account } from '../storage/accountsRepo';
 import type { CorsRule } from '../s3/cors';
 import type { ObjectLockStatus, DefaultRetention } from '../s3/objectLock';
+import type { Endpoint, SyncPlan, SyncResult } from '../s3/sync';
 
 export const CH = {
   accountsList: 'accounts:list',
@@ -29,6 +30,9 @@ export const CH = {
   createFolder: 's3:createFolder',
   moveObject: 's3:moveObject',
   moveFolder: 's3:moveFolder',
+  syncPlan: 'sync:plan',
+  syncRun: 'sync:run',
+  syncCancel: 'sync:cancel',
 } as const;
 
 export interface CreateAccountInput {
@@ -63,6 +67,9 @@ export interface ApiMap {
   [CH.createFolder]: { args: [{ accountId: string; bucket: string; prefix: string; name: string }]; res: Result<{ key: string }> };
   [CH.moveObject]: { args: [{ accountId: string; bucket: string; sourceKey: string; destKey: string }]; res: Result<{ key: string }> };
   [CH.moveFolder]: { args: [{ accountId: string; bucket: string; sourcePrefix: string; destPrefix: string }]; res: Result<{ count: number }> };
+  [CH.syncPlan]: { args: [{ source: Endpoint; dest: Endpoint }]; res: Result<SyncPlan> };
+  [CH.syncRun]: { args: [{ source: Endpoint; dest: Endpoint }]; res: Result<SyncResult> };
+  [CH.syncCancel]: { args: []; res: Result<true> };
 }
 
 /** One-way main→renderer channel for upload progress (not an invoke channel,
@@ -74,3 +81,7 @@ export interface UploadProgress {
   loaded: number;
   total: number | null;
 }
+
+/** One-way main→renderer channel for sync progress (mirrors UPLOAD_PROGRESS_CHANNEL). */
+export const SYNC_PROGRESS_CHANNEL = 's3:syncProgress';
+export type { SyncProgress } from '../s3/sync';

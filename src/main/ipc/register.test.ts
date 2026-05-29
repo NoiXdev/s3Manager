@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { mockClient } from 'aws-sdk-client-mock';
-import { S3Client, ListBucketsCommand, GetObjectCommand, GetBucketCorsCommand, GetObjectLockConfigurationCommand } from '@aws-sdk/client-s3';
+import { S3Client, ListBucketsCommand, GetObjectCommand, GetBucketCorsCommand, GetObjectLockConfigurationCommand, ListObjectsV2Command } from '@aws-sdk/client-s3';
 import { writeFileSync, mkdtempSync, readFileSync } from 'node:fs';
 import { Readable } from 'node:stream';
 import { join } from 'node:path';
@@ -210,5 +210,30 @@ describe('transfer handlers', () => {
       ok: boolean; data: { key: string };
     };
     expect(res).toEqual({ ok: true, data: { key: 'p/new/' } });
+  });
+});
+
+describe('sync handlers', () => {
+  it('sync:plan diffs source vs destination via the account clients', async () => {
+    const { handlers } = buildHarness();
+    const created = (await handlers.get(CH.accountsCreate)!({
+      label: 'AWS', provider: 'amazon-s3', region: 'us-east-1', accessKeyId: 'AK', secretAccessKey: 'SK',
+    })) as { data: { id: string } };
+    s3Mock.on(ListObjectsV2Command, { Bucket: 'b', Prefix: 'a/' }).resolves({ Contents: [{ Key: 'a/one.txt', Size: 10 }] });
+    s3Mock.on(ListObjectsV2Command, { Bucket: 'b', Prefix: 'dst/' }).resolves({ Contents: [] });
+
+    const res = (await handlers.get(CH.syncPlan)!({
+      source: { accountId: created.data.id, bucket: 'b', prefix: 'a/' },
+      dest: { accountId: created.data.id, bucket: 'b', prefix: 'dst/' },
+    })) as { ok: boolean; data: { toCopy: number; bytesToCopy: number } };
+    expect(res.ok).toBe(true);
+    expect(res.data.toCopy).toBe(1);
+    expect(res.data.bytesToCopy).toBe(10);
+  });
+
+  it('sync:cancel returns ok even when nothing is running', async () => {
+    const { handlers } = buildHarness();
+    const res = (await handlers.get(CH.syncCancel)!()) as { ok: boolean; data: boolean };
+    expect(res).toEqual({ ok: true, data: true });
   });
 });
