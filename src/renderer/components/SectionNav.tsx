@@ -1,10 +1,11 @@
-export type Section = 'files' | 'dashboard' | 'objectLock' | 'cors' | 'settings';
+export type Section = 'files' | 'dashboard' | 'objectLock' | 'cors' | 'sync' | 'settings';
 
 const SECTIONS: { id: Section; label: string }[] = [
   { id: 'files', label: 'Files' },
   { id: 'dashboard', label: 'Dashboard' },
   { id: 'objectLock', label: 'Object Lock' },
   { id: 'cors', label: 'CORS' },
+  { id: 'sync', label: 'Sync' },
   { id: 'settings', label: 'Settings' },
 ];
 

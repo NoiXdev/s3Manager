@@ -22,6 +22,7 @@ beforeEach(() => {
     deleteBucketCors: vi.fn().mockResolvedValue({ ok: true, data: true }),
     getObjectLockConfig: vi.fn().mockResolvedValue({ ok: true, data: { enabled: false, defaultRetention: null } }),
     putObjectLockConfig: vi.fn().mockResolvedValue({ ok: true, data: true }),
+    onSyncProgress: vi.fn(() => () => {}),
   };
 });
 
@@ -88,5 +89,13 @@ describe('App — Dashboard', () => {
     await userEvent.click(bucketChip);
     expect(screen.getByRole('button', { name: 'Files' })).toHaveAttribute('aria-current', 'page');
     expect(await screen.findByText('logo.png')).toBeInTheDocument();
+  });
+});
+
+describe('App — Sync', () => {
+  it('shows the Sync screen when the Sync nav item is clicked', async () => {
+    renderApp();
+    await userEvent.click(screen.getByRole('button', { name: 'Sync' }));
+    expect(await screen.findByText('Sync (bucket → bucket)')).toBeInTheDocument();
   });
 });

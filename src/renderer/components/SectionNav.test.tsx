@@ -18,4 +18,9 @@ describe('SectionNav', () => {
     await userEvent.click(screen.getByRole('button', { name: 'Settings' }));
     expect(onSelect).toHaveBeenCalledWith('settings' satisfies Section);
   });
+
+  it('renders a Sync section', () => {
+    render(<SectionNav active="files" onSelect={() => {}} />);
+    expect(screen.getByRole('button', { name: 'Sync' })).toBeInTheDocument();
+  });
 });
