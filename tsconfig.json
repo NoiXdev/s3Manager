@@ -14,7 +14,7 @@
     "sourceMap": true,
     "baseUrl": ".",
     "outDir": "dist",
-    "types": ["node"]
+    "types": ["node", "@testing-library/jest-dom"]
   },
   "include": ["src", "forge.config.ts", "*.config.ts", "forge.env.d.ts"]
 }
