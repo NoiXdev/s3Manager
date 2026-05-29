@@ -8,8 +8,10 @@ import {
   DeleteObjectsCommand,
 } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
+import { Upload } from '@aws-sdk/lib-storage';
 import { ok, err, type Result } from '../shared/result';
 import { transformListing, type Listing } from './listTransform';
+import { createReadStream } from 'node:fs';
 
 export function toErr(e: unknown): Result<never> {
   const code = (e as { name?: string })?.name ?? 'UnknownError';
@@ -143,6 +145,38 @@ export async function deleteFolder(
       token = listed.NextContinuationToken;
     } while (token);
     return ok(deleted);
+  } catch (e) {
+    return toErr(e);
+  }
+}
+
+export interface UploadArgs {
+  bucket: string;
+  key: string;
+  filePath: string;
+  contentType?: string;
+  onProgress?: (loaded: number, total: number | undefined) => void;
+}
+
+export async function uploadObject(
+  client: S3Client,
+  args: UploadArgs,
+): Promise<Result<{ key: string }>> {
+  try {
+    const upload = new Upload({
+      client,
+      params: {
+        Bucket: args.bucket,
+        Key: args.key,
+        Body: createReadStream(args.filePath),
+        ContentType: args.contentType,
+      },
+    });
+    if (args.onProgress) {
+      upload.on('httpUploadProgress', (p) => args.onProgress!(p.loaded ?? 0, p.total));
+    }
+    await upload.done();
+    return ok({ key: args.key });
   } catch (e) {
     return toErr(e);
   }
