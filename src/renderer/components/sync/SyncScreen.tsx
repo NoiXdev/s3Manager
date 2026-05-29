@@ -1,9 +1,9 @@
 import { useState } from 'react';
 import { useSync } from '../../hooks/useSync';
-import { useToast } from '../ui/ToastProvider';
+import { useSyncRun } from './SyncRunProvider';
 import { formatBytes } from '../../lib/format';
 import { EndpointPicker, type EndpointValue } from './EndpointPicker';
-import type { Endpoint, SyncPlan, SyncResult } from '../../../main/s3/sync';
+import type { Endpoint, SyncPlan } from '../../../main/s3/sync';
 
 export function SyncScreen({
   initialAccountId,
@@ -14,43 +14,34 @@ export function SyncScreen({
 }) {
   const [source, setSource] = useState<EndpointValue>({ accountId: initialAccountId, bucket: initialBucket, prefix: '' });
   const [dest, setDest] = useState<EndpointValue>({ accountId: null, bucket: null, prefix: '' });
-  const sync = useSync();
-  const { show } = useToast();
+  const { plan: planMutation } = useSync();
+  const run = useSyncRun();
   const [plan, setPlan] = useState<SyncPlan | null>(null);
-  const [result, setResult] = useState<SyncResult | null>(null);
-  const [running, setRunning] = useState(false);
 
   const bothChosen = !!(source.accountId && source.bucket && dest.accountId && dest.bucket);
   const sameBucket = source.accountId === dest.accountId && source.bucket === dest.bucket;
   const identical = sameBucket && source.prefix === dest.prefix;
   const overlap = sameBucket && (dest.prefix.startsWith(source.prefix) || source.prefix.startsWith(dest.prefix));
-  const canPreview = bothChosen && !identical && !overlap && !running && !sync.plan.isPending;
+  const canPreview = bothChosen && !identical && !overlap && !run.running && !planMutation.isPending;
 
   const toEndpoint = (v: EndpointValue): Endpoint => ({ accountId: v.accountId!, bucket: v.bucket!, prefix: v.prefix });
+  const clearOutputs = () => { setPlan(null); run.clearResult(); };
 
   const onPreview = async () => {
-    setResult(null);
+    run.clearResult();
     try {
-      const p = await sync.plan.mutateAsync({ source: toEndpoint(source), dest: toEndpoint(dest) });
-      setPlan(p);
-    } catch (e) {
-      show((e as Error).message, 'error');
+      setPlan(await planMutation.mutateAsync({ source: toEndpoint(source), dest: toEndpoint(dest) }));
+    } catch {
+      // planMutation surfaces its own error; nothing extra to show here
     }
   };
 
   const onRun = async () => {
-    setRunning(true);
-    setResult(null);
     try {
-      const r = await sync.run({ source: toEndpoint(source), dest: toEndpoint(dest) });
-      setResult(r);
+      await run.runBucket({ source: toEndpoint(source), dest: toEndpoint(dest) });
       setPlan(null);
-      show(r.canceled ? 'Sync canceled' : `Synced ${r.copied} object(s)`);
-    } catch (e) {
-      show((e as Error).message, 'error');
-    } finally {
-      setRunning(false);
-      sync.resetProgress();
+    } catch {
+      // error toasted by the provider
     }
   };
 
@@ -59,8 +50,8 @@ export function SyncScreen({
       <h2 className="pb-3 text-lg font-semibold">Sync (bucket → bucket)</h2>
 
       <div className="grid max-w-2xl grid-cols-2 gap-6">
-        <EndpointPicker label="Source" value={source} onChange={(v) => { setSource(v); setPlan(null); setResult(null); }} />
-        <EndpointPicker label="Destination" value={dest} onChange={(v) => { setDest(v); setPlan(null); setResult(null); }} />
+        <EndpointPicker label="Source" value={source} onChange={(v) => { setSource(v); clearOutputs(); }} />
+        <EndpointPicker label="Destination" value={dest} onChange={(v) => { setDest(v); clearOutputs(); }} />
       </div>
 
       {identical && <p className="mt-3 text-sm text-red-600">Source and destination are the same.</p>}
@@ -75,23 +66,21 @@ export function SyncScreen({
         >
           Preview
         </button>
-        {running && (
-          <button type="button" className="rounded border border-red-300 px-3 py-1 text-sm text-red-600 hover:bg-red-50" onClick={sync.cancel}>
+        {run.running && (
+          <button type="button" className="rounded border border-red-300 px-3 py-1 text-sm text-red-600 hover:bg-red-50" onClick={run.cancel}>
             Cancel
           </button>
         )}
       </div>
 
-      {sync.plan.isPending && <p className="mt-4 text-slate-500">Computing plan…</p>}
+      {planMutation.isPending && <p className="mt-4 text-slate-500">Computing plan…</p>}
 
-      {plan && !running && (
+      {plan && !run.running && (
         <div className="mt-4 rounded border border-slate-200 p-3">
           {plan.toCopy === 0 ? (
             <p className="text-slate-600">Already in sync — nothing to copy ({plan.upToDate} up-to-date).</p>
           ) : (
-            <p className="text-slate-700">
-              {plan.toCopy} to copy · {plan.upToDate} up-to-date · {formatBytes(plan.bytesToCopy)} to transfer
-            </p>
+            <p className="text-slate-700">{plan.toCopy} to copy · {plan.upToDate} up-to-date · {formatBytes(plan.bytesToCopy)} to transfer</p>
           )}
           {plan.sample.length > 0 && (
             <ul className="mt-2 max-h-40 overflow-auto text-xs text-slate-500">
@@ -111,28 +100,28 @@ export function SyncScreen({
         </div>
       )}
 
-      {running && sync.progress && (
+      {run.running && run.progress && (
         <div className="mt-4 rounded border border-slate-200 p-3 text-sm text-slate-700">
-          {sync.progress.phase === 'listing' ? (
+          {run.progress.phase === 'listing' ? (
             <p>Listing both sides…</p>
           ) : (
             <>
-              <p>{sync.progress.copied} / {sync.progress.total} objects · {formatBytes(sync.progress.bytesCopied)} / {formatBytes(sync.progress.bytesTotal)}</p>
-              {sync.progress.currentKey && <p className="truncate text-xs text-slate-400">{sync.progress.currentKey}</p>}
+              <p>{run.progress.copied} / {run.progress.total} objects · {formatBytes(run.progress.bytesCopied)} / {formatBytes(run.progress.bytesTotal)}</p>
+              {run.progress.currentKey && <p className="truncate text-xs text-slate-400">{run.progress.currentKey}</p>}
             </>
           )}
         </div>
       )}
 
-      {result && (
+      {run.result && (
         <div className="mt-4 rounded border border-slate-200 p-3 text-sm">
           <p className="text-slate-700">
-            {result.canceled ? 'Canceled — ' : ''}Copied {result.copied} object(s), {formatBytes(result.bytesCopied)}
-            {result.failed.length > 0 ? ` · ${result.failed.length} failed` : ''}
+            {run.result.canceled ? 'Canceled — ' : ''}Copied {run.result.copied} object(s), {formatBytes(run.result.bytesCopied)}
+            {run.result.failed.length > 0 ? ` · ${run.result.failed.length} failed` : ''}
           </p>
-          {result.failed.length > 0 && (
+          {run.result.failed.length > 0 && (
             <ul className="mt-2 max-h-40 overflow-auto text-xs text-red-600">
-              {result.failed.map((f) => (
+              {run.result.failed.map((f) => (
                 <li key={f.key}>{f.key} — {f.code}: {f.message}</li>
               ))}
             </ul>
