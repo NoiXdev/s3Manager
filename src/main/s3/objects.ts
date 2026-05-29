@@ -2,6 +2,7 @@ import {
   S3Client,
   ListBucketsCommand,
   ListObjectsV2Command,
+  HeadObjectCommand,
 } from '@aws-sdk/client-s3';
 import { ok, err, type Result } from '../shared/result';
 import { transformListing, type Listing } from './listTransform';
@@ -46,6 +47,36 @@ export async function listObjects(
     );
     const listing = transformListing(out, args.prefix);
     return ok({ ...listing, nextToken: out.NextContinuationToken ?? null });
+  } catch (e) {
+    return toErr(e);
+  }
+}
+
+export interface ObjectMetadata {
+  size: number;
+  contentType: string | null;
+  lastModified: string | null;
+  storageClass: string | null;
+  etag: string | null;
+  metadata: Record<string, string>;
+}
+
+export async function headObject(
+  client: S3Client,
+  args: { bucket: string; key: string },
+): Promise<Result<ObjectMetadata>> {
+  try {
+    const out = await client.send(
+      new HeadObjectCommand({ Bucket: args.bucket, Key: args.key }),
+    );
+    return ok({
+      size: out.ContentLength ?? 0,
+      contentType: out.ContentType ?? null,
+      lastModified: out.LastModified ? out.LastModified.toISOString() : null,
+      storageClass: out.StorageClass ?? null,
+      etag: out.ETag ?? null,
+      metadata: out.Metadata ?? {},
+    });
   } catch (e) {
     return toErr(e);
   }

@@ -4,8 +4,9 @@ import {
   S3Client,
   ListBucketsCommand,
   ListObjectsV2Command,
+  HeadObjectCommand,
 } from '@aws-sdk/client-s3';
-import { listBuckets, listObjects } from './objects';
+import { listBuckets, listObjects, headObject } from './objects';
 
 const s3Mock = mockClient(S3Client);
 beforeEach(() => s3Mock.reset());
@@ -38,6 +39,31 @@ describe('listObjects', () => {
       expect(r.data.folders).toEqual([{ name: 'docs', prefix: 'docs/' }]);
       expect(r.data.files.map((f) => f.name)).toEqual(['readme.txt']);
       expect(r.data.nextToken).toBe('TOK');
+    }
+  });
+});
+
+describe('headObject', () => {
+  it('returns metadata fields', async () => {
+    s3Mock.on(HeadObjectCommand).resolves({
+      ContentLength: 1234,
+      ContentType: 'image/png',
+      LastModified: new Date('2024-01-01'),
+      StorageClass: 'STANDARD',
+      ETag: '"abc"',
+      Metadata: { owner: 'me' },
+    });
+    const r = await headObject(new S3Client({}), { bucket: 'b', key: 'x.png' });
+    expect(r.ok).toBe(true);
+    if (r.ok) {
+      expect(r.data).toEqual({
+        size: 1234,
+        contentType: 'image/png',
+        lastModified: '2024-01-01T00:00:00.000Z',
+        storageClass: 'STANDARD',
+        etag: '"abc"',
+        metadata: { owner: 'me' },
+      });
     }
   });
 });
