@@ -1,4 +1,4 @@
-import { S3Client, PutObjectCommand, CopyObjectCommand, DeleteObjectCommand } from '@aws-sdk/client-s3';
+import { S3Client, PutObjectCommand, CopyObjectCommand, DeleteObjectCommand, ListObjectsV2Command, DeleteObjectsCommand } from '@aws-sdk/client-s3';
 import { ok, err, type Result } from '../shared/result';
 import { toErr } from './objects';
 
@@ -41,6 +41,49 @@ export async function moveObject(
     );
     await client.send(new DeleteObjectCommand({ Bucket: args.bucket, Key: args.sourceKey }));
     return ok({ key: args.destKey });
+  } catch (e) {
+    return toErr(e);
+  }
+}
+
+export async function moveFolder(
+  client: S3Client,
+  args: { bucket: string; sourcePrefix: string; destPrefix: string },
+): Promise<Result<{ count: number }>> {
+  const { bucket, sourcePrefix, destPrefix } = args;
+  if (!sourcePrefix.trim() || sourcePrefix === '/' || !destPrefix.trim() || destPrefix === '/') {
+    return err('InvalidDestination', 'Source and destination prefixes are required');
+  }
+  if (destPrefix.startsWith(sourcePrefix)) {
+    return err('InvalidDestination', 'Cannot move a folder into itself');
+  }
+  try {
+    let token: string | undefined;
+    let count = 0;
+    do {
+      const listed = await client.send(
+        new ListObjectsV2Command({ Bucket: bucket, Prefix: sourcePrefix, ContinuationToken: token }),
+      );
+      const keys = (listed.Contents ?? []).map((c) => c.Key!).filter(Boolean);
+      for (const key of keys) {
+        await client.send(
+          new CopyObjectCommand({
+            Bucket: bucket,
+            CopySource: `${bucket}/${encodeCopyKey(key)}`,
+            Key: destPrefix + key.slice(sourcePrefix.length),
+          }),
+        );
+      }
+      for (let i = 0; i < keys.length; i += 1000) {
+        const batch = keys.slice(i, i + 1000);
+        await client.send(
+          new DeleteObjectsCommand({ Bucket: bucket, Delete: { Objects: batch.map((Key) => ({ Key })) } }),
+        );
+        count += batch.length;
+      }
+      token = listed.NextContinuationToken;
+    } while (token);
+    return ok({ count });
   } catch (e) {
     return toErr(e);
   }

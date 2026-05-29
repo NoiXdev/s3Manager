@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { mockClient } from 'aws-sdk-client-mock';
-import { S3Client, PutObjectCommand, CopyObjectCommand, DeleteObjectCommand } from '@aws-sdk/client-s3';
-import { createFolder, moveObject } from './transfer';
+import { S3Client, PutObjectCommand, CopyObjectCommand, DeleteObjectCommand, ListObjectsV2Command, DeleteObjectsCommand } from '@aws-sdk/client-s3';
+import { createFolder, moveObject, moveFolder } from './transfer';
 
 const s3Mock = mockClient(S3Client);
 beforeEach(() => s3Mock.reset());
@@ -55,5 +55,44 @@ describe('moveObject', () => {
     const r = await moveObject(new S3Client({}), { bucket: 'b', sourceKey: 'a/x.txt', destKey: 'a/y.txt' });
     expect(r.ok).toBe(false);
     expect(s3Mock.commandCalls(DeleteObjectCommand)).toHaveLength(0);
+  });
+});
+
+describe('moveFolder', () => {
+  it('copies every key rebased onto destPrefix, deletes originals, returns the count', async () => {
+    s3Mock
+      .on(ListObjectsV2Command)
+      .resolvesOnce({ Contents: [{ Key: 'old/a' }, { Key: 'old/sub/b' }], NextContinuationToken: 'T' })
+      .resolves({ Contents: [{ Key: 'old/c' }] });
+    s3Mock.on(CopyObjectCommand).resolves({});
+    s3Mock.on(DeleteObjectsCommand).resolves({ Deleted: [] });
+    const r = await moveFolder(new S3Client({}), { bucket: 'b', sourcePrefix: 'old/', destPrefix: 'new/' });
+    expect(r).toEqual({ ok: true, data: { count: 3 } });
+    const copyKeys = s3Mock.commandCalls(CopyObjectCommand).map((c) => c.args[0].input.Key);
+    expect(copyKeys).toEqual(['new/a', 'new/sub/b', 'new/c']);
+  });
+
+  it('rejects an empty/root source or destination prefix', async () => {
+    const emptySource = await moveFolder(new S3Client({}), { bucket: 'b', sourcePrefix: '', destPrefix: 'new/' });
+    expect(emptySource.ok).toBe(false);
+    if (!emptySource.ok) expect(emptySource.error.code).toBe('InvalidDestination');
+    const emptyDest = await moveFolder(new S3Client({}), { bucket: 'b', sourcePrefix: 'old/', destPrefix: '' });
+    expect(emptyDest.ok).toBe(false);
+    const rootDest = await moveFolder(new S3Client({}), { bucket: 'b', sourcePrefix: 'old/', destPrefix: '/' });
+    expect(rootDest.ok).toBe(false);
+  });
+
+  it('rejects moving a folder into itself', async () => {
+    const r = await moveFolder(new S3Client({}), { bucket: 'b', sourcePrefix: 'old/', destPrefix: 'old/sub/' });
+    expect(r.ok).toBe(false);
+    if (!r.ok) expect(r.error.code).toBe('InvalidDestination');
+  });
+
+  it('allows a destination that merely shares a leading substring (old/ -> older/)', async () => {
+    s3Mock.on(ListObjectsV2Command).resolves({ Contents: [] });
+    s3Mock.on(CopyObjectCommand).resolves({});
+    s3Mock.on(DeleteObjectsCommand).resolves({ Deleted: [] });
+    const r = await moveFolder(new S3Client({}), { bucket: 'b', sourcePrefix: 'old/', destPrefix: 'older/' });
+    expect(r.ok).toBe(true);
   });
 });
