@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { FiTrash2 } from 'react-icons/fi';
 import { useAccounts, useCreateAccount, useRemoveAccount } from '../../hooks/useAccounts';
 import { ProviderBadge } from './ProviderBadge';
 import { AddAccountForm } from './AddAccountForm';
@@ -79,7 +80,7 @@ export function AccountsPane({
                   removeAccount.mutate(acc.id);
                 }}
               >
-                ✕
+                <FiTrash2 className="h-4 w-4" aria-hidden />
               </button>
             </div>
           </li>

@@ -1,4 +1,5 @@
 import { useId, useState } from 'react';
+import { FiX } from 'react-icons/fi';
 
 export function StringListEditor({
   label,
@@ -32,7 +33,7 @@ export function StringListEditor({
               className="text-slate-400 hover:text-red-600"
               onClick={() => onChange(values.filter((_, j) => j !== i))}
             >
-              ✕
+              <FiX className="h-3.5 w-3.5" aria-hidden />
             </button>
           </li>
         ))}

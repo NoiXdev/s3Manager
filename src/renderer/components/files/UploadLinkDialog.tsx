@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { FiX } from 'react-icons/fi';
 import { useToast } from '../ui/ToastProvider';
 
 const EXPIRY_OPTIONS = [
@@ -49,7 +50,7 @@ export function UploadLinkDialog({
       <div className="w-[28rem] rounded bg-white p-4 shadow-lg">
         <div className="flex items-center justify-between pb-2">
           <p className="text-sm font-medium text-slate-800">Upload link</p>
-          <button type="button" aria-label="Close" className="rounded px-2 hover:bg-slate-100" onClick={onClose}>✕</button>
+          <button type="button" aria-label="Close" className="rounded px-2 hover:bg-slate-100" onClick={onClose}><FiX className="h-4 w-4" aria-hidden /></button>
         </div>
 
         <label className="block text-sm">

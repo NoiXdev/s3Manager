@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { FiDownload, FiLink, FiEdit3, FiMove, FiLock, FiTag, FiTrash2 } from 'react-icons/fi';
+import { FiX, FiDownload, FiLink, FiEdit3, FiMove, FiLock, FiTag, FiTrash2 } from 'react-icons/fi';
 import { useObjectDetails } from '../../hooks/useObjectDetails';
 import { formatBytes, formatTimestamp } from '../../lib/format';
 import { useObjectActions } from '../../hooks/useObjectActions';
@@ -51,7 +51,7 @@ export function MetadataPanel({
       <div className="flex items-center justify-between border-b border-slate-200 p-2">
         <span className="text-xs font-semibold uppercase tracking-wide text-slate-500">Details</span>
         <button type="button" aria-label="Close" className="rounded px-2 hover:bg-slate-100" onClick={onClose}>
-          ✕
+          <FiX className="h-4 w-4" aria-hidden />
         </button>
       </div>
 

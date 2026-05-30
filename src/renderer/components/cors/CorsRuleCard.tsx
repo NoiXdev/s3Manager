@@ -1,3 +1,4 @@
+import { FiX } from 'react-icons/fi';
 import type { CorsRule } from '../../../main/s3/cors';
 import { StringListEditor } from './StringListEditor';
 
@@ -25,7 +26,7 @@ export function CorsRuleCard({
       <div className="flex items-center justify-between">
         <span className="text-xs font-semibold uppercase tracking-wide text-slate-500">Rule</span>
         <button type="button" aria-label="Remove rule" className="text-slate-400 hover:text-red-600" onClick={onRemove}>
-          ✕
+          <FiX className="h-4 w-4" aria-hidden />
         </button>
       </div>
 

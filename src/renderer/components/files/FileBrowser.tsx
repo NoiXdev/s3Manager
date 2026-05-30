@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { FiEdit3, FiMove, FiTrash2 } from 'react-icons/fi';
 import { useObjects } from '../../hooks/useObjects';
 import { formatBytes, formatTimestamp } from '../../lib/format';
 import { Breadcrumb } from './Breadcrumb';
@@ -94,7 +95,7 @@ export function FileBrowser({
                         setFolderToRename(folder);
                       }}
                     >
-                      ✎
+                      <FiEdit3 className="h-4 w-4" aria-hidden />
                     </button>
                     <button
                       type="button"
@@ -105,7 +106,7 @@ export function FileBrowser({
                         setItemToMove({ kind: 'folder', name: folder.name, parent: parentPrefix(folder.prefix), prefix: folder.prefix });
                       }}
                     >
-                      ➜
+                      <FiMove className="h-4 w-4" aria-hidden />
                     </button>
                     <button
                       type="button"
@@ -116,7 +117,7 @@ export function FileBrowser({
                         setFolderToDelete(folder);
                       }}
                     >
-                      ✕
+                      <FiTrash2 className="h-4 w-4" aria-hidden />
                     </button>
                   </td>
                 </tr>

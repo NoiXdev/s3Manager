@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { FiX } from 'react-icons/fi';
 import { useObjectMetadataEditor } from '../../hooks/useObjectMetadataEditor';
 import { useToast } from '../ui/ToastProvider';
 
@@ -67,7 +68,7 @@ export function MetadataDialog({
       <div className="max-h-[80vh] w-[34rem] overflow-auto rounded bg-white p-4 shadow-lg">
         <div className="flex items-center justify-between pb-2">
           <p className="text-sm font-medium text-slate-800">Edit metadata</p>
-          <button type="button" aria-label="Close" className="rounded px-2 hover:bg-slate-100" onClick={onClose}>✕</button>
+          <button type="button" aria-label="Close" className="rounded px-2 hover:bg-slate-100" onClick={onClose}><FiX className="h-4 w-4" aria-hidden /></button>
         </div>
 
         {editable.isLoading && <p className="py-4 text-sm text-slate-500">Loading metadata…</p>}
@@ -112,7 +113,7 @@ export function MetadataDialog({
                     className="rounded px-1 text-slate-400 hover:bg-red-50 hover:text-red-600"
                     onClick={() => setPairs((prev) => prev.filter((_, j) => j !== i))}
                   >
-                    ✕
+                    <FiX className="h-3.5 w-3.5" aria-hidden />
                   </button>
                 </div>
               ))}

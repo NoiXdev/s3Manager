@@ -42,7 +42,7 @@ describe('AccountsPane', () => {
     expect(screen.getByLabelText('Label')).toBeInTheDocument();
   });
 
-  it('removes an account via the ✕ button without triggering selection', async () => {
+  it('removes an account via the remove button without triggering selection', async () => {
     const onSelect = vi.fn();
     const remove = vi.fn().mockResolvedValue({ ok: true, data: true });
     (window as unknown as { s3: unknown }).s3 = {

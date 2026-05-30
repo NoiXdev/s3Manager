@@ -1,3 +1,4 @@
+import { FiX } from 'react-icons/fi';
 import { useTransfer } from '../../hooks/useTransfer';
 import { useToast } from '../ui/ToastProvider';
 import { FolderPicker } from './FolderPicker';
@@ -51,7 +52,7 @@ export function MoveDialog({
         <div className="flex items-center justify-between pb-2">
           <p className="text-sm font-medium text-slate-800">Move &ldquo;{item.name}&rdquo; to&hellip;</p>
           <button type="button" aria-label="Cancel" className="rounded px-2 hover:bg-slate-100" onClick={onClose}>
-            ✕
+            <FiX className="h-4 w-4" aria-hidden />
           </button>
         </div>
         <FolderPicker accountId={accountId} bucket={bucket} canPick={canPick} onPick={onPick} />
