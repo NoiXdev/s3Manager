@@ -13,7 +13,9 @@ export function useObjectActions(accountId: string, bucket: string) {
       else if (r.data.path) show('Download complete');
     },
     async copyPresignedUrl(key: string) {
-      const r = await window.s3.presignGet({ accountId, bucket, key, expiresIn: 3600 });
+      const s = await window.s3.getSettings();
+      const expiresIn = s.ok ? s.data.presignExpirySeconds : 3600;
+      const r = await window.s3.presignGet({ accountId, bucket, key, expiresIn });
       if (!r.ok) {
         show(`${r.error.code}: ${r.error.message}`, 'error');
         return;

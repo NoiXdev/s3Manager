@@ -16,6 +16,7 @@ beforeEach(() => {
   Object.assign(navigator, { clipboard: { writeText: vi.fn().mockResolvedValue(undefined) } });
   (window as unknown as { s3: unknown }).s3 = {
     downloadObject: vi.fn().mockResolvedValue({ ok: true, data: { path: '/tmp/logo.png' } }),
+    getSettings: vi.fn().mockResolvedValue({ ok: true, data: { presignExpirySeconds: 86400 } }),
     presignGet: vi.fn().mockResolvedValue({ ok: true, data: 'https://signed/x' }),
     deleteObject: vi.fn().mockResolvedValue({ ok: true, data: 1 }),
     deleteFolder: vi.fn().mockResolvedValue({ ok: true, data: 3 }),
@@ -23,11 +24,18 @@ beforeEach(() => {
 });
 
 describe('useObjectActions', () => {
-  it('copyPresignedUrl writes the signed URL to the clipboard', async () => {
+  it('copyPresignedUrl signs with the configured expiry and copies to the clipboard', async () => {
+    const { result } = renderHook(() => useObjectActions('acc-1', 'assets'), { wrapper: wrapper() });
+    await result.current.copyPresignedUrl('logo.png');
+    expect(window.s3.presignGet).toHaveBeenCalledWith({ accountId: 'acc-1', bucket: 'assets', key: 'logo.png', expiresIn: 86400 });
+    expect(navigator.clipboard.writeText).toHaveBeenCalledWith('https://signed/x');
+  });
+
+  it('copyPresignedUrl falls back to 3600 when getSettings fails', async () => {
+    (window.s3.getSettings as ReturnType<typeof vi.fn>).mockResolvedValue({ ok: false, error: { code: 'X', message: 'no' } });
     const { result } = renderHook(() => useObjectActions('acc-1', 'assets'), { wrapper: wrapper() });
     await result.current.copyPresignedUrl('logo.png');
     expect(window.s3.presignGet).toHaveBeenCalledWith({ accountId: 'acc-1', bucket: 'assets', key: 'logo.png', expiresIn: 3600 });
-    expect(navigator.clipboard.writeText).toHaveBeenCalledWith('https://signed/x');
   });
 
   it('download calls downloadObject with the key', async () => {
