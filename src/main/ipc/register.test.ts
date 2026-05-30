@@ -41,6 +41,7 @@ function buildHarness() {
     db,
     saveDialog: vi.fn().mockResolvedValue(null),
     selectDirectory: vi.fn().mockResolvedValue('/picked/dir'),
+    appVersion: '1.2.3',
   };
   registerIpc(ipcMain, deps);
   return { handlers, deps, progressEvents };
@@ -99,6 +100,7 @@ describe('registerIpc', () => {
       db,
       saveDialog: vi.fn().mockResolvedValue(null),
       selectDirectory: vi.fn().mockResolvedValue('/picked/dir'),
+      appVersion: '1.2.3',
     };
     registerIpc(ipcMain, deps);
     const res = (await handlers.get(CH.accountsCreate)!({
@@ -338,5 +340,28 @@ describe('retention & legal hold handlers', () => {
       ok: boolean; data: boolean;
     };
     expect(res).toEqual({ ok: true, data: true });
+  });
+});
+
+describe('settings & app info handlers', () => {
+  it('settings:get returns the default and settings:set persists a new value', async () => {
+    const { handlers } = buildHarness();
+    const before = (await handlers.get(CH.getSettings)!()) as { ok: boolean; data: { presignExpirySeconds: number } };
+    expect(before).toEqual({ ok: true, data: { presignExpirySeconds: 3600 } });
+
+    const saved = (await handlers.get(CH.setSettings)!({ presignExpirySeconds: 86400 })) as { ok: boolean; data: { presignExpirySeconds: number } };
+    expect(saved.data.presignExpirySeconds).toBe(86400);
+
+    const after = (await handlers.get(CH.getSettings)!()) as { ok: boolean; data: { presignExpirySeconds: number } };
+    expect(after.data.presignExpirySeconds).toBe(86400);
+  });
+
+  it('app:getInfo returns version, encryption status, and account count', async () => {
+    const { handlers } = buildHarness();
+    const res = (await handlers.get(CH.getAppInfo)!()) as {
+      ok: boolean; data: { version: string; encryptionAvailable: boolean; accountCount: number };
+    };
+    expect(res.ok).toBe(true);
+    expect(res.data).toEqual({ version: '1.2.3', encryptionAvailable: true, accountCount: 0 });
   });
 });

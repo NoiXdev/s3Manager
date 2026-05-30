@@ -31,6 +31,8 @@ import type { AccountsRepo } from '../storage/accountsRepo';
 import type { SecretsStore, Crypto } from '../storage/secrets';
 import type { SettingsRepo } from '../storage/settingsRepo';
 import type { DB } from '../storage/db';
+import { readSettings, writeSettings } from '../settings/appSettings';
+import type { AppSettings } from '../settings/appSettings';
 
 export interface IpcMainLike {
   handle(channel: string, listener: (event: unknown, ...args: unknown[]) => unknown): void;
@@ -46,6 +48,8 @@ export interface RegisterDeps {
   saveDialog: (defaultFileName: string) => Promise<string | null>;
   /** Shows a native folder picker; resolves the chosen directory, or null if cancelled. */
   selectDirectory: () => Promise<string | null>;
+  /** The app version string (Electron app.getVersion()), injected by main.ts. */
+  appVersion: string;
 }
 
 export function registerIpc(ipcMain: IpcMainLike, deps: RegisterDeps): void {
@@ -263,4 +267,14 @@ export function registerIpc(ipcMain: IpcMainLike, deps: RegisterDeps): void {
   });
 
   h(CH.selectDirectory, async () => ok(await deps.selectDirectory()));
+
+  h(CH.getSettings, () => ok(readSettings(deps.settings)));
+  h(CH.setSettings, (patch: Partial<AppSettings>) => ok(writeSettings(deps.settings, patch)));
+  h(CH.getAppInfo, () =>
+    ok({
+      version: deps.appVersion,
+      encryptionAvailable: deps.crypto.isEncryptionAvailable(),
+      accountCount: deps.accounts.list().length,
+    }),
+  );
 }

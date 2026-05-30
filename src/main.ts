@@ -30,7 +30,7 @@ function initBackend() {
       : await dialog.showOpenDialog({ properties: ['openDirectory'] });
     return result.canceled || !result.filePaths[0] ? null : result.filePaths[0];
   };
-  registerIpc(ipcMain, { accounts, settings, secrets, crypto: safeStorage, db, saveDialog, selectDirectory });
+  registerIpc(ipcMain, { accounts, settings, secrets, crypto: safeStorage, db, saveDialog, selectDirectory, appVersion: app.getVersion() });
 }
 
 const createWindow = () => {

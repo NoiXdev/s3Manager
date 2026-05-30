@@ -8,6 +8,7 @@ import type { ObjectLockStatus, DefaultRetention } from '../s3/objectLock';
 import type { ObjectRetention, LegalHoldStatus } from '../s3/objectRetention';
 import type { Endpoint, SyncPlan, SyncResult } from '../s3/sync';
 import type { LocalSyncArgs } from '../s3/localSync';
+import type { AppSettings, AppInfo } from '../settings/appSettings';
 
 export const CH = {
   accountsList: 'accounts:list',
@@ -44,6 +45,9 @@ export const CH = {
   localSyncPlan: 'sync:localPlan',
   localSyncRun: 'sync:localRun',
   selectDirectory: 'sync:selectDirectory',
+  getSettings: 'settings:get',
+  setSettings: 'settings:set',
+  getAppInfo: 'app:getInfo',
 } as const;
 
 export interface CreateAccountInput {
@@ -90,6 +94,9 @@ export interface ApiMap {
   [CH.localSyncPlan]: { args: [LocalSyncArgs]; res: Result<SyncPlan> };
   [CH.localSyncRun]: { args: [LocalSyncArgs]; res: Result<SyncResult> };
   [CH.selectDirectory]: { args: []; res: Result<string | null> };
+  [CH.getSettings]: { args: []; res: Result<AppSettings> };
+  [CH.setSettings]: { args: [Partial<AppSettings>]; res: Result<AppSettings> };
+  [CH.getAppInfo]: { args: []; res: Result<AppInfo> };
 }
 
 /** One-way main→renderer channel for upload progress (not an invoke channel,

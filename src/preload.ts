@@ -45,6 +45,9 @@ const api = {
   localSyncPlan: (a: ApiMap[typeof CH.localSyncPlan]['args'][0]) => invoke(CH.localSyncPlan, a),
   localSyncRun: (a: ApiMap[typeof CH.localSyncRun]['args'][0]) => invoke(CH.localSyncRun, a),
   selectSyncDirectory: () => invoke(CH.selectDirectory),
+  getSettings: () => invoke(CH.getSettings),
+  setSettings: (a: ApiMap[typeof CH.setSettings]['args'][0]) => invoke(CH.setSettings, a),
+  getAppInfo: () => invoke(CH.getAppInfo),
   onSyncProgress: (cb: (p: SyncProgress) => void) => {
     const listener = (_event: unknown, payload: unknown) => cb(payload as SyncProgress);
     ipcRenderer.on(SYNC_PROGRESS_CHANNEL, listener);
