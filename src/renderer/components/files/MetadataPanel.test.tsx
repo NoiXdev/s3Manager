@@ -177,3 +177,18 @@ describe('MetadataPanel permissions', () => {
     expect(await screen.findByText('me')).toBeInTheDocument();
   });
 });
+
+describe('MetadataPanel edit metadata', () => {
+  it('opens the Edit metadata dialog from the actions row', async () => {
+    (window as unknown as { s3: unknown }).s3 = {
+      headObject: vi.fn().mockResolvedValue({ ok: true, data: { size: 1, contentType: 'text/plain', lastModified: null, storageClass: null, etag: null, metadata: {} } }),
+      objectVisibility: vi.fn().mockResolvedValue({ ok: true, data: 'private' }),
+      getObjectLockConfig: vi.fn().mockResolvedValue({ ok: true, data: { enabled: false, defaultRetention: null } }),
+      getEditableMetadata: vi.fn().mockResolvedValue({ ok: true, data: { contentType: 'text/plain', cacheControl: null, contentDisposition: null, metadata: {} } }),
+    };
+    wrap(<MetadataPanel accountId="acc-1" bucket="assets" objectKey="k" onClose={() => {}} />);
+    await userEvent.click(screen.getByRole('button', { name: 'Edit metadata…' }));
+    expect(await screen.findByText('Edit metadata')).toBeInTheDocument();
+    expect(await screen.findByLabelText('Content-Type')).toBeInTheDocument();
+  });
+});
