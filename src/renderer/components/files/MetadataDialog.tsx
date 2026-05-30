@@ -35,11 +35,17 @@ export function MetadataDialog({
   }, [editable.data]);
 
   const onSave = async () => {
-    const metadata: Record<string, string> = {};
-    for (const p of pairs) {
-      const k = p.key.trim();
-      if (k) metadata[k] = p.value;
+    const trimmed = pairs.map((p) => ({ key: p.key.trim(), value: p.value })).filter((p) => p.key);
+    const seen = new Set<string>();
+    for (const p of trimmed) {
+      if (seen.has(p.key)) {
+        show(`Duplicate metadata key: ${p.key}`, 'error');
+        return;
+      }
+      seen.add(p.key);
     }
+    const metadata: Record<string, string> = {};
+    for (const p of trimmed) metadata[p.key] = p.value;
     try {
       await update.mutateAsync({
         contentType: contentType.trim() || null,

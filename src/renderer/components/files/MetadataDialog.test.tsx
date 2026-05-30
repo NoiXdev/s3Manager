@@ -61,4 +61,27 @@ describe('MetadataDialog', () => {
     expect(await screen.findByText(/denied/)).toBeInTheDocument();
     expect(screen.queryByRole('button', { name: 'Save metadata' })).toBeNull();
   });
+
+  it('shows an error toast and keeps dialog open when save fails', async () => {
+    (window as unknown as { s3: Record<string, unknown> }).s3 = baseS3({
+      updateObjectMetadata: vi.fn().mockResolvedValue({ ok: false, error: { code: 'AccessDenied', message: 'write denied' } }),
+    });
+    wrap(<MetadataDialog accountId="a" bucket="b" objectKey="k" onClose={() => {}} />);
+    await screen.findByLabelText('Content-Type');
+    await userEvent.click(screen.getByRole('button', { name: 'Save metadata' }));
+    expect(await screen.findByText(/write denied/)).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Save metadata' })).toBeInTheDocument();
+  });
+
+  it('shows a duplicate-key error and does not call updateObjectMetadata', async () => {
+    const s3 = baseS3();
+    (window as unknown as { s3: unknown }).s3 = s3;
+    wrap(<MetadataDialog accountId="a" bucket="b" objectKey="k" onClose={() => {}} />);
+    await screen.findByLabelText('Content-Type');
+    await userEvent.click(screen.getByRole('button', { name: 'Add field' }));
+    await userEvent.type(screen.getByLabelText('Metadata key 2'), 'owner');
+    await userEvent.click(screen.getByRole('button', { name: 'Save metadata' }));
+    expect(await screen.findByText(/Duplicate metadata key/)).toBeInTheDocument();
+    expect((s3.updateObjectMetadata as ReturnType<typeof vi.fn>)).not.toHaveBeenCalled();
+  });
 });
