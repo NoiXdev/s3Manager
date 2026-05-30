@@ -1,0 +1,70 @@
+import { useSettings } from '../../hooks/useSettings';
+import { useToast } from '../ui/ToastProvider';
+
+const EXPIRY_OPTIONS = [
+  { label: '1 hour', value: 3600 },
+  { label: '24 hours', value: 86400 },
+  { label: '7 days', value: 604800 },
+];
+
+function InfoRow({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="flex justify-between border-b border-slate-100 py-1.5">
+      <span className="text-slate-500">{label}</span>
+      <span className="text-slate-800">{value}</span>
+    </div>
+  );
+}
+
+export function SettingsScreen() {
+  const { settings, info, save } = useSettings();
+  const { show } = useToast();
+
+  const expiry = settings.data?.presignExpirySeconds ?? 3600;
+
+  const onChangeExpiry = async (value: number) => {
+    try {
+      await save.mutateAsync({ presignExpirySeconds: value });
+      show('Settings saved');
+    } catch (e) {
+      show((e as Error).message, 'error');
+    }
+  };
+
+  return (
+    <div className="h-full overflow-auto p-6">
+      <h2 className="pb-3 text-lg font-semibold">Settings</h2>
+
+      <div className="max-w-md">
+        <label className="block text-sm">
+          Default link expiry
+          <select
+            aria-label="Default link expiry"
+            className="mt-1 block w-full rounded border border-slate-300 px-2 py-1 text-sm"
+            value={expiry}
+            disabled={save.isPending}
+            onChange={(e) => void onChangeExpiry(Number(e.target.value))}
+          >
+            {EXPIRY_OPTIONS.map((o) => (
+              <option key={o.value} value={o.value}>{o.label}</option>
+            ))}
+          </select>
+        </label>
+        <p className="pt-1 text-xs text-slate-500">Applies to "Copy URL" links generated from the metadata panel.</p>
+      </div>
+
+      <h3 className="pb-1 pt-6 text-sm font-semibold uppercase tracking-wide text-slate-500">About</h3>
+      <div className="max-w-md text-sm">
+        {info.isSuccess ? (
+          <>
+            <InfoRow label="Version" value={info.data.version} />
+            <InfoRow label="Secrets encryption" value={info.data.encryptionAvailable ? 'Enabled' : 'Unavailable'} />
+            <InfoRow label="Accounts" value={String(info.data.accountCount)} />
+          </>
+        ) : (
+          <p className="py-2 text-slate-500">Loading…</p>
+        )}
+      </div>
+    </div>
+  );
+}
