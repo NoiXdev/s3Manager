@@ -11,6 +11,7 @@ import { ObjectLockEditor } from './components/objectlock/ObjectLockEditor';
 import { SyncSection } from './components/sync/SyncSection';
 import { SyncRunProvider } from './components/sync/SyncRunProvider';
 import { SyncStatus } from './components/sync/SyncStatus';
+import { SettingsScreen } from './components/settings/SettingsScreen';
 
 export function App() {
   const [section, setSection] = useState<Section>('files');
@@ -97,7 +98,9 @@ export function App() {
             <CorsEditor initialAccountId={accountId} initialBucket={bucket} />
           ) : section === 'objectLock' ? (
             <ObjectLockEditor initialAccountId={accountId} initialBucket={bucket} />
-          ) : section === 'sync' ? null : (
+          ) : section === 'sync' ? null : section === 'settings' ? (
+            <SettingsScreen />
+          ) : (
             <div className="flex h-full items-center justify-center text-slate-400">Coming soon</div>
           )}
 

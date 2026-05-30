@@ -23,6 +23,9 @@ beforeEach(() => {
     getObjectLockConfig: vi.fn().mockResolvedValue({ ok: true, data: { enabled: false, defaultRetention: null } }),
     putObjectLockConfig: vi.fn().mockResolvedValue({ ok: true, data: true }),
     onSyncProgress: vi.fn(() => () => {}),
+    getSettings: vi.fn().mockResolvedValue({ ok: true, data: { presignExpirySeconds: 3600 } }),
+    setSettings: vi.fn().mockResolvedValue({ ok: true, data: { presignExpirySeconds: 3600 } }),
+    getAppInfo: vi.fn().mockResolvedValue({ ok: true, data: { version: '0.0.0', encryptionAvailable: true, accountCount: 1 } }),
   };
 });
 
@@ -45,10 +48,11 @@ describe('App — Files browsing', () => {
     expect(await screen.findByText('private')).toBeInTheDocument();
   });
 
-  it('still shows Coming soon for non-Files sections', async () => {
+  it('renders the Settings screen for the Settings section', async () => {
     renderApp();
     await userEvent.click(screen.getByRole('button', { name: 'Settings' }));
-    expect(screen.getByText('Coming soon')).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { name: 'Settings' })).toBeInTheDocument();
+    expect(await screen.findByLabelText('Default link expiry')).toBeInTheDocument();
   });
 });
 

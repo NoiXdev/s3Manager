@@ -51,6 +51,7 @@ describe('MetadataPanel actions', () => {
     (window as unknown as { s3: unknown }).s3 = {
       headObject: vi.fn().mockResolvedValue({ ok: true, data: { size: 1, contentType: null, lastModified: null, storageClass: null, etag: null, metadata: {} } }),
       objectVisibility: vi.fn().mockResolvedValue({ ok: true, data: 'private' }),
+      getSettings: vi.fn().mockResolvedValue({ ok: true, data: { presignExpirySeconds: 3600 } }),
       presignGet: vi.fn().mockResolvedValue({ ok: true, data: 'https://signed/x' }),
       downloadObject: vi.fn().mockResolvedValue({ ok: true, data: { path: '/tmp/x' } }),
       deleteObject: vi.fn().mockResolvedValue({ ok: true, data: 1 }),
