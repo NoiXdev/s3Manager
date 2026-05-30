@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { mockClient } from 'aws-sdk-client-mock';
-import { S3Client, ListBucketsCommand, GetObjectCommand, GetBucketCorsCommand, GetObjectLockConfigurationCommand, ListObjectsV2Command, PutObjectAclCommand, GetObjectRetentionCommand, PutObjectLegalHoldCommand } from '@aws-sdk/client-s3';
+import { S3Client, ListBucketsCommand, GetObjectCommand, GetBucketCorsCommand, GetObjectLockConfigurationCommand, ListObjectsV2Command, PutObjectAclCommand, GetObjectRetentionCommand, PutObjectLegalHoldCommand, GetObjectAclCommand } from '@aws-sdk/client-s3';
 import { writeFileSync, mkdtempSync, readFileSync } from 'node:fs';
 import { Readable } from 'node:stream';
 import { join } from 'node:path';
@@ -363,5 +363,39 @@ describe('settings & app info handlers', () => {
     };
     expect(res.ok).toBe(true);
     expect(res.data).toEqual({ version: '1.2.3', encryptionAvailable: true, accountCount: 0 });
+  });
+});
+
+describe('object ACL handlers', () => {
+  it('s3:getObjectAcl returns the mapped ACL via the account client', async () => {
+    const { handlers } = buildHarness();
+    const created = (await handlers.get(CH.accountsCreate)!({
+      label: 'AWS', provider: 'amazon-s3', region: 'us-east-1', accessKeyId: 'AK', secretAccessKey: 'SK',
+    })) as { data: { id: string } };
+    s3Mock.on(GetObjectAclCommand).resolves({
+      Owner: { ID: 'o', DisplayName: 'me' },
+      Grants: [{ Grantee: { Type: 'CanonicalUser', ID: 'o', DisplayName: 'me' }, Permission: 'FULL_CONTROL' }],
+    });
+
+    const res = (await handlers.get(CH.getObjectAcl)!({ accountId: created.data.id, bucket: 'b', key: 'k' })) as {
+      ok: boolean; data: { owner: { id: string }; grants: unknown[] };
+    };
+    expect(res.ok).toBe(true);
+    expect(res.data.owner.id).toBe('o');
+    expect(res.data.grants).toHaveLength(1);
+  });
+
+  it('s3:putObjectAcl writes the ACL via the account client', async () => {
+    const { handlers } = buildHarness();
+    const created = (await handlers.get(CH.accountsCreate)!({
+      label: 'AWS', provider: 'amazon-s3', region: 'us-east-1', accessKeyId: 'AK', secretAccessKey: 'SK',
+    })) as { data: { id: string } };
+    s3Mock.on(PutObjectAclCommand).resolves({});
+
+    const res = (await handlers.get(CH.putObjectAcl)!({
+      accountId: created.data.id, bucket: 'b', key: 'k',
+      acl: { owner: { id: 'o', displayName: 'me' }, grants: [] },
+    })) as { ok: boolean; data: boolean };
+    expect(res).toEqual({ ok: true, data: true });
   });
 });

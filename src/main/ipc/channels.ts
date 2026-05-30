@@ -9,6 +9,7 @@ import type { ObjectRetention, LegalHoldStatus } from '../s3/objectRetention';
 import type { Endpoint, SyncPlan, SyncResult } from '../s3/sync';
 import type { LocalSyncArgs } from '../s3/localSync';
 import type { AppSettings, AppInfo } from '../settings/appSettings';
+import type { ObjectAcl } from '../s3/objectAcl';
 
 export const CH = {
   accountsList: 'accounts:list',
@@ -48,6 +49,8 @@ export const CH = {
   getSettings: 'settings:get',
   setSettings: 'settings:set',
   getAppInfo: 'app:getInfo',
+  getObjectAcl: 's3:getObjectAcl',
+  putObjectAcl: 's3:putObjectAcl',
 } as const;
 
 export interface CreateAccountInput {
@@ -97,6 +100,8 @@ export interface ApiMap {
   [CH.getSettings]: { args: []; res: Result<AppSettings> };
   [CH.setSettings]: { args: [Partial<AppSettings>]; res: Result<AppSettings> };
   [CH.getAppInfo]: { args: []; res: Result<AppInfo> };
+  [CH.getObjectAcl]: { args: [{ accountId: string; bucket: string; key: string }]; res: Result<ObjectAcl> };
+  [CH.putObjectAcl]: { args: [{ accountId: string; bucket: string; key: string; acl: ObjectAcl }]; res: Result<true> };
 }
 
 /** One-way main→renderer channel for upload progress (not an invoke channel,

@@ -22,6 +22,8 @@ import type { CorsRule } from '../s3/cors';
 import { getObjectLockConfig, putObjectLockConfig } from '../s3/objectLock';
 import { getObjectRetention, putObjectRetention, getObjectLegalHold, putObjectLegalHold } from '../s3/objectRetention';
 import type { LegalHoldStatus } from '../s3/objectRetention';
+import { getObjectAcl, putObjectAcl } from '../s3/objectAcl';
+import type { ObjectAcl } from '../s3/objectAcl';
 import { createFolder, moveObject, moveFolder } from '../s3/transfer';
 import { planSync, runSync, type Endpoint } from '../s3/sync';
 import { planLocalSync, runLocalSync } from '../s3/localSync';
@@ -123,6 +125,13 @@ export function registerIpc(ipcMain: IpcMainLike, deps: RegisterDeps): void {
 
   h(CH.objectVisibility, (a: { accountId: string; bucket: string; key: string }) =>
     getObjectVisibility(clientFor(a.accountId), { bucket: a.bucket, key: a.key }),
+  );
+
+  h(CH.getObjectAcl, (a: { accountId: string; bucket: string; key: string }) =>
+    getObjectAcl(clientFor(a.accountId), { bucket: a.bucket, key: a.key }),
+  );
+  h(CH.putObjectAcl, (a: { accountId: string; bucket: string; key: string; acl: ObjectAcl }) =>
+    putObjectAcl(clientFor(a.accountId), { bucket: a.bucket, key: a.key, acl: a.acl }),
   );
 
   h(CH.setObjectVisibility, (a: { accountId: string; bucket: string; key: string; visibility: 'public' | 'private' }) =>
