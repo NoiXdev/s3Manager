@@ -406,16 +406,18 @@ describe('metadata edit handlers', () => {
     const created = (await handlers.get(CH.accountsCreate)!({
       label: 'AWS', provider: 'amazon-s3', region: 'us-east-1', accessKeyId: 'AK', secretAccessKey: 'SK',
     })) as { data: { id: string } };
-    s3Mock.on(HeadObjectCommand).resolves({ ContentType: 'text/plain', Metadata: { a: '1' } });
+    s3Mock.on(HeadObjectCommand).resolves({ ContentType: 'text/plain', CacheControl: 'no-cache', ContentDisposition: 'inline', Metadata: { a: '1' } });
     const res = (await handlers.get(CH.getEditableMetadata)!({ accountId: created.data.id, bucket: 'b', key: 'k' })) as {
-      ok: boolean; data: { contentType: string | null; metadata: Record<string, string> };
+      ok: boolean; data: { contentType: string | null; cacheControl: string | null; contentDisposition: string | null; metadata: Record<string, string> };
     };
     expect(res.ok).toBe(true);
     expect(res.data.contentType).toBe('text/plain');
+    expect(res.data.cacheControl).toBe('no-cache');
+    expect(res.data.contentDisposition).toBe('inline');
     expect(res.data.metadata).toEqual({ a: '1' });
   });
 
-  it('s3:updateObjectMetadata copies-to-self and returns ok', async () => {
+  it('s3:updateObjectMetadata applies the metadata changes via the account client', async () => {
     const { handlers } = buildHarness();
     const created = (await handlers.get(CH.accountsCreate)!({
       label: 'AWS', provider: 'amazon-s3', region: 'us-east-1', accessKeyId: 'AK', secretAccessKey: 'SK',
@@ -427,5 +429,10 @@ describe('metadata edit handlers', () => {
       contentType: 'application/json', cacheControl: null, contentDisposition: null, metadata: {},
     })) as { ok: boolean; data: boolean };
     expect(res).toEqual({ ok: true, data: true });
+    const input = s3Mock.commandCalls(CopyObjectCommand)[0].args[0].input;
+    expect(input.MetadataDirective).toBe('REPLACE');
+    expect(input.Bucket).toBe('b');
+    expect(input.Key).toBe('k');
+    expect(input.ContentType).toBe('application/json');
   });
 });

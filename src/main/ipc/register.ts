@@ -135,15 +135,15 @@ export function registerIpc(ipcMain: IpcMainLike, deps: RegisterDeps): void {
     putObjectAcl(clientFor(a.accountId), { bucket: a.bucket, key: a.key, acl: a.acl }),
   );
 
+  h(CH.setObjectVisibility, (a: { accountId: string; bucket: string; key: string; visibility: 'public' | 'private' }) =>
+    setObjectVisibility(clientFor(a.accountId), { bucket: a.bucket, key: a.key, visibility: a.visibility }),
+  );
+
   h(CH.getEditableMetadata, (a: { accountId: string; bucket: string; key: string }) =>
     getEditableMetadata(clientFor(a.accountId), { bucket: a.bucket, key: a.key }),
   );
   h(CH.updateObjectMetadata, (a: { accountId: string; bucket: string; key: string; contentType: string | null; cacheControl: string | null; contentDisposition: string | null; metadata: Record<string, string> }) =>
     updateObjectMetadata(clientFor(a.accountId), { bucket: a.bucket, key: a.key, contentType: a.contentType, cacheControl: a.cacheControl, contentDisposition: a.contentDisposition, metadata: a.metadata }),
-  );
-
-  h(CH.setObjectVisibility, (a: { accountId: string; bucket: string; key: string; visibility: 'public' | 'private' }) =>
-    setObjectVisibility(clientFor(a.accountId), { bucket: a.bucket, key: a.key, visibility: a.visibility }),
   );
 
   h(CH.presignGet, (a: { accountId: string; bucket: string; key: string; expiresIn: number }) =>
