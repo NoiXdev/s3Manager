@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { FiDownload, FiLink, FiEdit3, FiMove, FiLock, FiTag, FiTrash2 } from 'react-icons/fi';
 import { useObjectDetails } from '../../hooks/useObjectDetails';
 import { formatBytes, formatTimestamp } from '../../lib/format';
 import { useObjectActions } from '../../hooks/useObjectActions';
@@ -55,29 +56,29 @@ export function MetadataPanel({
       </div>
 
       <div className="flex gap-1 border-b border-slate-200 p-2">
-        <button type="button" className="rounded border border-slate-300 px-2 py-1 text-xs hover:bg-slate-50" onClick={() => void actions.download(objectKey)}>
-          Download
+        <button type="button" aria-label="Download" title="Download" className="rounded border border-slate-300 p-1.5 text-slate-600 hover:bg-slate-50" onClick={() => void actions.download(objectKey)}>
+          <FiDownload className="h-4 w-4" aria-hidden />
         </button>
-        <button type="button" className="rounded border border-slate-300 px-2 py-1 text-xs hover:bg-slate-50" onClick={() => void actions.copyPresignedUrl(objectKey)}>
-          Copy URL
+        <button type="button" aria-label="Copy URL" title="Copy URL" className="rounded border border-slate-300 p-1.5 text-slate-600 hover:bg-slate-50" onClick={() => void actions.copyPresignedUrl(objectKey)}>
+          <FiLink className="h-4 w-4" aria-hidden />
         </button>
         {!renaming && (
-          <button type="button" className="rounded border border-slate-300 px-2 py-1 text-xs hover:bg-slate-50" onClick={() => setRenaming(true)}>
-            Rename
+          <button type="button" aria-label="Rename" title="Rename" className="rounded border border-slate-300 p-1.5 text-slate-600 hover:bg-slate-50" onClick={() => setRenaming(true)}>
+            <FiEdit3 className="h-4 w-4" aria-hidden />
           </button>
         )}
-        <button type="button" className="rounded border border-slate-300 px-2 py-1 text-xs hover:bg-slate-50" onClick={() => setMoving(true)}>
-          Move
+        <button type="button" aria-label="Move" title="Move" className="rounded border border-slate-300 p-1.5 text-slate-600 hover:bg-slate-50" onClick={() => setMoving(true)}>
+          <FiMove className="h-4 w-4" aria-hidden />
         </button>
-        <button type="button" className="rounded border border-slate-300 px-2 py-1 text-xs hover:bg-slate-50" onClick={() => setPermissionsOpen(true)}>
-          Permissions…
+        <button type="button" aria-label="Permissions…" title="Permissions…" className="rounded border border-slate-300 p-1.5 text-slate-600 hover:bg-slate-50" onClick={() => setPermissionsOpen(true)}>
+          <FiLock className="h-4 w-4" aria-hidden />
         </button>
-        <button type="button" className="rounded border border-slate-300 px-2 py-1 text-xs hover:bg-slate-50" onClick={() => setMetadataOpen(true)}>
-          Edit metadata…
+        <button type="button" aria-label="Edit metadata…" title="Edit metadata…" className="rounded border border-slate-300 p-1.5 text-slate-600 hover:bg-slate-50" onClick={() => setMetadataOpen(true)}>
+          <FiTag className="h-4 w-4" aria-hidden />
         </button>
         {!confirming && (
-          <button type="button" className="rounded border border-red-300 px-2 py-1 text-xs text-red-600 hover:bg-red-50" onClick={() => setConfirming(true)}>
-            Delete
+          <button type="button" aria-label="Delete" title="Delete" className="rounded border border-red-300 p-1.5 text-red-600 hover:bg-red-50" onClick={() => setConfirming(true)}>
+            <FiTrash2 className="h-4 w-4" aria-hidden />
           </button>
         )}
       </div>
