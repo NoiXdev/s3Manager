@@ -162,3 +162,18 @@ describe('MetadataPanel retention section', () => {
     expect(screen.queryByText('Retention & legal hold')).toBeNull();
   });
 });
+
+describe('MetadataPanel permissions', () => {
+  it('opens the Permissions dialog from the actions row', async () => {
+    (window as unknown as { s3: unknown }).s3 = {
+      headObject: vi.fn().mockResolvedValue({ ok: true, data: { size: 1, contentType: null, lastModified: null, storageClass: null, etag: null, metadata: {} } }),
+      objectVisibility: vi.fn().mockResolvedValue({ ok: true, data: 'private' }),
+      getObjectLockConfig: vi.fn().mockResolvedValue({ ok: true, data: { enabled: false, defaultRetention: null } }),
+      getObjectAcl: vi.fn().mockResolvedValue({ ok: true, data: { owner: { id: 'o', displayName: 'me' }, grants: [] } }),
+    };
+    wrap(<MetadataPanel accountId="acc-1" bucket="assets" objectKey="k" onClose={() => {}} />);
+    await userEvent.click(screen.getByRole('button', { name: 'Permissions…' }));
+    expect(await screen.findByText('Permissions')).toBeInTheDocument();
+    expect(await screen.findByText('me')).toBeInTheDocument();
+  });
+});

@@ -10,6 +10,7 @@ import { NameDialog } from '../transfer/NameDialog';
 import { MoveDialog } from '../transfer/MoveDialog';
 import { useObjectLock } from '../../hooks/useObjectLock';
 import { RetentionSection } from './RetentionSection';
+import { PermissionsDialog } from './PermissionsDialog';
 
 function Row({ label, value }: { label: string; value: string }) {
   return (
@@ -40,6 +41,7 @@ export function MetadataPanel({
   const { show } = useToast();
   const [renaming, setRenaming] = useState(false);
   const [moving, setMoving] = useState(false);
+  const [permissionsOpen, setPermissionsOpen] = useState(false);
 
   return (
     <div className="flex h-full w-80 flex-col border-l border-slate-200 bg-white">
@@ -64,6 +66,9 @@ export function MetadataPanel({
         )}
         <button type="button" className="rounded border border-slate-300 px-2 py-1 text-xs hover:bg-slate-50" onClick={() => setMoving(true)}>
           Move
+        </button>
+        <button type="button" className="rounded border border-slate-300 px-2 py-1 text-xs hover:bg-slate-50" onClick={() => setPermissionsOpen(true)}>
+          Permissions…
         </button>
         {!confirming && (
           <button type="button" className="rounded border border-red-300 px-2 py-1 text-xs text-red-600 hover:bg-red-50" onClick={() => setConfirming(true)}>
@@ -111,6 +116,15 @@ export function MetadataPanel({
           item={{ kind: 'file', name: baseName(objectKey), parent: parentPrefix(objectKey), key: objectKey }}
           onClose={() => setMoving(false)}
           onMoved={onClose}
+        />
+      )}
+
+      {permissionsOpen && (
+        <PermissionsDialog
+          accountId={accountId ?? ''}
+          bucket={bucket ?? ''}
+          objectKey={objectKey}
+          onClose={() => setPermissionsOpen(false)}
         />
       )}
 
