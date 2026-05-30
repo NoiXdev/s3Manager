@@ -10,6 +10,7 @@ import type { Endpoint, SyncPlan, SyncResult } from '../s3/sync';
 import type { LocalSyncArgs } from '../s3/localSync';
 import type { AppSettings, AppInfo } from '../settings/appSettings';
 import type { ObjectAcl } from '../s3/objectAcl';
+import type { EditableMetadata } from '../s3/objectMetadata';
 
 export const CH = {
   accountsList: 'accounts:list',
@@ -51,6 +52,8 @@ export const CH = {
   getAppInfo: 'app:getInfo',
   getObjectAcl: 's3:getObjectAcl',
   putObjectAcl: 's3:putObjectAcl',
+  getEditableMetadata: 's3:getEditableMetadata',
+  updateObjectMetadata: 's3:updateObjectMetadata',
 } as const;
 
 export interface CreateAccountInput {
@@ -102,6 +105,8 @@ export interface ApiMap {
   [CH.getAppInfo]: { args: []; res: Result<AppInfo> };
   [CH.getObjectAcl]: { args: [{ accountId: string; bucket: string; key: string }]; res: Result<ObjectAcl> };
   [CH.putObjectAcl]: { args: [{ accountId: string; bucket: string; key: string; acl: ObjectAcl }]; res: Result<true> };
+  [CH.getEditableMetadata]: { args: [{ accountId: string; bucket: string; key: string }]; res: Result<EditableMetadata> };
+  [CH.updateObjectMetadata]: { args: [{ accountId: string; bucket: string; key: string; contentType: string | null; cacheControl: string | null; contentDisposition: string | null; metadata: Record<string, string> }]; res: Result<true> };
 }
 
 /** One-way main→renderer channel for upload progress (not an invoke channel,

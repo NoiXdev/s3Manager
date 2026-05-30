@@ -24,6 +24,7 @@ import { getObjectRetention, putObjectRetention, getObjectLegalHold, putObjectLe
 import type { LegalHoldStatus } from '../s3/objectRetention';
 import { getObjectAcl, putObjectAcl } from '../s3/objectAcl';
 import type { ObjectAcl } from '../s3/objectAcl';
+import { getEditableMetadata, updateObjectMetadata } from '../s3/objectMetadata';
 import { createFolder, moveObject, moveFolder } from '../s3/transfer';
 import { planSync, runSync, type Endpoint } from '../s3/sync';
 import { planLocalSync, runLocalSync } from '../s3/localSync';
@@ -132,6 +133,13 @@ export function registerIpc(ipcMain: IpcMainLike, deps: RegisterDeps): void {
   );
   h(CH.putObjectAcl, (a: { accountId: string; bucket: string; key: string; acl: ObjectAcl }) =>
     putObjectAcl(clientFor(a.accountId), { bucket: a.bucket, key: a.key, acl: a.acl }),
+  );
+
+  h(CH.getEditableMetadata, (a: { accountId: string; bucket: string; key: string }) =>
+    getEditableMetadata(clientFor(a.accountId), { bucket: a.bucket, key: a.key }),
+  );
+  h(CH.updateObjectMetadata, (a: { accountId: string; bucket: string; key: string; contentType: string | null; cacheControl: string | null; contentDisposition: string | null; metadata: Record<string, string> }) =>
+    updateObjectMetadata(clientFor(a.accountId), { bucket: a.bucket, key: a.key, contentType: a.contentType, cacheControl: a.cacheControl, contentDisposition: a.contentDisposition, metadata: a.metadata }),
   );
 
   h(CH.setObjectVisibility, (a: { accountId: string; bucket: string; key: string; visibility: 'public' | 'private' }) =>

@@ -50,6 +50,8 @@ const api = {
   getAppInfo: () => invoke(CH.getAppInfo),
   getObjectAcl: (a: ApiMap[typeof CH.getObjectAcl]['args'][0]) => invoke(CH.getObjectAcl, a),
   putObjectAcl: (a: ApiMap[typeof CH.putObjectAcl]['args'][0]) => invoke(CH.putObjectAcl, a),
+  getEditableMetadata: (a: ApiMap[typeof CH.getEditableMetadata]['args'][0]) => invoke(CH.getEditableMetadata, a),
+  updateObjectMetadata: (a: ApiMap[typeof CH.updateObjectMetadata]['args'][0]) => invoke(CH.updateObjectMetadata, a),
   onSyncProgress: (cb: (p: SyncProgress) => void) => {
     const listener = (_event: unknown, payload: unknown) => cb(payload as SyncProgress);
     ipcRenderer.on(SYNC_PROGRESS_CHANNEL, listener);

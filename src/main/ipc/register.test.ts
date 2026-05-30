@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { mockClient } from 'aws-sdk-client-mock';
-import { S3Client, ListBucketsCommand, GetObjectCommand, GetBucketCorsCommand, GetObjectLockConfigurationCommand, ListObjectsV2Command, PutObjectAclCommand, GetObjectRetentionCommand, PutObjectLegalHoldCommand, GetObjectAclCommand } from '@aws-sdk/client-s3';
+import { S3Client, ListBucketsCommand, GetObjectCommand, GetBucketCorsCommand, GetObjectLockConfigurationCommand, ListObjectsV2Command, PutObjectAclCommand, GetObjectRetentionCommand, PutObjectLegalHoldCommand, GetObjectAclCommand, HeadObjectCommand, CopyObjectCommand } from '@aws-sdk/client-s3';
 import { writeFileSync, mkdtempSync, readFileSync } from 'node:fs';
 import { Readable } from 'node:stream';
 import { join } from 'node:path';
@@ -395,6 +395,36 @@ describe('object ACL handlers', () => {
     const res = (await handlers.get(CH.putObjectAcl)!({
       accountId: created.data.id, bucket: 'b', key: 'k',
       acl: { owner: { id: 'o', displayName: 'me' }, grants: [] },
+    })) as { ok: boolean; data: boolean };
+    expect(res).toEqual({ ok: true, data: true });
+  });
+});
+
+describe('metadata edit handlers', () => {
+  it('s3:getEditableMetadata returns the mapped fields via the account client', async () => {
+    const { handlers } = buildHarness();
+    const created = (await handlers.get(CH.accountsCreate)!({
+      label: 'AWS', provider: 'amazon-s3', region: 'us-east-1', accessKeyId: 'AK', secretAccessKey: 'SK',
+    })) as { data: { id: string } };
+    s3Mock.on(HeadObjectCommand).resolves({ ContentType: 'text/plain', Metadata: { a: '1' } });
+    const res = (await handlers.get(CH.getEditableMetadata)!({ accountId: created.data.id, bucket: 'b', key: 'k' })) as {
+      ok: boolean; data: { contentType: string | null; metadata: Record<string, string> };
+    };
+    expect(res.ok).toBe(true);
+    expect(res.data.contentType).toBe('text/plain');
+    expect(res.data.metadata).toEqual({ a: '1' });
+  });
+
+  it('s3:updateObjectMetadata copies-to-self and returns ok', async () => {
+    const { handlers } = buildHarness();
+    const created = (await handlers.get(CH.accountsCreate)!({
+      label: 'AWS', provider: 'amazon-s3', region: 'us-east-1', accessKeyId: 'AK', secretAccessKey: 'SK',
+    })) as { data: { id: string } };
+    s3Mock.on(HeadObjectCommand).resolves({});
+    s3Mock.on(CopyObjectCommand).resolves({});
+    const res = (await handlers.get(CH.updateObjectMetadata)!({
+      accountId: created.data.id, bucket: 'b', key: 'k',
+      contentType: 'application/json', cacheControl: null, contentDisposition: null, metadata: {},
     })) as { ok: boolean; data: boolean };
     expect(res).toEqual({ ok: true, data: true });
   });
