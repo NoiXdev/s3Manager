@@ -40,6 +40,7 @@ export async function updateObjectMetadata(
 ): Promise<Result<true>> {
   try {
     const head = await client.send(new HeadObjectCommand({ Bucket: args.bucket, Key: args.key }));
+    // null or empty string clears the header; preserved system headers are re-sent from the head response
     await client.send(
       new CopyObjectCommand({
         Bucket: args.bucket,

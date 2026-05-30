@@ -18,6 +18,13 @@ describe('getEditableMetadata', () => {
     const r = await getEditableMetadata(new S3Client({}), { bucket: 'b', key: 'k' });
     expect(r).toEqual({ ok: true, data: { contentType: null, cacheControl: null, contentDisposition: null, metadata: {} } });
   });
+
+  it('returns an error result when the head fails', async () => {
+    s3Mock.on(HeadObjectCommand).rejects(new Error('AccessDenied'));
+    const r = await getEditableMetadata(new S3Client({}), { bucket: 'b', key: 'k' });
+    expect(r.ok).toBe(false);
+    if (!r.ok) expect(r.error.code).toBe('Error');
+  });
 });
 
 describe('updateObjectMetadata', () => {
