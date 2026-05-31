@@ -1,4 +1,6 @@
+import { useState } from 'react';
 import { useBuckets } from '../../hooks/useBuckets';
+import { CreateBucketDialog } from './CreateBucketDialog';
 
 export function BucketsPane({
   accountId,
@@ -10,11 +12,17 @@ export function BucketsPane({
   onSelect: (bucket: string) => void;
 }) {
   const buckets = useBuckets(accountId);
+  const [creating, setCreating] = useState(false);
 
   return (
     <div className="flex h-full flex-col">
-      <div className="border-b border-slate-200 p-2">
+      <div className="flex items-center justify-between border-b border-slate-200 p-2">
         <span className="text-xs font-semibold uppercase tracking-wide text-slate-500">Buckets</span>
+        {accountId !== null && (
+          <button type="button" className="rounded px-2 py-0.5 text-sm hover:bg-slate-100" onClick={() => setCreating(true)}>
+            + Create bucket
+          </button>
+        )}
       </div>
 
       {accountId === null && <p className="p-3 text-slate-500">Select an account</p>}
@@ -40,6 +48,16 @@ export function BucketsPane({
           </li>
         ))}
       </ul>
+      {creating && accountId !== null && (
+        <CreateBucketDialog
+          accountId={accountId}
+          onClose={() => setCreating(false)}
+          onCreated={(name) => {
+            setCreating(false);
+            onSelect(name);
+          }}
+        />
+      )}
     </div>
   );
 }
