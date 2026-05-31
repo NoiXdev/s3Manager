@@ -1,5 +1,5 @@
 import { S3Client, CreateBucketCommand, PutBucketVersioningCommand, type BucketLocationConstraint } from '@aws-sdk/client-s3';
-import { ok, type Result } from '../shared/result';
+import { ok, err, type Result } from '../shared/result';
 import { toErr } from './objects';
 
 export async function createBucket(
@@ -16,13 +16,19 @@ export async function createBucket(
         ObjectLockEnabledForBucket: args.objectLock || undefined,
       }),
     );
-    if (args.versioning) {
-      await client.send(
-        new PutBucketVersioningCommand({ Bucket: args.bucket, VersioningConfiguration: { Status: 'Enabled' } }),
-      );
-    }
-    return ok(true);
   } catch (e) {
     return toErr(e);
   }
+
+  if (args.versioning) {
+    try {
+      await client.send(
+        new PutBucketVersioningCommand({ Bucket: args.bucket, VersioningConfiguration: { Status: 'Enabled' } }),
+      );
+    } catch (e) {
+      return err('VersioningFailed', `Bucket "${args.bucket}" was created, but enabling versioning failed: ${(e as Error).message}`);
+    }
+  }
+
+  return ok(true);
 }

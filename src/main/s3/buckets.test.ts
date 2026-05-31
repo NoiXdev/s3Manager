@@ -41,4 +41,20 @@ describe('createBucket', () => {
     const r = await createBucket(new S3Client({}), { bucket: 'b', objectLock: false, versioning: false, locationConstraint: undefined });
     expect(r.ok).toBe(false);
   });
+
+  it('does not enable versioning when only object lock is requested', async () => {
+    s3Mock.on(CreateBucketCommand).resolves({});
+    await createBucket(new S3Client({}), { bucket: 'b', objectLock: true, versioning: false, locationConstraint: undefined });
+    const create = s3Mock.commandCalls(CreateBucketCommand)[0].args[0].input;
+    expect(create.ObjectLockEnabledForBucket).toBe(true);
+    expect(s3Mock.commandCalls(PutBucketVersioningCommand)).toHaveLength(0);
+  });
+
+  it('reports an accurate error when versioning fails after the bucket is created', async () => {
+    s3Mock.on(CreateBucketCommand).resolves({});
+    s3Mock.on(PutBucketVersioningCommand).rejects(new Error('Throttling'));
+    const r = await createBucket(new S3Client({}), { bucket: 'b', objectLock: false, versioning: true, locationConstraint: undefined });
+    expect(r.ok).toBe(false);
+    if (!r.ok) expect(r.error.message).toMatch(/was created/);
+  });
 });
