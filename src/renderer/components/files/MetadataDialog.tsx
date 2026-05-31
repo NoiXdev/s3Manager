@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { FiX } from 'react-icons/fi';
+import { FiX, FiTrash2 } from 'react-icons/fi';
 import { useObjectMetadataEditor } from '../../hooks/useObjectMetadataEditor';
 import { useToast } from '../ui/ToastProvider';
 
@@ -113,7 +113,7 @@ export function MetadataDialog({
                     className="rounded px-1 text-slate-400 hover:bg-red-50 hover:text-red-600"
                     onClick={() => setPairs((prev) => prev.filter((_, j) => j !== i))}
                   >
-                    <FiX className="h-3.5 w-3.5" aria-hidden />
+                    <FiTrash2 className="h-3.5 w-3.5" aria-hidden />
                   </button>
                 </div>
               ))}
