@@ -4,7 +4,10 @@ import { useCreateBucket } from '../../hooks/useCreateBucket';
 import { useToast } from '../ui/ToastProvider';
 
 export function isValidBucketName(name: string): boolean {
-  return /^[a-z0-9][a-z0-9.-]{1,61}[a-z0-9]$/.test(name);
+  if (!/^[a-z0-9][a-z0-9.-]{1,61}[a-z0-9]$/.test(name)) return false;
+  if (name.includes('..')) return false; // no consecutive dots
+  if (/^\d{1,3}(\.\d{1,3}){3}$/.test(name)) return false; // not IP-address formatted
+  return true;
 }
 
 export function CreateBucketDialog({
@@ -58,7 +61,7 @@ export function CreateBucketDialog({
         </label>
         {trimmed.length > 0 && !valid && (
           <p className="mt-1 text-xs text-red-600">
-            3–63 characters, lowercase letters, numbers, hyphens or dots, starting and ending with a letter or number.
+            3–63 characters, lowercase letters, numbers, hyphens or dots (no consecutive dots), starting and ending with a letter or number.
           </p>
         )}
 

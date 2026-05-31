@@ -4,7 +4,7 @@ import userEvent from '@testing-library/user-event';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import type { ReactNode } from 'react';
 import { ToastProvider } from '../ui/ToastProvider';
-import { CreateBucketDialog } from './CreateBucketDialog';
+import { CreateBucketDialog, isValidBucketName } from './CreateBucketDialog';
 
 function wrap(node: ReactNode) {
   const client = new QueryClient({ defaultOptions: { queries: { retry: false }, mutations: { retry: false } } });
@@ -21,6 +21,21 @@ function baseS3(over: Record<string, unknown> = {}) {
 
 beforeEach(() => {
   (window as unknown as { s3: unknown }).s3 = baseS3();
+});
+
+describe('isValidBucketName', () => {
+  it('accepts a normal name', () => {
+    expect(isValidBucketName('my-bucket-1')).toBe(true);
+  });
+  it('rejects too short, uppercase, bad start/end', () => {
+    expect(isValidBucketName('ab')).toBe(false);
+    expect(isValidBucketName('My-Bucket')).toBe(false);
+    expect(isValidBucketName('-bucket')).toBe(false);
+  });
+  it('rejects consecutive dots and IP-formatted names', () => {
+    expect(isValidBucketName('my..bucket')).toBe(false);
+    expect(isValidBucketName('192.168.1.1')).toBe(false);
+  });
 });
 
 describe('CreateBucketDialog', () => {
