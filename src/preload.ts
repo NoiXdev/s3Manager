@@ -17,6 +17,7 @@ const api = {
   },
   encryptionAvailable: () => invoke(CH.encryptionAvailable),
   listBuckets: (accountId: string) => invoke(CH.listBuckets, accountId),
+  createBucket: (a: ApiMap[typeof CH.createBucket]['args'][0]) => invoke(CH.createBucket, a),
   listObjects: (a: ApiMap[typeof CH.listObjects]['args'][0]) => invoke(CH.listObjects, a),
   headObject: (a: ApiMap[typeof CH.headObject]['args'][0]) => invoke(CH.headObject, a),
   objectVisibility: (a: ApiMap[typeof CH.objectVisibility]['args'][0]) => invoke(CH.objectVisibility, a),

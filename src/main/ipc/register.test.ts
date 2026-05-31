@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { mockClient } from 'aws-sdk-client-mock';
-import { S3Client, ListBucketsCommand, GetObjectCommand, GetBucketCorsCommand, GetObjectLockConfigurationCommand, ListObjectsV2Command, PutObjectAclCommand, GetObjectRetentionCommand, PutObjectLegalHoldCommand, GetObjectAclCommand, HeadObjectCommand, CopyObjectCommand } from '@aws-sdk/client-s3';
+import { S3Client, ListBucketsCommand, GetObjectCommand, GetBucketCorsCommand, GetObjectLockConfigurationCommand, ListObjectsV2Command, PutObjectAclCommand, GetObjectRetentionCommand, PutObjectLegalHoldCommand, GetObjectAclCommand, HeadObjectCommand, CopyObjectCommand, CreateBucketCommand } from '@aws-sdk/client-s3';
 import { writeFileSync, mkdtempSync, readFileSync } from 'node:fs';
 import { Readable } from 'node:stream';
 import { join } from 'node:path';
@@ -434,5 +434,31 @@ describe('metadata edit handlers', () => {
     expect(input.Bucket).toBe('b');
     expect(input.Key).toBe('k');
     expect(input.ContentType).toBe('application/json');
+  });
+});
+
+describe('create bucket handler', () => {
+  it('creates a bucket in the account region and returns ok', async () => {
+    const { handlers } = buildHarness();
+    const created = (await handlers.get(CH.accountsCreate)!({
+      label: 'AWS', provider: 'amazon-s3', region: 'eu-central-1', accessKeyId: 'AK', secretAccessKey: 'SK',
+    })) as { data: { id: string } };
+    s3Mock.on(CreateBucketCommand).resolves({});
+
+    const res = (await handlers.get(CH.createBucket)!({
+      accountId: created.data.id, bucket: 'new-bucket', objectLock: false, versioning: false,
+    })) as { ok: boolean; data: boolean };
+    expect(res).toEqual({ ok: true, data: true });
+    const input = s3Mock.commandCalls(CreateBucketCommand)[0].args[0].input;
+    expect(input.Bucket).toBe('new-bucket');
+    expect(input.CreateBucketConfiguration).toEqual({ LocationConstraint: 'eu-central-1' });
+  });
+
+  it('returns an error result for an unknown account', async () => {
+    const { handlers } = buildHarness();
+    const res = (await handlers.get(CH.createBucket)!({
+      accountId: 'nope', bucket: 'b', objectLock: false, versioning: false,
+    })) as { ok: boolean };
+    expect(res.ok).toBe(false);
   });
 });

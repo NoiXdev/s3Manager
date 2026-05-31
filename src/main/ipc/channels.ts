@@ -19,6 +19,7 @@ export const CH = {
   accountsTest: 'accounts:test',
   encryptionAvailable: 'secrets:available',
   listBuckets: 's3:listBuckets',
+  createBucket: 's3:createBucket',
   listObjects: 's3:listObjects',
   headObject: 's3:headObject',
   objectVisibility: 's3:objectVisibility',
@@ -72,6 +73,7 @@ export interface ApiMap {
   [CH.accountsTest]: { args: [CreateAccountInput]; res: Result<true> };
   [CH.encryptionAvailable]: { args: []; res: Result<boolean> };
   [CH.listBuckets]: { args: [string]; res: Result<string[]> };
+  [CH.createBucket]: { args: [{ accountId: string; bucket: string; objectLock: boolean; versioning: boolean }]; res: Result<true> };
   [CH.listObjects]: { args: [{ accountId: string; bucket: string; prefix: string; continuationToken?: string }]; res: Result<ListObjectsResult> };
   [CH.headObject]: { args: [{ accountId: string; bucket: string; key: string }]; res: Result<ObjectMetadata> };
   [CH.objectVisibility]: { args: [{ accountId: string; bucket: string; key: string }]; res: Result<Visibility> };

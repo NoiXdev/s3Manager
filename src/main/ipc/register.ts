@@ -1,7 +1,7 @@
 import { basename } from 'node:path';
 import { CH, UPLOAD_PROGRESS_CHANNEL, SYNC_PROGRESS_CHANNEL, type CreateAccountInput } from './channels';
 import { ok, err, type Result } from '../shared/result';
-import { resolveEndpoint, getProvider, PROVIDERS } from '../s3/providers';
+import { resolveEndpoint, getProvider, PROVIDERS, bucketLocationConstraint, type ProviderId } from '../s3/providers';
 import { createClient } from '../s3/clientFactory';
 import { createClientForAccount } from '../s3/accountClients';
 import {
@@ -26,6 +26,7 @@ import { getObjectAcl, putObjectAcl } from '../s3/objectAcl';
 import type { ObjectAcl } from '../s3/objectAcl';
 import { getEditableMetadata, updateObjectMetadata } from '../s3/objectMetadata';
 import { createFolder, moveObject, moveFolder } from '../s3/transfer';
+import { createBucket } from '../s3/buckets';
 import { planSync, runSync, type Endpoint } from '../s3/sync';
 import { planLocalSync, runLocalSync } from '../s3/localSync';
 import type { LocalSyncArgs } from '../s3/localSync';
@@ -115,6 +116,15 @@ export function registerIpc(ipcMain: IpcMainLike, deps: RegisterDeps): void {
   });
 
   h(CH.listBuckets, (accountId: string) => listBuckets(clientFor(accountId)));
+
+  h(CH.createBucket, (a: { accountId: string; bucket: string; objectLock: boolean; versioning: boolean }) => {
+    const account = deps.accounts.get(a.accountId);
+    if (!account) return err('AccountNotFound', `Unknown account: ${a.accountId}`);
+    const locationConstraint = bucketLocationConstraint(account.provider as ProviderId, account.region);
+    return createBucket(clientFor(a.accountId), {
+      bucket: a.bucket, objectLock: a.objectLock, versioning: a.versioning, locationConstraint,
+    });
+  });
 
   h(CH.listObjects, (a: { accountId: string; bucket: string; prefix: string; continuationToken?: string }) =>
     listObjects(clientFor(a.accountId), { bucket: a.bucket, prefix: a.prefix, continuationToken: a.continuationToken }),
