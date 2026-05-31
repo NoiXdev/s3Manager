@@ -32,3 +32,8 @@ export function getProvider(id: ProviderId): ProviderDef {
 export function resolveEndpoint(id: ProviderId, region: string): string | undefined {
   return getProvider(id).resolveEndpoint(region);
 }
+
+export function bucketLocationConstraint(id: ProviderId, region: string): string | undefined {
+  if (id !== 'amazon-s3') return undefined; // Hetzner: the endpoint already targets the region
+  return region === 'us-east-1' ? undefined : region; // AWS: must omit LocationConstraint for us-east-1
+}

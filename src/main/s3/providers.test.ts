@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { PROVIDERS, getProvider, resolveEndpoint } from './providers';
+import { PROVIDERS, getProvider, resolveEndpoint, bucketLocationConstraint } from './providers';
 
 describe('provider registry', () => {
   it('lists amazon-s3 and hetzner', () => {
@@ -20,5 +20,17 @@ describe('provider registry', () => {
 
   it('throws on unknown provider', () => {
     expect(() => getProvider('gcs' as never)).toThrow();
+  });
+});
+
+describe('bucketLocationConstraint', () => {
+  it('returns the region for amazon-s3 outside us-east-1', () => {
+    expect(bucketLocationConstraint('amazon-s3', 'eu-central-1')).toBe('eu-central-1');
+  });
+  it('returns undefined for amazon-s3 us-east-1', () => {
+    expect(bucketLocationConstraint('amazon-s3', 'us-east-1')).toBeUndefined();
+  });
+  it('returns undefined for hetzner', () => {
+    expect(bucketLocationConstraint('hetzner', 'fsn1')).toBeUndefined();
   });
 });
