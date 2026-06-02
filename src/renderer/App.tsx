@@ -55,10 +55,13 @@ export function App() {
     <ToastProvider>
       <SyncRunProvider>
       <div className="flex h-full text-sm text-slate-800">
-        <aside className="w-48 shrink-0 border-r border-slate-200 bg-slate-50 p-3">
+        <aside className="flex w-48 shrink-0 flex-col border-r border-slate-200 bg-slate-50 p-3">
           <h1 className="px-2 pb-3 text-base font-semibold">S3 Manager</h1>
           <SectionNav active={section} onSelect={goToSection} />
           <SyncStatus onOpen={() => goToSection('sync')} />
+          <p className="mt-auto px-2 pt-3 text-xs text-slate-400">
+            © {new Date().getFullYear()} S3 Manager
+          </p>
         </aside>
 
         <main className="flex-1 overflow-hidden">
