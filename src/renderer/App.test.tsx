@@ -41,8 +41,10 @@ function renderApp() {
 describe('App — Files browsing', () => {
   it('drills from account to bucket to object and opens the metadata panel', async () => {
     renderApp();
-    await userEvent.click(await screen.findByText('AWS prod'));
-    await userEvent.click(await screen.findByText('assets'));
+    await screen.findByRole('option', { name: 'AWS prod (Amazon S3)' });
+    await userEvent.selectOptions(screen.getByLabelText('Account'), 'a');
+    await screen.findByRole('option', { name: 'assets' });
+    await userEvent.selectOptions(screen.getByLabelText('Bucket'), 'assets');
     await userEvent.click(await screen.findByText('logo.png'));
     expect(await screen.findByText('Details')).toBeInTheDocument();
     expect(await screen.findByText('private')).toBeInTheDocument();
@@ -54,13 +56,21 @@ describe('App — Files browsing', () => {
     expect(await screen.findByRole('heading', { name: 'Settings' })).toBeInTheDocument();
     expect(await screen.findByLabelText('Default link expiry')).toBeInTheDocument();
   });
+
+  it('opens the Connections screen from the Manage connections button', async () => {
+    renderApp();
+    await userEvent.click(screen.getByRole('button', { name: 'Manage connections' }));
+    expect(await screen.findByRole('heading', { name: 'Connections' })).toBeInTheDocument();
+  });
 });
 
 describe('App — operations feedback', () => {
   it('shows a toast after copying a presigned URL from the metadata panel', async () => {
     renderApp();
-    await userEvent.click(await screen.findByText('AWS prod'));
-    await userEvent.click(await screen.findByText('assets'));
+    await screen.findByRole('option', { name: 'AWS prod (Amazon S3)' });
+    await userEvent.selectOptions(screen.getByLabelText('Account'), 'a');
+    await screen.findByRole('option', { name: 'assets' });
+    await userEvent.selectOptions(screen.getByLabelText('Bucket'), 'assets');
     await userEvent.click(await screen.findByText('logo.png'));
     await userEvent.click(await screen.findByRole('button', { name: 'Copy URL' }));
     expect(await screen.findByText('Signed URL copied')).toBeInTheDocument();

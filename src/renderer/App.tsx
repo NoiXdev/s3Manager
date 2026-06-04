@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { SectionNav, type Section } from './components/SectionNav';
-import { AccountsPane } from './components/accounts/AccountsPane';
-import { BucketsPane } from './components/buckets/BucketsPane';
+import { AccountSelect } from './components/accounts/AccountSelect';
+import { BucketSelect } from './components/buckets/BucketSelect';
+import { ConnectionsScreen } from './components/connections/ConnectionsScreen';
 import { FileBrowser } from './components/files/FileBrowser';
 import { MetadataPanel } from './components/files/MetadataPanel';
 import { ToastProvider } from './components/ui/ToastProvider';
@@ -12,6 +13,9 @@ import { SyncSection } from './components/sync/SyncSection';
 import { SyncRunProvider } from './components/sync/SyncRunProvider';
 import { SyncStatus } from './components/sync/SyncStatus';
 import { SettingsScreen } from './components/settings/SettingsScreen';
+
+// Sections whose work targets the single account/bucket chosen in the sidebar.
+const SELECTOR_SECTIONS: Section[] = ['files', 'cors', 'objectLock'];
 
 export function App() {
   const [section, setSection] = useState<Section>('files');
@@ -51,12 +55,33 @@ export function App() {
     setSection('files');
   };
 
+  const showSelectors = SELECTOR_SECTIONS.includes(section);
+
   return (
     <ToastProvider>
       <SyncRunProvider>
       <div className="flex h-full text-sm text-slate-800">
         <aside className="flex w-48 shrink-0 flex-col border-r border-slate-200 bg-slate-50 p-3">
           <h1 className="px-2 pb-3 text-base font-semibold">S3 Manager</h1>
+
+          {showSelectors && (
+            <div className="flex flex-col gap-2 px-2 pb-3">
+              <AccountSelect selectedId={accountId} onSelect={selectAccount} />
+              <BucketSelect accountId={accountId} selectedBucket={bucket} onSelect={selectBucket} />
+            </div>
+          )}
+
+          <button
+            type="button"
+            onClick={() => setSection('connections')}
+            aria-current={section === 'connections' ? 'page' : undefined}
+            className={`mb-3 rounded px-2 py-1.5 text-left ${
+              section === 'connections' ? 'bg-slate-200 font-medium' : 'hover:bg-slate-100'
+            }`}
+          >
+            Manage connections
+          </button>
+
           <SectionNav active={section} onSelect={goToSection} />
           <SyncStatus onOpen={() => goToSection('sync')} />
           <p className="mt-auto px-2 pt-3 text-xs text-slate-400">
@@ -67,12 +92,6 @@ export function App() {
         <main className="flex-1 overflow-hidden">
           {section === 'files' ? (
             <div className="flex h-full">
-              <div className="w-60 shrink-0 border-r border-slate-200">
-                <AccountsPane selectedId={accountId} onSelect={selectAccount} />
-              </div>
-              <div className="w-56 shrink-0 border-r border-slate-200">
-                <BucketsPane accountId={accountId} selectedBucket={bucket} onSelect={selectBucket} />
-              </div>
               <div className="flex-1 overflow-hidden">
                 <FileBrowser
                   accountId={accountId}
@@ -92,15 +111,17 @@ export function App() {
                 />
               )}
             </div>
+          ) : section === 'connections' ? (
+            <ConnectionsScreen />
           ) : section === 'dashboard' ? (
             <Dashboard
               onOpenAccount={(id) => openInFiles(id, null)}
               onOpenBucket={(id, b) => openInFiles(id, b)}
             />
           ) : section === 'cors' ? (
-            <CorsEditor initialAccountId={accountId} initialBucket={bucket} />
+            <CorsEditor accountId={accountId} bucket={bucket} />
           ) : section === 'objectLock' ? (
-            <ObjectLockEditor initialAccountId={accountId} initialBucket={bucket} />
+            <ObjectLockEditor accountId={accountId} bucket={bucket} />
           ) : section === 'sync' ? null : section === 'settings' ? (
             <SettingsScreen />
           ) : (
