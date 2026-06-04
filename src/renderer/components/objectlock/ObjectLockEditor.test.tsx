@@ -31,13 +31,13 @@ describe('ObjectLockEditor', () => {
 
   it('shows the read-only info panel when Object Lock is not enabled', async () => {
     setS3({ enabled: false, defaultRetention: null });
-    wrap(<ObjectLockEditor initialAccountId="acc-1" initialBucket="assets" />);
+    wrap(<ObjectLockEditor accountId="acc-1" bucket="assets" />);
     expect(await screen.findByText(/Object Lock is not enabled/i)).toBeInTheDocument();
     expect(screen.queryByRole('button', { name: 'Save' })).not.toBeInTheDocument();
   });
 
   it('loads the default retention and saves an edited period', async () => {
-    wrap(<ObjectLockEditor initialAccountId="acc-1" initialBucket="assets" />);
+    wrap(<ObjectLockEditor accountId="acc-1" bucket="assets" />);
     const period = await screen.findByLabelText('Retention period');
     expect(period).toHaveValue(30);
     await userEvent.clear(period);
@@ -49,7 +49,7 @@ describe('ObjectLockEditor', () => {
   });
 
   it('removes the default retention after confirmation', async () => {
-    wrap(<ObjectLockEditor initialAccountId="acc-1" initialBucket="assets" />);
+    wrap(<ObjectLockEditor accountId="acc-1" bucket="assets" />);
     await screen.findByLabelText('Retention period');
     await userEvent.click(screen.getByRole('button', { name: 'Remove default' }));
     await userEvent.click(screen.getByRole('button', { name: 'Remove default retention' }));
@@ -58,7 +58,7 @@ describe('ObjectLockEditor', () => {
 
   it('disables Save when the period is empty', async () => {
     setS3({ enabled: true, defaultRetention: null });
-    wrap(<ObjectLockEditor initialAccountId="acc-1" initialBucket="assets" />);
+    wrap(<ObjectLockEditor accountId="acc-1" bucket="assets" />);
     expect(await screen.findByRole('button', { name: 'Save' })).toBeDisabled();
   });
 
@@ -69,7 +69,7 @@ describe('ObjectLockEditor', () => {
       getObjectLockConfig: vi.fn().mockResolvedValue({ ok: false, error: { code: 'AccessDenied', message: 'no perms' } }),
       putObjectLockConfig: vi.fn(),
     };
-    wrap(<ObjectLockEditor initialAccountId="acc-1" initialBucket="assets" />);
+    wrap(<ObjectLockEditor accountId="acc-1" bucket="assets" />);
     expect(await screen.findByText('AccessDenied: no perms')).toBeInTheDocument();
     expect(screen.queryByRole('button', { name: 'Save' })).not.toBeInTheDocument();
   });

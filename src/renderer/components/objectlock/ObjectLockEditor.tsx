@@ -1,6 +1,4 @@
 import { useEffect, useState } from 'react';
-import { useAccounts } from '../../hooks/useAccounts';
-import { useBuckets } from '../../hooks/useBuckets';
 import { useObjectLock } from '../../hooks/useObjectLock';
 import { useToast } from '../ui/ToastProvider';
 import { ConfirmDialog } from '../ui/ConfirmDialog';
@@ -8,16 +6,12 @@ import { ConfirmDialog } from '../ui/ConfirmDialog';
 type Unit = 'days' | 'years';
 
 export function ObjectLockEditor({
-  initialAccountId,
-  initialBucket,
+  accountId,
+  bucket,
 }: {
-  initialAccountId: string | null;
-  initialBucket: string | null;
+  accountId: string | null;
+  bucket: string | null;
 }) {
-  const accounts = useAccounts();
-  const [accountId, setAccountId] = useState<string | null>(initialAccountId);
-  const [bucket, setBucket] = useState<string | null>(initialBucket);
-  const buckets = useBuckets(accountId);
   const lock = useObjectLock(accountId, bucket);
   const { show } = useToast();
 
@@ -45,11 +39,6 @@ export function ObjectLockEditor({
     }
   }, [lock.query.data]);
 
-  const selectAccount = (id: string | null) => {
-    setAccountId(id);
-    setBucket(null);
-  };
-
   const periodNum = Number(period);
   const periodValid = period.trim() !== '' && Number.isInteger(periodNum) && periodNum > 0;
 
@@ -58,21 +47,6 @@ export function ObjectLockEditor({
   return (
     <div className="h-full overflow-auto p-6">
       <h2 className="pb-3 text-lg font-semibold">Object Lock</h2>
-
-      <div className="flex gap-2">
-        <select aria-label="Account" className={fieldClass} value={accountId ?? ''} onChange={(e) => selectAccount(e.target.value || null)}>
-          <option value="">Select account…</option>
-          {accounts.data?.map((a) => (
-            <option key={a.id} value={a.id}>{a.label}</option>
-          ))}
-        </select>
-        <select aria-label="Bucket" className={fieldClass} value={bucket ?? ''} disabled={accountId === null} onChange={(e) => setBucket(e.target.value || null)}>
-          <option value="">Select bucket…</option>
-          {buckets.data?.map((b) => (
-            <option key={b} value={b}>{b}</option>
-          ))}
-        </select>
-      </div>
 
       {bucket === null && <p className="mt-4 text-slate-500">Select a bucket to view its Object Lock settings.</p>}
 
