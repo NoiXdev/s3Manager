@@ -30,14 +30,14 @@ beforeEach(() => {
 
 describe('CorsEditor', () => {
   it('loads the seeded bucket rules and saves the working set', async () => {
-    wrap(<CorsEditor initialAccountId="acc-1" initialBucket="assets" />);
+    wrap(<CorsEditor accountId="acc-1" bucket="assets" />);
     expect(await screen.findByRole('checkbox', { name: 'GET' })).toBeChecked();
     await userEvent.click(screen.getByRole('button', { name: 'Save' }));
     expect(window.s3.putBucketCors).toHaveBeenCalledWith({ accountId: 'acc-1', bucket: 'assets', rules: [rule] });
   });
 
   it('clears all rules after confirmation', async () => {
-    wrap(<CorsEditor initialAccountId="acc-1" initialBucket="assets" />);
+    wrap(<CorsEditor accountId="acc-1" bucket="assets" />);
     await screen.findByRole('checkbox', { name: 'GET' });
     await userEvent.click(screen.getByRole('button', { name: 'Clear all' }));
     await userEvent.click(screen.getByRole('button', { name: 'Clear all rules' }));
@@ -52,13 +52,13 @@ describe('CorsEditor', () => {
       putBucketCors: vi.fn().mockResolvedValue({ ok: true, data: true }),
       deleteBucketCors: vi.fn(),
     };
-    wrap(<CorsEditor initialAccountId="acc-1" initialBucket="assets" />);
+    wrap(<CorsEditor accountId="acc-1" bucket="assets" />);
     await userEvent.click(await screen.findByRole('button', { name: '+ Add rule' }));
     expect(screen.getByRole('button', { name: 'Remove rule' })).toBeInTheDocument();
   });
 
   it('JSON preview reflects edits (working set, not just server data)', async () => {
-    wrap(<CorsEditor initialAccountId="acc-1" initialBucket="assets" />);
+    wrap(<CorsEditor accountId="acc-1" bucket="assets" />);
     await screen.findByRole('checkbox', { name: 'GET' });
     await userEvent.click(screen.getByRole('button', { name: '+ Add rule' })); // now 2 rules in working set
     await userEvent.click(screen.getByRole('button', { name: 'Show JSON' }));
@@ -74,7 +74,7 @@ describe('CorsEditor', () => {
       putBucketCors: vi.fn().mockResolvedValue({ ok: false, error: { code: 'AccessDenied', message: 'no perms' } }),
       deleteBucketCors: vi.fn(),
     };
-    wrap(<CorsEditor initialAccountId="acc-1" initialBucket="assets" />);
+    wrap(<CorsEditor accountId="acc-1" bucket="assets" />);
     await screen.findByRole('checkbox', { name: 'GET' });
     await userEvent.click(screen.getByRole('button', { name: 'Save' }));
     expect(await screen.findByText('AccessDenied: no perms')).toBeInTheDocument();

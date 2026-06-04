@@ -1,6 +1,4 @@
 import { useEffect, useState } from 'react';
-import { useAccounts } from '../../hooks/useAccounts';
-import { useBuckets } from '../../hooks/useBuckets';
 import { useCors } from '../../hooks/useCors';
 import { useToast } from '../ui/ToastProvider';
 import { ConfirmDialog } from '../ui/ConfirmDialog';
@@ -17,16 +15,12 @@ const NEW_RULE: CorsRule = {
 };
 
 export function CorsEditor({
-  initialAccountId,
-  initialBucket,
+  accountId,
+  bucket,
 }: {
-  initialAccountId: string | null;
-  initialBucket: string | null;
+  accountId: string | null;
+  bucket: string | null;
 }) {
-  const accounts = useAccounts();
-  const [accountId, setAccountId] = useState<string | null>(initialAccountId);
-  const [bucket, setBucket] = useState<string | null>(initialBucket);
-  const buckets = useBuckets(accountId);
   const cors = useCors(accountId, bucket);
   const { show } = useToast();
 
@@ -34,40 +28,19 @@ export function CorsEditor({
   const [showJson, setShowJson] = useState(false);
   const [confirmClear, setConfirmClear] = useState(false);
 
+  // Reset the working set whenever the selection changes; the data effect below
+  // repopulates it once the new bucket's rules load.
+  useEffect(() => {
+    setRules([]);
+  }, [accountId, bucket]);
+
   useEffect(() => {
     if (cors.query.data) setRules(cors.query.data);
   }, [cors.query.data]);
 
-  const selectAccount = (id: string | null) => {
-    setAccountId(id);
-    setBucket(null);
-    setRules([]);
-  };
-  const selectBucket = (b: string | null) => {
-    setBucket(b);
-    setRules([]);
-  };
-
-  const fieldClass = 'rounded border border-slate-300 px-2 py-1 text-sm';
-
   return (
     <div className="h-full overflow-auto p-6">
       <h2 className="pb-3 text-lg font-semibold">CORS configuration</h2>
-
-      <div className="flex gap-2">
-        <select aria-label="Account" className={fieldClass} value={accountId ?? ''} onChange={(e) => selectAccount(e.target.value || null)}>
-          <option value="">Select account…</option>
-          {accounts.data?.map((a) => (
-            <option key={a.id} value={a.id}>{a.label}</option>
-          ))}
-        </select>
-        <select aria-label="Bucket" className={fieldClass} value={bucket ?? ''} disabled={accountId === null} onChange={(e) => selectBucket(e.target.value || null)}>
-          <option value="">Select bucket…</option>
-          {buckets.data?.map((b) => (
-            <option key={b} value={b}>{b}</option>
-          ))}
-        </select>
-      </div>
 
       {bucket === null && <p className="mt-4 text-slate-500">Select a bucket to edit its CORS rules.</p>}
 
