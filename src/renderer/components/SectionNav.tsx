@@ -1,3 +1,4 @@
+// 'connections' is reached via a standalone sidebar button in App, not rendered as a nav item here.
 export type Section =
   | 'files'
   | 'dashboard'

@@ -4,7 +4,7 @@ import { useAccounts, useCreateAccount, useRemoveAccount } from '../../hooks/use
 import { ProviderBadge } from '../accounts/ProviderBadge';
 import { AddAccountForm } from '../accounts/AddAccountForm';
 
-export function ConnectionsScreen() {
+export function ConnectionsScreen({ onAccountRemoved }: { onAccountRemoved?: (id: string) => void } = {}) {
   const accounts = useAccounts();
   const createAccount = useCreateAccount();
   const removeAccount = useRemoveAccount();
@@ -58,7 +58,11 @@ export function ConnectionsScreen() {
                   type="button"
                   aria-label={`Remove ${acc.label}`}
                   className="rounded px-1 text-slate-400 hover:bg-red-50 hover:text-red-600"
-                  onClick={() => removeAccount.mutate(acc.id)}
+                  onClick={() =>
+                    removeAccount.mutate(acc.id, {
+                      onSuccess: () => onAccountRemoved?.(acc.id),
+                    })
+                  }
                 >
                   <FiTrash2 className="h-4 w-4" aria-hidden />
                 </button>

@@ -112,7 +112,16 @@ export function App() {
               )}
             </div>
           ) : section === 'connections' ? (
-            <ConnectionsScreen />
+            <ConnectionsScreen
+              onAccountRemoved={(id) => {
+                if (id === accountId) {
+                  setAccountId(null);
+                  setBucket(null);
+                  setPrefix('');
+                  setSelectedKey(null);
+                }
+              }}
+            />
           ) : section === 'dashboard' ? (
             <Dashboard
               onOpenAccount={(id) => openInFiles(id, null)}

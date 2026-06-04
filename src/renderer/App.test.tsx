@@ -95,6 +95,21 @@ describe('App — Object Lock', () => {
   });
 });
 
+describe('App — Connections removal', () => {
+  it('clears the selected account when it is removed in Connections', async () => {
+    (window.s3 as unknown as { accounts: Record<string, unknown> }).accounts.remove = vi
+      .fn()
+      .mockResolvedValue({ ok: true, data: true });
+    renderApp();
+    await screen.findByRole('option', { name: 'AWS prod (Amazon S3)' });
+    await userEvent.selectOptions(screen.getByLabelText('Account'), 'a');
+    await userEvent.click(screen.getByRole('button', { name: 'Manage connections' }));
+    await userEvent.click(await screen.findByRole('button', { name: 'Remove AWS prod' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Files' }));
+    expect((screen.getByLabelText('Account') as HTMLSelectElement).value).toBe('');
+  });
+});
+
 describe('App — Dashboard', () => {
   it('shows the dashboard and click-through opens a bucket in the Files view', async () => {
     renderApp();

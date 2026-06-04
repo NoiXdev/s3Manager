@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import type { ReactNode } from 'react';
@@ -41,6 +41,17 @@ describe('ConnectionsScreen', () => {
     wrap(<ConnectionsScreen />);
     await userEvent.click(await screen.findByRole('button', { name: 'Remove AWS prod' }));
     expect(remove).toHaveBeenCalledWith('acc-1');
+  });
+
+  it('calls onAccountRemoved after a successful removal', async () => {
+    const remove = vi.fn().mockResolvedValue({ ok: true, data: true });
+    (window as unknown as { s3: unknown }).s3 = {
+      accounts: { list: vi.fn().mockResolvedValue({ ok: true, data: [account] }), remove },
+    };
+    const onAccountRemoved = vi.fn();
+    wrap(<ConnectionsScreen onAccountRemoved={onAccountRemoved} />);
+    await userEvent.click(await screen.findByRole('button', { name: 'Remove AWS prod' }));
+    await waitFor(() => expect(onAccountRemoved).toHaveBeenCalledWith('acc-1'));
   });
 
   it('shows an empty state when there are no accounts', async () => {
