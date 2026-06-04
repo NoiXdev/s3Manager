@@ -41,9 +41,9 @@ SyncStatus
 
 - **Account / Bucket** are native `<select>` dropdowns (consistent with the
   existing Settings `<select>`).
-- Selectors are shown only on account/bucket-aware sections: **Files, Object
-  Lock, CORS, Sync**. They are hidden on Dashboard, Settings, and the Connections
-  screen.
+- Selectors are shown on the single-target sections the sidebar drives:
+  **Files, CORS, Object Lock**. They are hidden on Sync (which is inherently
+  multi-endpoint — see below), Dashboard, Settings, and the Connections screen.
 - The **bucket `+`** sits next to the bucket dropdown and opens the existing
   `CreateBucketDialog`. It is disabled until an account is selected.
 - **Manage connections** sits between the selectors and the menu and is always
@@ -60,6 +60,20 @@ A new `ConnectionsScreen` rendered full-screen like `SettingsScreen`, active whe
 
 It is opened only via the Manage connections button; it is **not** a nav item.
 
+## Sidebar drives CORS & Object Lock; Sync keeps its own pickers
+
+CORS and Object Lock each target a single account+bucket, so they drop their
+internal account/bucket `<select>`s and become controlled by the sidebar
+selection (props `accountId` / `bucket` instead of `initialAccountId` /
+`initialBucket`).
+
+Sync is inherently multi-endpoint — bucket→bucket sync needs a Source **and** a
+Destination endpoint, and local↔bucket needs a folder plus one bucket. A single
+sidebar account/bucket cannot represent that, so Sync keeps its existing internal
+pickers unchanged and continues to be seeded from the current selection via
+`initialAccountId` / `initialBucket`. The sidebar selectors are therefore hidden
+on the Sync section.
+
 ## Component changes
 
 - **New** `AccountSelect` — bound to `useAccounts`; options render `label
@@ -70,6 +84,9 @@ It is opened only via the Manage connections button; it is **not** a nav item.
   and no-buckets states; calls `onSelect(bucket)` on change.
 - **New** `ConnectionsScreen` — full-screen account management (add/remove),
   absorbing `AccountsPane`'s logic.
+- **`CorsEditor` / `ObjectLockEditor`** — drop internal account/bucket selects;
+  change props from `initialAccountId` / `initialBucket` to controlled
+  `accountId` / `bucket`.
 - **`SectionNav`** — reorder and add a divider: group
   `[Files, Object Lock, CORS, Sync]`, then a divider, then
   `[Dashboard, Settings]`. The `connections` value is excluded from the rendered
