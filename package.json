@@ -5,6 +5,14 @@
   "description": "My Electron application description",
   "main": ".vite/build/main.js",
   "private": true,
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/NoiXdev/s3Manager.git"
+  },
+  "bugs": {
+    "url": "https://github.com/NoiXdev/s3Manager/issues"
+  },
+  "homepage": "https://github.com/NoiXdev/s3Manager#readme",
   "scripts": {
     "start": "electron-forge start",
     "package": "electron-forge package",
@@ -12,7 +20,8 @@
     "publish": "electron-forge publish",
     "lint": "eslint --ext .ts,.tsx .",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "changelog": "conventional-changelog -n ./.github/changelog-preset.cjs -i CHANGELOG.md -s -r 0"
   },
   "keywords": [],
   "author": {
@@ -42,6 +51,8 @@
     "@typescript-eslint/parser": "^5.62.0",
     "@vitejs/plugin-react": "^4.7.0",
     "aws-sdk-client-mock": "^4.1.0",
+    "conventional-changelog-cli": "^4.1.0",
+    "conventional-changelog-conventionalcommits": "^7.0.2",
     "electron": "42.3.0",
     "eslint": "^8.57.1",
     "eslint-plugin-import": "^2.32.0",
