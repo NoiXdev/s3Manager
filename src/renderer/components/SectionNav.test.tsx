@@ -4,12 +4,22 @@ import userEvent from '@testing-library/user-event';
 import { SectionNav, type Section } from './SectionNav';
 
 describe('SectionNav', () => {
-  it('renders all sections and marks the active one', () => {
+  it('renders the menu sections and marks the active one', () => {
     render(<SectionNav active="files" onSelect={() => {}} />);
-    for (const label of ['Files', 'Dashboard', 'Object Lock', 'CORS', 'Settings']) {
+    for (const label of ['Files', 'Object Lock', 'CORS', 'Sync', 'Dashboard', 'Settings']) {
       expect(screen.getByRole('button', { name: label })).toBeInTheDocument();
     }
     expect(screen.getByRole('button', { name: 'Files' })).toHaveAttribute('aria-current', 'page');
+  });
+
+  it('does not render a Connections menu item (reached via the sidebar button)', () => {
+    render(<SectionNav active="files" onSelect={() => {}} />);
+    expect(screen.queryByRole('button', { name: 'Connections' })).not.toBeInTheDocument();
+  });
+
+  it('renders a divider between primary and secondary groups', () => {
+    render(<SectionNav active="files" onSelect={() => {}} />);
+    expect(screen.getByRole('separator')).toBeInTheDocument();
   });
 
   it('calls onSelect with the section id when clicked', async () => {
@@ -17,10 +27,5 @@ describe('SectionNav', () => {
     render(<SectionNav active="files" onSelect={onSelect} />);
     await userEvent.click(screen.getByRole('button', { name: 'Settings' }));
     expect(onSelect).toHaveBeenCalledWith('settings' satisfies Section);
-  });
-
-  it('renders a Sync section', () => {
-    render(<SectionNav active="files" onSelect={() => {}} />);
-    expect(screen.getByRole('button', { name: 'Sync' })).toBeInTheDocument();
   });
 });
