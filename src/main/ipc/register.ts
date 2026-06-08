@@ -86,6 +86,7 @@ export function registerIpc(ipcMain: IpcMainLike, deps: RegisterDeps): void {
         endpoint,
         region: input.region,
         accessKeyId: input.accessKeyId,
+        forcePathStyle: getProvider(input.provider).forcePathStyle,
       });
       deps.secrets.set(created.id, input.secretAccessKey);
       return created;

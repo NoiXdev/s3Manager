@@ -1,6 +1,5 @@
 import type { S3Client } from '@aws-sdk/client-s3';
 import { createClient } from './clientFactory';
-import { getProvider } from './providers';
 import type { AccountsRepo } from '../storage/accountsRepo';
 import type { SecretsStore } from '../storage/secrets';
 
@@ -20,7 +19,7 @@ export function createClientForAccount(accountId: string, deps: Deps): S3Client 
     provider: account.provider,
     region: account.region,
     endpoint: account.endpoint,
-    forcePathStyle: getProvider(account.provider).forcePathStyle,
+    forcePathStyle: account.forcePathStyle,
     accessKeyId: account.accessKeyId,
     secretAccessKey,
   });

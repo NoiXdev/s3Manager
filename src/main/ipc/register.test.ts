@@ -65,6 +65,19 @@ describe('registerIpc', () => {
     expect(deps.secrets.get(res.data.id)).toBe('SK');
   });
 
+  it('accounts:create persists forcePathStyle derived from the provider', async () => {
+    const { handlers } = buildHarness();
+    const aws = (await handlers.get(CH.accountsCreate)!({
+      label: 'AWS', provider: 'amazon-s3', region: 'eu-central-1', accessKeyId: 'AK', secretAccessKey: 'SK',
+    })) as { data: { forcePathStyle: boolean } };
+    expect(aws.data.forcePathStyle).toBe(false);
+
+    const hz = (await handlers.get(CH.accountsCreate)!({
+      label: 'HZ', provider: 'hetzner', region: 'fsn1', accessKeyId: 'AK', secretAccessKey: 'SK',
+    })) as { data: { forcePathStyle: boolean } };
+    expect(hz.data.forcePathStyle).toBe(true);
+  });
+
   it('s3:listBuckets uses the account client', async () => {
     const { handlers, deps } = buildHarness();
     const created = (await handlers.get(CH.accountsCreate)!({
