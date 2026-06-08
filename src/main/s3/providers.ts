@@ -1,4 +1,4 @@
-export type ProviderId = 'amazon-s3' | 'hetzner';
+export type ProviderId = 'amazon-s3' | 'hetzner' | 'custom';
 
 export interface ProviderDef {
   id: ProviderId;
@@ -20,6 +20,12 @@ export const PROVIDERS: ProviderDef[] = [
     label: 'Hetzner Object Storage',
     forcePathStyle: true,
     resolveEndpoint: (region) => `https://${region}.your-objectstorage.com`,
+  },
+  {
+    id: 'custom',
+    label: 'Custom (S3-compatible)',
+    forcePathStyle: true,
+    resolveEndpoint: () => undefined,
   },
 ];
 
