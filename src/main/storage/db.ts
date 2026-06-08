@@ -70,6 +70,22 @@ function migrate(db: WasmDatabase): void {
       FOREIGN KEY (account_id) REFERENCES accounts(id) ON DELETE CASCADE
     );
   `);
+
+  // node-sqlite3-wasm has no `ADD COLUMN IF NOT EXISTS`; guard with table_info.
+  addColumnIfMissing(db, 'accounts', 'force_path_style', 'INTEGER');
+  // Backfill rows created before this column existed: Hetzner used path style,
+  // Amazon S3 (and anything else then) used virtual-host style.
+  db.exec(
+    `UPDATE accounts SET force_path_style = CASE provider WHEN 'hetzner' THEN 1 ELSE 0 END
+     WHERE force_path_style IS NULL`,
+  );
+}
+
+function addColumnIfMissing(db: WasmDatabase, table: string, column: string, type: string): void {
+  const cols = db.all(`PRAGMA table_info(${table})`) as { name: string }[];
+  if (!cols.some((c) => c.name === column)) {
+    db.exec(`ALTER TABLE ${table} ADD COLUMN ${column} ${type}`);
+  }
 }
 
 function wrap(db: WasmDatabase): DB {

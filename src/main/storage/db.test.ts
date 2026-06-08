@@ -16,4 +16,10 @@ describe('openDatabase', () => {
       openDatabase(':memory:');
     }).not.toThrow();
   });
+
+  it('adds the force_path_style column to accounts', () => {
+    const db = openDatabase(':memory:');
+    const cols = (db.prepare('PRAGMA table_info(accounts)').all() as { name: string }[]).map((c) => c.name);
+    expect(cols).toContain('force_path_style');
+  });
 });
