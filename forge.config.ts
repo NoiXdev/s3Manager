@@ -6,12 +6,30 @@ import { MakerRpm } from '@electron-forge/maker-rpm';
 import { VitePlugin } from '@electron-forge/plugin-vite';
 import { FusesPlugin } from '@electron-forge/plugin-fuses';
 import { FuseV1Options, FuseVersion } from '@electron/fuses';
+import { cpSync, mkdirSync } from 'node:fs';
+import { dirname, join } from 'node:path';
+
+// `node-sqlite3-wasm` is left external in vite.main.config.ts (it resolves its
+// .wasm asset relative to its own package dir at runtime). The Vite plugin
+// bundles everything else and copies no node_modules into the package, so the
+// external module must be copied in by hand or `require` fails at runtime.
+const EXTERNAL_MODULES = ['node-sqlite3-wasm'];
 
 const config: ForgeConfig = {
   packagerConfig: {
     asar: true,
   },
   rebuildConfig: {},
+  hooks: {
+    packageAfterCopy: async (_forgeConfig, buildPath) => {
+      for (const mod of EXTERNAL_MODULES) {
+        const src = join(process.cwd(), 'node_modules', mod);
+        const dest = join(buildPath, 'node_modules', mod);
+        mkdirSync(dirname(dest), { recursive: true });
+        cpSync(src, dest, { recursive: true });
+      }
+    },
+  },
   makers: [
     new MakerSquirrel({}),
     new MakerZIP({}, ['darwin']),
