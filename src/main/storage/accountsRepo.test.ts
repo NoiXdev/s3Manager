@@ -8,6 +8,7 @@ const sample: NewAccount = {
   endpoint: undefined,
   region: 'eu-central-1',
   accessKeyId: 'AK',
+  forcePathStyle: false,
 };
 
 describe('accountsRepo', () => {
@@ -31,5 +32,13 @@ describe('accountsRepo', () => {
     const created = repo.create(sample);
     repo.remove(created.id);
     expect(repo.list()).toHaveLength(0);
+  });
+
+  it('round-trips forcePathStyle', () => {
+    const repo = createAccountsRepo(openDatabase(':memory:'));
+    const created = repo.create({ ...sample, forcePathStyle: true });
+    expect(created.forcePathStyle).toBe(true);
+    expect(repo.get(created.id)?.forcePathStyle).toBe(true);
+    expect(repo.list()[0].forcePathStyle).toBe(true);
   });
 });

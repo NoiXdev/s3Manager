@@ -8,6 +8,7 @@ export interface NewAccount {
   endpoint?: string;
   region: string;
   accessKeyId: string;
+  forcePathStyle: boolean;
 }
 
 export interface Account extends NewAccount {
@@ -22,6 +23,7 @@ interface Row {
   endpoint: string | null;
   region: string;
   access_key_id: string;
+  force_path_style: number;
   created_at: number;
 }
 
@@ -33,6 +35,7 @@ function toAccount(row: Row): Account {
     endpoint: row.endpoint ?? undefined,
     region: row.region,
     accessKeyId: row.access_key_id,
+    forcePathStyle: Boolean(row.force_path_style),
     createdAt: row.created_at,
   };
 }
@@ -43,9 +46,12 @@ export function createAccountsRepo(db: DB) {
       const id = randomUUID();
       const createdAt = Date.now();
       db.prepare(
-        `INSERT INTO accounts (id, label, provider, endpoint, region, access_key_id, created_at)
-         VALUES (?, ?, ?, ?, ?, ?, ?)`,
-      ).run(id, input.label, input.provider, input.endpoint ?? null, input.region, input.accessKeyId, createdAt);
+        `INSERT INTO accounts (id, label, provider, endpoint, region, access_key_id, force_path_style, created_at)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+      ).run(
+        id, input.label, input.provider, input.endpoint ?? null, input.region,
+        input.accessKeyId, input.forcePathStyle ? 1 : 0, createdAt,
+      );
       return { ...input, id, createdAt };
     },
     list(): Account[] {

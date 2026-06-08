@@ -2,8 +2,8 @@ import { describe, it, expect } from 'vitest';
 import { PROVIDERS, getProvider, resolveEndpoint, bucketLocationConstraint } from './providers';
 
 describe('provider registry', () => {
-  it('lists amazon-s3 and hetzner', () => {
-    expect(PROVIDERS.map((p) => p.id).sort()).toEqual(['amazon-s3', 'hetzner']);
+  it('lists amazon-s3, hetzner, and custom', () => {
+    expect(PROVIDERS.map((p) => p.id).sort()).toEqual(['amazon-s3', 'custom', 'hetzner']);
   });
 
   it('amazon-s3 lets the SDK derive the endpoint and uses virtual-host style', () => {
@@ -16,6 +16,12 @@ describe('provider registry', () => {
     const p = getProvider('hetzner');
     expect(p.forcePathStyle).toBe(true);
     expect(resolveEndpoint('hetzner', 'fsn1')).toBe('https://fsn1.your-objectstorage.com');
+  });
+
+  it('custom has inert defaults — no derived endpoint, path style on', () => {
+    const p = getProvider('custom');
+    expect(p.forcePathStyle).toBe(true);
+    expect(resolveEndpoint('custom', 'us-east-1')).toBeUndefined();
   });
 
   it('throws on unknown provider', () => {
@@ -32,5 +38,8 @@ describe('bucketLocationConstraint', () => {
   });
   it('returns undefined for hetzner', () => {
     expect(bucketLocationConstraint('hetzner', 'fsn1')).toBeUndefined();
+  });
+  it('returns undefined for custom', () => {
+    expect(bucketLocationConstraint('custom', 'us-east-1')).toBeUndefined();
   });
 });

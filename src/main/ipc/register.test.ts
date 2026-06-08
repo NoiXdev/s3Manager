@@ -65,6 +65,21 @@ describe('registerIpc', () => {
     expect(deps.secrets.get(res.data.id)).toBe('SK');
   });
 
+  it('accounts:create persists forcePathStyle derived from the provider', async () => {
+    const { handlers, deps } = buildHarness();
+    const aws = (await handlers.get(CH.accountsCreate)!({
+      label: 'AWS', provider: 'amazon-s3', region: 'eu-central-1', accessKeyId: 'AK', secretAccessKey: 'SK',
+    })) as { data: { id: string; forcePathStyle: boolean } };
+    expect(aws.data.forcePathStyle).toBe(false);
+    expect(deps.accounts.get(aws.data.id)?.forcePathStyle).toBe(false); // read back from the DB
+
+    const hz = (await handlers.get(CH.accountsCreate)!({
+      label: 'HZ', provider: 'hetzner', region: 'fsn1', accessKeyId: 'AK', secretAccessKey: 'SK',
+    })) as { data: { id: string; forcePathStyle: boolean } };
+    expect(hz.data.forcePathStyle).toBe(true);
+    expect(deps.accounts.get(hz.data.id)?.forcePathStyle).toBe(true); // read back from the DB
+  });
+
   it('s3:listBuckets uses the account client', async () => {
     const { handlers, deps } = buildHarness();
     const created = (await handlers.get(CH.accountsCreate)!({
@@ -460,5 +475,87 @@ describe('create bucket handler', () => {
       accountId: 'nope', bucket: 'b', objectLock: false, versioning: false,
     })) as { ok: boolean };
     expect(res.ok).toBe(false);
+  });
+});
+
+describe('custom provider', () => {
+  it('accounts:create stores the typed endpoint and path-style toggle', async () => {
+    const { handlers, deps } = buildHarness();
+    const res = (await handlers.get(CH.accountsCreate)!({
+      label: 'MinIO', provider: 'custom', region: 'us-east-1',
+      endpoint: 'https://minio.example.com:9000', forcePathStyle: true,
+      accessKeyId: 'AK', secretAccessKey: 'SK',
+    })) as { ok: boolean; data: { endpoint?: string; forcePathStyle: boolean } };
+    expect(res.ok).toBe(true);
+    expect(res.data.endpoint).toBe('https://minio.example.com:9000');
+    expect(res.data.forcePathStyle).toBe(true);
+    expect(deps.accounts.list()).toHaveLength(1);
+  });
+
+  it('accounts:create honors forcePathStyle=false for a custom host', async () => {
+    const { handlers } = buildHarness();
+    const res = (await handlers.get(CH.accountsCreate)!({
+      label: 'Custom', provider: 'custom', region: 'us-east-1',
+      endpoint: 'https://s3.example.com', forcePathStyle: false,
+      accessKeyId: 'AK', secretAccessKey: 'SK',
+    })) as { data: { forcePathStyle: boolean } };
+    expect(res.data.forcePathStyle).toBe(false);
+  });
+
+  it('accounts:create rejects a custom provider with a missing/invalid endpoint and persists nothing', async () => {
+    const { handlers, deps } = buildHarness();
+    const res = (await handlers.get(CH.accountsCreate)!({
+      label: 'Bad', provider: 'custom', region: 'us-east-1',
+      endpoint: 'not-a-url', forcePathStyle: true,
+      accessKeyId: 'AK', secretAccessKey: 'SK',
+    })) as { ok: boolean; error?: { code: string } };
+    expect(res.ok).toBe(false);
+    expect(res.error?.code).toBe('InvalidEndpoint');
+    expect(deps.accounts.list()).toHaveLength(0);
+  });
+
+  it('accounts:test succeeds against a custom endpoint', async () => {
+    const { handlers } = buildHarness();
+    s3Mock.on(ListBucketsCommand).resolves({ Buckets: [{ Name: 'b1' }] });
+    const res = (await handlers.get(CH.accountsTest)!({
+      label: 'MinIO', provider: 'custom', region: 'us-east-1',
+      endpoint: 'https://minio.example.com:9000', forcePathStyle: true,
+      accessKeyId: 'AK', secretAccessKey: 'SK',
+    })) as { ok: boolean };
+    expect(res.ok).toBe(true);
+  });
+
+  it('accounts:test rejects a custom provider with an invalid endpoint', async () => {
+    const { handlers } = buildHarness();
+    const res = (await handlers.get(CH.accountsTest)!({
+      label: 'Bad', provider: 'custom', region: 'us-east-1',
+      endpoint: '', forcePathStyle: true,
+      accessKeyId: 'AK', secretAccessKey: 'SK',
+    })) as { ok: boolean; error?: { code: string } };
+    expect(res.ok).toBe(false);
+    expect(res.error?.code).toBe('InvalidEndpoint');
+  });
+
+  it('accounts:create defaults forcePathStyle to true when omitted for a custom host', async () => {
+    const { handlers } = buildHarness();
+    const res = (await handlers.get(CH.accountsCreate)!({
+      label: 'MinIO', provider: 'custom', region: 'us-east-1',
+      endpoint: 'https://minio.example.com:9000',
+      accessKeyId: 'AK', secretAccessKey: 'SK',
+      // forcePathStyle intentionally omitted
+    })) as { data: { forcePathStyle: boolean } };
+    expect(res.data.forcePathStyle).toBe(true);
+  });
+
+  it('accounts:create rejects a custom endpoint with a non-http(s) protocol', async () => {
+    const { handlers, deps } = buildHarness();
+    const res = (await handlers.get(CH.accountsCreate)!({
+      label: 'FTP', provider: 'custom', region: 'us-east-1',
+      endpoint: 'ftp://files.example.com', forcePathStyle: true,
+      accessKeyId: 'AK', secretAccessKey: 'SK',
+    })) as { ok: boolean; error?: { code: string } };
+    expect(res.ok).toBe(false);
+    expect(res.error?.code).toBe('InvalidEndpoint');
+    expect(deps.accounts.list()).toHaveLength(0);
   });
 });

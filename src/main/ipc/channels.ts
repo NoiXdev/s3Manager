@@ -63,6 +63,10 @@ export interface CreateAccountInput {
   region: string;
   accessKeyId: string;
   secretAccessKey: string;
+  /** Custom providers only: the full endpoint URL the client should target. */
+  endpoint?: string;
+  /** Custom providers only: whether to use path-style addressing. */
+  forcePathStyle?: boolean;
 }
 
 // Map of channel -> { args, response } shapes. Used by preload + register.

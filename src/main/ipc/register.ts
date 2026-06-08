@@ -56,6 +56,38 @@ export interface RegisterDeps {
   appVersion: string;
 }
 
+function isHttpUrl(value: string): boolean {
+  try {
+    const url = new URL(value);
+    return url.protocol === 'http:' || url.protocol === 'https:';
+  } catch {
+    return false;
+  }
+}
+
+interface ConnParams {
+  endpoint: string | undefined;
+  forcePathStyle: boolean;
+}
+
+/**
+ * The effective endpoint + addressing style for a connection: custom providers
+ * use the user-supplied values; built-in providers derive them as before.
+ */
+function resolveConnParams(input: CreateAccountInput): Result<ConnParams> {
+  if (input.provider === 'custom') {
+    const endpoint = input.endpoint?.trim();
+    if (!endpoint || !isHttpUrl(endpoint)) {
+      return err('InvalidEndpoint', 'A custom provider requires a valid http(s) endpoint URL');
+    }
+    return ok({ endpoint, forcePathStyle: input.forcePathStyle ?? true });
+  }
+  return ok({
+    endpoint: resolveEndpoint(input.provider, input.region),
+    forcePathStyle: getProvider(input.provider).forcePathStyle,
+  });
+}
+
 export function registerIpc(ipcMain: IpcMainLike, deps: RegisterDeps): void {
   const isKnownProvider = (p: string) => PROVIDERS.some((x) => x.id === p);
   const clientFor = (accountId: string) => createClientForAccount(accountId, deps);
@@ -78,14 +110,16 @@ export function registerIpc(ipcMain: IpcMainLike, deps: RegisterDeps): void {
     if (!isKnownProvider(input.provider)) {
       return err('InvalidProvider', `Unknown provider: ${input.provider}`);
     }
-    const endpoint = resolveEndpoint(input.provider, input.region);
+    const params = resolveConnParams(input);
+    if (!params.ok) return params;
     const account = deps.db.transaction(() => {
       const created = deps.accounts.create({
         label: input.label,
         provider: input.provider,
-        endpoint,
+        endpoint: params.data.endpoint,
         region: input.region,
         accessKeyId: input.accessKeyId,
+        forcePathStyle: params.data.forcePathStyle,
       });
       deps.secrets.set(created.id, input.secretAccessKey);
       return created;
@@ -103,11 +137,13 @@ export function registerIpc(ipcMain: IpcMainLike, deps: RegisterDeps): void {
     if (!isKnownProvider(input.provider)) {
       return err('InvalidProvider', `Unknown provider: ${input.provider}`);
     }
+    const params = resolveConnParams(input);
+    if (!params.ok) return params;
     const client = createClient({
       provider: input.provider,
       region: input.region,
-      endpoint: resolveEndpoint(input.provider, input.region),
-      forcePathStyle: getProvider(input.provider).forcePathStyle,
+      endpoint: params.data.endpoint,
+      forcePathStyle: params.data.forcePathStyle,
       accessKeyId: input.accessKeyId,
       secretAccessKey: input.secretAccessKey,
     });
