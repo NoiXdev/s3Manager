@@ -535,4 +535,27 @@ describe('custom provider', () => {
     expect(res.ok).toBe(false);
     expect(res.error?.code).toBe('InvalidEndpoint');
   });
+
+  it('accounts:create defaults forcePathStyle to true when omitted for a custom host', async () => {
+    const { handlers } = buildHarness();
+    const res = (await handlers.get(CH.accountsCreate)!({
+      label: 'MinIO', provider: 'custom', region: 'us-east-1',
+      endpoint: 'https://minio.example.com:9000',
+      accessKeyId: 'AK', secretAccessKey: 'SK',
+      // forcePathStyle intentionally omitted
+    })) as { data: { forcePathStyle: boolean } };
+    expect(res.data.forcePathStyle).toBe(true);
+  });
+
+  it('accounts:create rejects a custom endpoint with a non-http(s) protocol', async () => {
+    const { handlers, deps } = buildHarness();
+    const res = (await handlers.get(CH.accountsCreate)!({
+      label: 'FTP', provider: 'custom', region: 'us-east-1',
+      endpoint: 'ftp://files.example.com', forcePathStyle: true,
+      accessKeyId: 'AK', secretAccessKey: 'SK',
+    })) as { ok: boolean; error?: { code: string } };
+    expect(res.ok).toBe(false);
+    expect(res.error?.code).toBe('InvalidEndpoint');
+    expect(deps.accounts.list()).toHaveLength(0);
+  });
 });
