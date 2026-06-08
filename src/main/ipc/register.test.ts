@@ -66,16 +66,18 @@ describe('registerIpc', () => {
   });
 
   it('accounts:create persists forcePathStyle derived from the provider', async () => {
-    const { handlers } = buildHarness();
+    const { handlers, deps } = buildHarness();
     const aws = (await handlers.get(CH.accountsCreate)!({
       label: 'AWS', provider: 'amazon-s3', region: 'eu-central-1', accessKeyId: 'AK', secretAccessKey: 'SK',
-    })) as { data: { forcePathStyle: boolean } };
+    })) as { data: { id: string; forcePathStyle: boolean } };
     expect(aws.data.forcePathStyle).toBe(false);
+    expect(deps.accounts.get(aws.data.id)?.forcePathStyle).toBe(false); // read back from the DB
 
     const hz = (await handlers.get(CH.accountsCreate)!({
       label: 'HZ', provider: 'hetzner', region: 'fsn1', accessKeyId: 'AK', secretAccessKey: 'SK',
-    })) as { data: { forcePathStyle: boolean } };
+    })) as { data: { id: string; forcePathStyle: boolean } };
     expect(hz.data.forcePathStyle).toBe(true);
+    expect(deps.accounts.get(hz.data.id)?.forcePathStyle).toBe(true); // read back from the DB
   });
 
   it('s3:listBuckets uses the account client', async () => {
