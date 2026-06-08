@@ -58,4 +58,41 @@ describe('AddAccountForm', () => {
     await userEvent.click(screen.getByRole('button', { name: 'Test connection' }));
     expect(await screen.findByText('AccessDenied: bad key')).toBeInTheDocument();
   });
+
+  it('hides custom fields unless the custom provider is selected', () => {
+    wrap(<AddAccountForm onSubmit={vi.fn()} onCancel={() => {}} />);
+    expect(screen.queryByLabelText('Endpoint URL')).toBeNull();
+    expect(screen.queryByLabelText('Path-style addressing')).toBeNull();
+  });
+
+  it('reveals custom fields and prefills the region when custom is selected', async () => {
+    wrap(<AddAccountForm onSubmit={vi.fn()} onCancel={() => {}} />);
+    await userEvent.selectOptions(screen.getByLabelText('Provider'), 'custom');
+    expect(screen.getByLabelText('Endpoint URL')).toBeInTheDocument();
+    expect(screen.getByLabelText('Path-style addressing')).toBeInTheDocument();
+    expect(screen.getByLabelText('Region')).toHaveValue('us-east-1');
+  });
+
+  it('submits the endpoint and path-style toggle for a custom provider', async () => {
+    const onSubmit = vi.fn().mockResolvedValue(undefined);
+    wrap(<AddAccountForm onSubmit={onSubmit} onCancel={() => {}} />);
+
+    await userEvent.type(screen.getByLabelText('Label'), 'MinIO');
+    await userEvent.selectOptions(screen.getByLabelText('Provider'), 'custom');
+    await userEvent.type(screen.getByLabelText('Endpoint URL'), 'https://minio.example.com:9000');
+    await userEvent.click(screen.getByLabelText('Path-style addressing')); // default ON -> toggle OFF
+    await userEvent.type(screen.getByLabelText('Access key ID'), 'AKIA');
+    await userEvent.type(screen.getByLabelText('Secret access key'), 'secret');
+    await userEvent.click(screen.getByRole('button', { name: 'Add account' }));
+
+    expect(onSubmit).toHaveBeenCalledWith({
+      label: 'MinIO',
+      provider: 'custom',
+      region: 'us-east-1',
+      accessKeyId: 'AKIA',
+      secretAccessKey: 'secret',
+      endpoint: 'https://minio.example.com:9000',
+      forcePathStyle: false,
+    });
+  });
 });

@@ -17,9 +17,18 @@ export function AddAccountForm({
   const [region, setRegion] = useState('');
   const [accessKeyId, setAccessKeyId] = useState('');
   const [secretAccessKey, setSecretAccessKey] = useState('');
+  const [endpoint, setEndpoint] = useState('');
+  const [forcePathStyle, setForcePathStyle] = useState(true);
   const test = useTestConnection();
 
-  const input: CreateAccountInput = { label, provider, region, accessKeyId, secretAccessKey };
+  const input: CreateAccountInput = {
+    label,
+    provider,
+    region,
+    accessKeyId,
+    secretAccessKey,
+    ...(provider === 'custom' ? { endpoint, forcePathStyle } : {}),
+  };
 
   return (
     <form
@@ -35,7 +44,15 @@ export function AddAccountForm({
       </label>
       <label className="block">
         Provider
-        <select className={fieldClass} value={provider} onChange={(e) => setProvider(e.target.value as CreateAccountInput['provider'])}>
+        <select
+          className={fieldClass}
+          value={provider}
+          onChange={(e) => {
+            const next = e.target.value as CreateAccountInput['provider'];
+            setProvider(next);
+            if (next === 'custom' && region.trim() === '') setRegion('us-east-1');
+          }}
+        >
           {UI_PROVIDERS.map((p) => (
             <option key={p.id} value={p.id}>
               {p.label}
@@ -43,6 +60,27 @@ export function AddAccountForm({
           ))}
         </select>
       </label>
+      {provider === 'custom' && (
+        <>
+          <label className="block">
+            Endpoint URL
+            <input
+              className={fieldClass}
+              placeholder="https://minio.example.com:9000"
+              value={endpoint}
+              onChange={(e) => setEndpoint(e.target.value)}
+            />
+          </label>
+          <label className="flex items-center gap-2">
+            <input
+              type="checkbox"
+              checked={forcePathStyle}
+              onChange={(e) => setForcePathStyle(e.target.checked)}
+            />
+            Path-style addressing
+          </label>
+        </>
+      )}
       <label className="block">
         Region
         <input className={fieldClass} value={region} onChange={(e) => setRegion(e.target.value)} />
