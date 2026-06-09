@@ -54,16 +54,7 @@ jobs:
           fi
 
       - name: Assemble release body
-        run: |
-          cat RELEASE_NOTES.md > release_body.md
-          cat >> release_body.md <<'EOF'
-
-          ---
-          > **macOS users:** if you see *"the app is damaged and can't be opened"*, run this once in Terminal after moving the app to Applications:
-          > ```
-          > xattr -cr /Applications/dginxNotes.app
-          > ```
-          EOF
+        run: cp RELEASE_NOTES.md release_body.md
 
       - name: Create / update GitHub Release
         uses: softprops/action-gh-release@v3
