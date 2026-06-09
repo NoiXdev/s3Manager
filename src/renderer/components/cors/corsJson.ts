@@ -45,36 +45,38 @@ export function parseCorsJson(text: string): ParseResult {
 
   const rules: CorsRule[] = [];
   for (let i = 0; i < data.length; i++) {
-    const raw = data[i] as Record<string, unknown>;
+    const element = data[i];
     const label = `Rule ${i + 1}`;
-    if (typeof raw !== 'object' || raw === null) {
+    if (typeof element !== 'object' || element === null) {
       return { ok: false, error: `${label}: each rule must be an object.` };
     }
+    const raw = element as Record<string, unknown>;
     if (!isStringArray(raw.AllowedMethods)) {
       return { ok: false, error: `${label}: AllowedMethods must be an array of strings.` };
     }
     if (!isStringArray(raw.AllowedOrigins)) {
       return { ok: false, error: `${label}: AllowedOrigins must be an array of strings.` };
     }
-    if (raw.AllowedHeaders !== undefined && !isStringArray(raw.AllowedHeaders)) {
+    const { AllowedHeaders, ExposeHeaders, MaxAgeSeconds, ID } = raw;
+    if (AllowedHeaders !== undefined && !isStringArray(AllowedHeaders)) {
       return { ok: false, error: `${label}: AllowedHeaders must be an array of strings.` };
     }
-    if (raw.ExposeHeaders !== undefined && !isStringArray(raw.ExposeHeaders)) {
+    if (ExposeHeaders !== undefined && !isStringArray(ExposeHeaders)) {
       return { ok: false, error: `${label}: ExposeHeaders must be an array of strings.` };
     }
-    if (raw.MaxAgeSeconds !== undefined && typeof raw.MaxAgeSeconds !== 'number') {
+    if (MaxAgeSeconds !== undefined && typeof MaxAgeSeconds !== 'number') {
       return { ok: false, error: `${label}: MaxAgeSeconds must be a number.` };
     }
-    if (raw.ID !== undefined && typeof raw.ID !== 'string') {
+    if (ID !== undefined && typeof ID !== 'string') {
       return { ok: false, error: `${label}: ID must be a string.` };
     }
     rules.push({
-      id: (raw.ID as string | undefined) ?? null,
+      id: ID ?? null,
       allowedMethods: raw.AllowedMethods,
       allowedOrigins: raw.AllowedOrigins,
-      allowedHeaders: (raw.AllowedHeaders as string[] | undefined) ?? [],
-      exposeHeaders: (raw.ExposeHeaders as string[] | undefined) ?? [],
-      maxAgeSeconds: (raw.MaxAgeSeconds as number | undefined) ?? null,
+      allowedHeaders: AllowedHeaders ?? [],
+      exposeHeaders: ExposeHeaders ?? [],
+      maxAgeSeconds: MaxAgeSeconds ?? null,
     });
   }
   return { ok: true, rules };

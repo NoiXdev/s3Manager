@@ -79,4 +79,43 @@ describe('parseCorsJson', () => {
     );
     expect(result.ok).toBe(false);
   });
+
+  it('reports the offending rule and field in the error message', () => {
+    const result = parseCorsJson(JSON.stringify([{ AllowedOrigins: ['*'] }]));
+    expect(result.ok).toBe(false);
+    if (!result.ok) {
+      expect(result.error).toMatch(/Rule 1/);
+      expect(result.error).toMatch(/AllowedMethods/);
+    }
+  });
+
+  it('rejects a rule whose MaxAgeSeconds is not a number', () => {
+    const result = parseCorsJson(
+      JSON.stringify([
+        { AllowedMethods: ['GET'], AllowedOrigins: ['*'], MaxAgeSeconds: 'soon' },
+      ]),
+    );
+    expect(result.ok).toBe(false);
+  });
+
+  it('rejects a rule whose ID is not a string', () => {
+    const result = parseCorsJson(
+      JSON.stringify([{ AllowedMethods: ['GET'], AllowedOrigins: ['*'], ID: 5 }]),
+    );
+    expect(result.ok).toBe(false);
+  });
+
+  it('round-trips an empty array', () => {
+    const result = parseCorsJson(rulesToJson([]));
+    expect(result).toEqual({ ok: true, rules: [] });
+  });
+
+  it('preserves MaxAgeSeconds: 0 through a round-trip', () => {
+    const rule: CorsRule = { ...minimal, maxAgeSeconds: 0 };
+    const result = parseCorsJson(rulesToJson([rule]));
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      expect(result.rules[0].maxAgeSeconds).toBe(0);
+    }
+  });
 });
