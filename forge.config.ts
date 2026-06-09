@@ -1,6 +1,6 @@
 import type { ForgeConfig } from '@electron-forge/shared-types';
 import { MakerSquirrel } from '@electron-forge/maker-squirrel';
-import { MakerZIP } from '@electron-forge/maker-zip';
+import { MakerDMG } from '@electron-forge/maker-dmg';
 import { MakerDeb } from '@electron-forge/maker-deb';
 import { MakerRpm } from '@electron-forge/maker-rpm';
 import { VitePlugin } from '@electron-forge/plugin-vite';
@@ -15,9 +15,26 @@ import { dirname, join } from 'node:path';
 // external module must be copied in by hand or `require` fails at runtime.
 const EXTERNAL_MODULES = ['node-sqlite3-wasm'];
 
+// Signing/notarization only runs when credentials are present (i.e. in CI with
+// secrets). Local `npm run make` produces an unsigned build and is unaffected.
+const isSigning = !!process.env.APPLE_API_KEY_ID;
+
 const config: ForgeConfig = {
   packagerConfig: {
     asar: true,
+    appBundleId: 'de.dginx.s3manager',
+    osxSign: isSigning
+      ? {
+          optionsForFile: () => ({ entitlements: 'build/entitlements.plist' }),
+        }
+      : undefined,
+    osxNotarize: isSigning
+      ? {
+          appleApiKey: process.env.APPLE_API_KEY as string,
+          appleApiKeyId: process.env.APPLE_API_KEY_ID as string,
+          appleApiIssuer: process.env.APPLE_API_ISSUER as string,
+        }
+      : undefined,
   },
   rebuildConfig: {},
   hooks: {
@@ -32,7 +49,7 @@ const config: ForgeConfig = {
   },
   makers: [
     new MakerSquirrel({}),
-    new MakerZIP({}, ['darwin']),
+    new MakerDMG({}),
     new MakerRpm({}),
     new MakerDeb({}),
   ],
