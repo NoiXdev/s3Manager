@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useCors } from '../../hooks/useCors';
 import { useToast } from '../ui/ToastProvider';
 import { ConfirmDialog } from '../ui/ConfirmDialog';
@@ -33,6 +33,9 @@ export function CorsEditor({
   const [jsonError, setJsonError] = useState<string | null>(null);
   const [confirmClear, setConfirmClear] = useState(false);
 
+  const modeRef = useRef(mode);
+  modeRef.current = mode;
+
   // Reset the working set whenever the selection changes; the data effect below
   // repopulates it once the new bucket's rules load.
   useEffect(() => {
@@ -41,7 +44,14 @@ export function CorsEditor({
   }, [accountId, bucket]);
 
   useEffect(() => {
-    if (cors.query.data) setRules(cors.query.data);
+    if (!cors.query.data) return;
+    setRules(cors.query.data);
+    // When data reloads (e.g. after a save-triggered refetch) while in JSON
+    // mode, reseed the textarea so it stays in sync with the canonical rules.
+    if (modeRef.current === 'json') {
+      setJsonText(rulesToJson(cors.query.data));
+      setJsonError(null);
+    }
   }, [cors.query.data]);
 
   const enterJsonMode = () => {
@@ -78,6 +88,7 @@ export function CorsEditor({
             <button
               type="button"
               className={`rounded-l px-3 py-1 ${mode === 'form' ? 'bg-slate-800 text-white' : 'hover:bg-slate-50'}`}
+              aria-pressed={mode === 'form'}
               disabled={jsonInvalid}
               onClick={() => setMode('form')}
             >
@@ -86,6 +97,7 @@ export function CorsEditor({
             <button
               type="button"
               className={`rounded-r px-3 py-1 ${mode === 'json' ? 'bg-slate-800 text-white' : 'hover:bg-slate-50'}`}
+              aria-pressed={mode === 'json'}
               onClick={enterJsonMode}
             >
               JSON
@@ -116,12 +128,14 @@ export function CorsEditor({
             <div className="flex flex-col gap-1">
               <textarea
                 aria-label="CORS JSON"
+                aria-invalid={jsonError !== null}
+                aria-describedby={jsonError ? 'cors-json-error' : undefined}
                 className="h-72 w-full rounded border border-slate-300 bg-slate-900 p-3 font-mono text-xs text-slate-100"
                 spellCheck={false}
                 value={jsonText}
                 onChange={(e) => onJsonChange(e.target.value)}
               />
-              {jsonError && <p className="text-sm text-red-600">{jsonError}</p>}
+              {jsonError && <p id="cors-json-error" className="text-sm text-red-600">{jsonError}</p>}
             </div>
           )}
 
