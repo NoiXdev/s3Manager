@@ -59,8 +59,13 @@
     "jsdom": "^29.1.1",
     "tailwindcss": "^4.3.0",
     "typescript": "^5.9.3",
-    "vite": "^5.4.21",
-    "vitest": "^2.1.9"
+    "vite": "^7.3.5",
+    "vitest": "^4.1.8"
+  },
+  "overrides": {
+    "esbuild": "^0.25.0",
+    "tar": "^7.5.11",
+    "tmp": "^0.2.6"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.1056.0",
