@@ -103,7 +103,7 @@ jobs:
 
       - name: Import signing certificate (macOS)
         if: matrix.os == 'macos-latest'
-        uses: apple-actions/import-codesign-certs@v3
+        uses: apple-actions/import-codesign-certs@v7
         with:
           p12-file-base64: ${{ secrets.MACOS_CERTIFICATE }}
           p12-password: ${{ secrets.MACOS_CERTIFICATE_PASSWORD }}
@@ -111,13 +111,18 @@ jobs:
       - name: Prepare notarization credentials (macOS)
         if: matrix.os == 'macos-latest'
         run: |
-          echo "${{ secrets.APPLE_API_KEY }}" | base64 --decode > "$RUNNER_TEMP/apple_api_key.p8"
-          echo "APPLE_API_KEY=$RUNNER_TEMP/apple_api_key.p8" >> "$GITHUB_ENV"
+          KEY_PATH="$RUNNER_TEMP/apple_api_key.p8"
+          echo "${{ secrets.APPLE_API_KEY }}" | base64 --decode > "$KEY_PATH"
+          echo "APPLE_API_KEY=$KEY_PATH" >> "$GITHUB_ENV"
           echo "APPLE_API_KEY_ID=${{ secrets.APPLE_API_KEY_ID }}" >> "$GITHUB_ENV"
           echo "APPLE_API_ISSUER=${{ secrets.APPLE_API_ISSUER }}" >> "$GITHUB_ENV"
 
       - name: Build distributables
         run: npm run make
+
+      - name: Clean up notarization key (macOS)
+        if: always() && matrix.os == 'macos-latest'
+        run: rm -f "$RUNNER_TEMP/apple_api_key.p8"
 
       - name: Upload to GitHub Release
         uses: softprops/action-gh-release@v3
