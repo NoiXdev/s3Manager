@@ -25,11 +25,15 @@ const config: ForgeConfig = {
     appBundleId: 'de.dginx.s3manager',
     osxSign: isSigning
       ? {
-          optionsForFile: () => ({ entitlements: 'build/entitlements.plist' }),
+          optionsForFile: (filePath) =>
+            filePath.includes(' Helper')
+              ? {}
+              : { entitlements: 'build/entitlements.plist' },
         }
       : undefined,
     osxNotarize: isSigning
       ? {
+          // APPLE_API_KEY must be a file-system path to the decoded .p8 key file.
           appleApiKey: process.env.APPLE_API_KEY as string,
           appleApiKeyId: process.env.APPLE_API_KEY_ID as string,
           appleApiIssuer: process.env.APPLE_API_ISSUER as string,
