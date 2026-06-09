@@ -57,13 +57,51 @@ describe('CorsEditor', () => {
     expect(screen.getByRole('button', { name: 'Remove rule' })).toBeInTheDocument();
   });
 
-  it('JSON preview reflects edits (working set, not just server data)', async () => {
+  it('shows AWS-standard JSON for the working set in JSON mode', async () => {
     wrap(<CorsEditor accountId="acc-1" bucket="assets" />);
     await screen.findByRole('checkbox', { name: 'GET' });
-    await userEvent.click(screen.getByRole('button', { name: '+ Add rule' })); // now 2 rules in working set
-    await userEvent.click(screen.getByRole('button', { name: 'Show JSON' }));
-    const parsed = JSON.parse(screen.getByTestId('cors-json').textContent ?? '[]');
-    expect(parsed).toHaveLength(2);
+    await userEvent.click(screen.getByRole('button', { name: 'JSON' }));
+    const textarea = screen.getByRole('textbox', { name: 'CORS JSON' }) as HTMLTextAreaElement;
+    const parsed = JSON.parse(textarea.value);
+    expect(parsed).toEqual([{ AllowedMethods: ['GET'], AllowedOrigins: ['*'] }]);
+  });
+
+  it('applies edited JSON back to the form', async () => {
+    wrap(<CorsEditor accountId="acc-1" bucket="assets" />);
+    await screen.findByRole('checkbox', { name: 'GET' });
+    await userEvent.click(screen.getByRole('button', { name: 'JSON' }));
+    const textarea = screen.getByRole('textbox', { name: 'CORS JSON' });
+    await userEvent.clear(textarea);
+    await userEvent.paste(JSON.stringify([{ AllowedMethods: ['PUT'], AllowedOrigins: ['*'] }]));
+    await userEvent.click(screen.getByRole('button', { name: 'Form' }));
+    expect(screen.getByRole('checkbox', { name: 'PUT' })).toBeChecked();
+    expect(screen.getByRole('checkbox', { name: 'GET' })).not.toBeChecked();
+  });
+
+  it('disables Save and Form switch and shows an error while JSON is invalid', async () => {
+    wrap(<CorsEditor accountId="acc-1" bucket="assets" />);
+    await screen.findByRole('checkbox', { name: 'GET' });
+    await userEvent.click(screen.getByRole('button', { name: 'JSON' }));
+    const textarea = screen.getByRole('textbox', { name: 'CORS JSON' });
+    await userEvent.clear(textarea);
+    await userEvent.paste('not json');
+    expect(await screen.findByText(/Invalid JSON/)).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Save' })).toBeDisabled();
+    expect(screen.getByRole('button', { name: 'Form' })).toBeDisabled();
+  });
+
+  it('re-enables Save and Form switch once JSON is valid again', async () => {
+    wrap(<CorsEditor accountId="acc-1" bucket="assets" />);
+    await screen.findByRole('checkbox', { name: 'GET' });
+    await userEvent.click(screen.getByRole('button', { name: 'JSON' }));
+    const textarea = screen.getByRole('textbox', { name: 'CORS JSON' });
+    await userEvent.clear(textarea);
+    await userEvent.paste('not json');
+    await screen.findByText(/Invalid JSON/);
+    await userEvent.clear(textarea);
+    await userEvent.paste(JSON.stringify([{ AllowedMethods: ['GET'], AllowedOrigins: ['*'] }]));
+    expect(screen.getByRole('button', { name: 'Save' })).toBeEnabled();
+    expect(screen.getByRole('button', { name: 'Form' })).toBeEnabled();
   });
 
   it('shows an error toast and preserves edits when Save fails', async () => {
