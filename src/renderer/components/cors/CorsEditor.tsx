@@ -41,6 +41,8 @@ export function CorsEditor({
   useEffect(() => {
     setRules([]);
     setMode('form');
+    setJsonText('');
+    setJsonError(null);
   }, [accountId, bucket]);
 
   useEffect(() => {
