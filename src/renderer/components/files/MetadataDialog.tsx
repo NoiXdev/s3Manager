@@ -61,17 +61,17 @@ export function MetadataDialog({
     }
   };
 
-  const field = 'mt-1 w-full rounded border border-slate-300 px-2 py-1 text-sm';
+  const field = 'mt-1 w-full rounded border border-slate-300 px-2 py-1 text-sm dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100';
 
   return (
     <div className="fixed inset-0 z-10 flex items-center justify-center bg-black/30" role="dialog" aria-modal="true">
-      <div className="max-h-[80vh] w-[34rem] overflow-auto rounded bg-white p-4 shadow-lg">
+      <div className="max-h-[80vh] w-[34rem] overflow-auto rounded bg-white p-4 shadow-lg dark:bg-slate-900">
         <div className="flex items-center justify-between pb-2">
-          <p className="text-sm font-medium text-slate-800">Edit metadata</p>
-          <button type="button" aria-label="Close" className="rounded px-2 hover:bg-slate-100" onClick={onClose}><FiX className="h-4 w-4" aria-hidden /></button>
+          <p className="text-sm font-medium text-slate-800 dark:text-slate-100">Edit metadata</p>
+          <button type="button" aria-label="Close" className="rounded px-2 hover:bg-slate-100 dark:hover:bg-slate-800" onClick={onClose}><FiX className="h-4 w-4" aria-hidden /></button>
         </div>
 
-        {editable.isLoading && <p className="py-4 text-sm text-slate-500">Loading metadata…</p>}
+        {editable.isLoading && <p className="py-4 text-sm text-slate-500 dark:text-slate-400">Loading metadata…</p>}
         {editable.isError && <p className="py-4 text-sm text-red-600">{(editable.error as Error).message}</p>}
 
         {editable.isSuccess && (
@@ -89,20 +89,20 @@ export function MetadataDialog({
               <input aria-label="Content-Disposition" className={field} value={contentDisposition} onChange={(e) => setContentDisposition(e.target.value)} />
             </label>
 
-            <p className="mt-4 pb-1 text-xs font-semibold uppercase tracking-wide text-slate-500">Custom metadata</p>
+            <p className="mt-4 pb-1 text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Custom metadata</p>
             <div className="flex flex-col gap-1">
               {pairs.map((p, i) => (
                 <div key={i} className="flex items-center gap-2">
                   <input
                     aria-label={`Metadata key ${i + 1}`}
-                    className="w-1/3 rounded border border-slate-300 px-1 py-0.5 text-xs"
+                    className="w-1/3 rounded border border-slate-300 px-1 py-0.5 text-xs dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
                     placeholder="key"
                     value={p.key}
                     onChange={(e) => setPairs((prev) => prev.map((x, j) => (j === i ? { ...x, key: e.target.value } : x)))}
                   />
                   <input
                     aria-label={`Metadata value ${i + 1}`}
-                    className="flex-1 rounded border border-slate-300 px-1 py-0.5 text-xs"
+                    className="flex-1 rounded border border-slate-300 px-1 py-0.5 text-xs dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
                     placeholder="value"
                     value={p.value}
                     onChange={(e) => setPairs((prev) => prev.map((x, j) => (j === i ? { ...x, value: e.target.value } : x)))}
@@ -110,7 +110,7 @@ export function MetadataDialog({
                   <button
                     type="button"
                     aria-label={`Remove metadata ${i + 1}`}
-                    className="rounded px-1 text-slate-400 hover:bg-red-50 hover:text-red-600"
+                    className="rounded px-1 text-slate-400 hover:bg-red-50 hover:text-red-600 dark:text-slate-500"
                     onClick={() => setPairs((prev) => prev.filter((_, j) => j !== i))}
                   >
                     <FiTrash2 className="h-3.5 w-3.5" aria-hidden />
@@ -119,21 +119,21 @@ export function MetadataDialog({
               ))}
               <button
                 type="button"
-                className="mt-1 self-start rounded border border-slate-300 px-2 py-0.5 text-xs hover:bg-slate-50"
+                className="mt-1 self-start rounded border border-slate-300 px-2 py-0.5 text-xs hover:bg-slate-50 dark:border-slate-700 dark:hover:bg-slate-800"
                 onClick={() => setPairs((prev) => [...prev, { key: '', value: '' }])}
               >
                 Add field
               </button>
             </div>
 
-            <p className="mt-3 text-xs text-slate-400">Saving rewrites the object's metadata (its ETag and last-modified change).</p>
+            <p className="mt-3 text-xs text-slate-400 dark:text-slate-500">Saving rewrites the object's metadata (its ETag and last-modified change).</p>
 
             <div className="mt-4 flex justify-end gap-2">
-              <button type="button" className="rounded px-3 py-1 text-sm hover:bg-slate-100" onClick={onClose}>Cancel</button>
+              <button type="button" className="rounded px-3 py-1 text-sm hover:bg-slate-100 dark:hover:bg-slate-800" onClick={onClose}>Cancel</button>
               <button
                 type="button"
                 disabled={update.isPending}
-                className="rounded bg-slate-800 px-3 py-1 text-sm text-white hover:bg-slate-700 disabled:opacity-40"
+                className="rounded bg-slate-800 px-3 py-1 text-sm text-white hover:bg-slate-700 disabled:opacity-40 dark:bg-slate-200 dark:text-slate-900 dark:hover:bg-slate-300"
                 onClick={onSave}
               >
                 Save metadata
