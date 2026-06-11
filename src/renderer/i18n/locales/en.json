@@ -236,5 +236,27 @@
       "addToAria": "Add to {{label}}",
       "removeAria": "Remove {{value}}"
     }
+  },
+  "objectLock": {
+    "title": "Object Lock",
+    "selectBucket": "Select a bucket to view its Object Lock settings.",
+    "loading": "Loading Object Lock…",
+    "notEnabled": "Object Lock is not enabled on this bucket. It can only be enabled when a bucket is created.",
+    "defaultRetention": "Default retention applied to new objects:",
+    "mode": "Mode",
+    "modeAria": "Retention mode",
+    "modeGovernance": "Governance",
+    "modeCompliance": "Compliance",
+    "period": "Period",
+    "periodAria": "Retention period",
+    "unit": "Unit",
+    "unitAria": "Period unit",
+    "unitDays": "Days",
+    "unitYears": "Years",
+    "saved": "Object Lock saved",
+    "removeDefault": "Remove default",
+    "removeConfirm": "Remove the default retention from this bucket? Object Lock stays enabled.",
+    "removeConfirmLabel": "Remove default retention",
+    "removed": "Default retention removed"
   }
 }
