@@ -13,5 +13,11 @@
     "sync": "Sync",
     "dashboard": "Dashboard",
     "settings": "Settings"
+  },
+  "app": {
+    "title": "S3 Manager",
+    "manageConnections": "Manage connections",
+    "comingSoon": "Coming soon",
+    "copyright": "© {{year}} S3 Manager"
   }
 }

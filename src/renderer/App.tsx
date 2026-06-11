@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useSettings } from './hooks/useSettings';
 import { useTheme } from './hooks/useTheme';
 import { useLanguage } from './hooks/useLanguage';
@@ -21,6 +22,7 @@ import { SettingsScreen } from './components/settings/SettingsScreen';
 const SELECTOR_SECTIONS: Section[] = ['files', 'cors', 'objectLock'];
 
 export function App() {
+  const { t } = useTranslation();
   const { settings } = useSettings();
   useTheme(settings.data?.theme);
   useLanguage(settings.data?.language);
@@ -69,7 +71,7 @@ export function App() {
       <SyncRunProvider>
       <div className="flex h-full text-sm text-slate-800 dark:bg-slate-900 dark:text-slate-100">
         <aside className="flex w-48 shrink-0 flex-col border-r border-slate-200 bg-slate-50 p-3 dark:border-slate-700 dark:bg-slate-900">
-          <h1 className="px-2 pb-3 text-base font-semibold">S3 Manager</h1>
+          <h1 className="px-2 pb-3 text-base font-semibold">{t('app.title')}</h1>
 
           {showSelectors && (
             <div className="flex flex-col gap-2 px-2 pb-3">
@@ -88,13 +90,13 @@ export function App() {
                 : 'hover:bg-slate-100 dark:hover:bg-slate-800'
             }`}
           >
-            Manage connections
+            {t('app.manageConnections')}
           </button>
 
           <SectionNav active={section} onSelect={goToSection} />
           <SyncStatus onOpen={() => goToSection('sync')} />
           <p className="mt-auto px-2 pt-3 text-xs text-slate-400 dark:text-slate-500">
-            © {new Date().getFullYear()} S3 Manager
+            {t('app.copyright', { year: new Date().getFullYear() })}
           </p>
         </aside>
 
@@ -143,7 +145,7 @@ export function App() {
           ) : section === 'sync' ? null : section === 'settings' ? (
             <SettingsScreen />
           ) : (
-            <div className="flex h-full items-center justify-center text-slate-400 dark:text-slate-500">Coming soon</div>
+            <div className="flex h-full items-center justify-center text-slate-400 dark:text-slate-500">{t('app.comingSoon')}</div>
           )}
 
           {/* Sync stays mounted once opened (hidden when inactive) so a running
