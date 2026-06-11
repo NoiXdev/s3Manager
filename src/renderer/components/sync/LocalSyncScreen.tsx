@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useLocalSync } from '../../hooks/useLocalSync';
 import { useSyncRun } from './SyncRunProvider';
 import { formatBytes } from '../../lib/format';
@@ -14,6 +15,7 @@ export function LocalSyncScreen({
   initialAccountId: string | null;
   initialBucket: string | null;
 }) {
+  const { t } = useTranslation();
   const [direction, setDirection] = useState<'upload' | 'download'>('upload');
   const [localPath, setLocalPath] = useState<string | null>(null);
   const [remote, setRemote] = useState<EndpointValue>({ accountId: initialAccountId, bucket: initialBucket, prefix: '' });
@@ -62,19 +64,19 @@ export function LocalSyncScreen({
 
   return (
     <div className="h-full overflow-auto p-6">
-      <h2 className="pb-3 text-lg font-semibold">Sync (local ↔ bucket)</h2>
+      <h2 className="pb-3 text-lg font-semibold">{t('sync.localTitle')}</h2>
 
       <div className="flex gap-2 pb-4">
-        {dirBtn('upload', 'Upload (local → bucket)')}
-        {dirBtn('download', 'Download (bucket → local)')}
+        {dirBtn('upload', t('sync.upload'))}
+        {dirBtn('download', t('sync.download'))}
       </div>
 
       <div className="grid max-w-2xl grid-cols-2 gap-6">
         <div className="flex flex-col gap-2">
-          <h3 className="text-sm font-medium text-slate-700 dark:text-slate-200">Local folder</h3>
+          <h3 className="text-sm font-medium text-slate-700 dark:text-slate-200">{t('sync.localFolder')}</h3>
           <LocalFolderPicker path={localPath} onPick={(p) => { setLocalPath(p); clearOutputs(); }} />
         </div>
-        <EndpointPicker label="Bucket" value={remote} onChange={(v) => { setRemote(v); clearOutputs(); }} />
+        <EndpointPicker label={t('sync.bucket')} value={remote} onChange={(v) => { setRemote(v); clearOutputs(); }} />
       </div>
 
       <div className="mt-4 flex gap-2">
@@ -84,23 +86,23 @@ export function LocalSyncScreen({
           className="rounded bg-slate-800 px-3 py-1 text-sm text-white hover:bg-slate-700 disabled:opacity-40 dark:bg-slate-200 dark:text-slate-900 dark:hover:bg-slate-300"
           onClick={onPreview}
         >
-          Preview
+          {t('sync.preview')}
         </button>
         {run.running && (
           <button type="button" className="rounded border border-red-300 dark:border-red-800 px-3 py-1 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/50" onClick={run.cancel}>
-            Cancel
+            {t('common.cancel')}
           </button>
         )}
       </div>
 
-      {planMutation.isPending && <p className="mt-4 text-slate-500 dark:text-slate-400">Computing plan…</p>}
+      {planMutation.isPending && <p className="mt-4 text-slate-500 dark:text-slate-400">{t('sync.computingPlan')}</p>}
 
       {plan && !run.running && (
         <div className="mt-4 rounded border border-slate-200 dark:border-slate-700 p-3">
           {plan.toCopy === 0 ? (
-            <p className="text-slate-600 dark:text-slate-400">Already in sync — nothing to copy ({plan.upToDate} up-to-date).</p>
+            <p className="text-slate-600 dark:text-slate-400">{t('sync.alreadyInSync', { count: plan.upToDate })}</p>
           ) : (
-            <p className="text-slate-700 dark:text-slate-200">{plan.toCopy} to copy · {plan.upToDate} up-to-date · {formatBytes(plan.bytesToCopy)} to transfer</p>
+            <p className="text-slate-700 dark:text-slate-200">{t('sync.planSummary', { toCopy: plan.toCopy, upToDate: plan.upToDate, bytes: formatBytes(plan.bytesToCopy) })}</p>
           )}
           {plan.sample.length > 0 && (
             <ul className="mt-2 max-h-40 overflow-auto text-xs text-slate-500 dark:text-slate-400">
@@ -115,7 +117,7 @@ export function LocalSyncScreen({
             className="mt-3 rounded bg-emerald-700 px-3 py-1 text-sm text-white hover:bg-emerald-600 disabled:opacity-40"
             onClick={onRun}
           >
-            Run sync
+            {t('sync.runSync')}
           </button>
         </div>
       )}
@@ -123,10 +125,10 @@ export function LocalSyncScreen({
       {run.running && run.progress && (
         <div className="mt-4 rounded border border-slate-200 dark:border-slate-700 p-3 text-sm text-slate-700 dark:text-slate-200">
           {run.progress.phase === 'listing' ? (
-            <p>Listing both sides…</p>
+            <p>{t('sync.listingBothSides')}</p>
           ) : (
             <>
-              <p>{run.progress.copied} / {run.progress.total} objects · {formatBytes(run.progress.bytesCopied)} / {formatBytes(run.progress.bytesTotal)}</p>
+              <p>{t('sync.progress', { copied: run.progress.copied, total: run.progress.total, bytesCopied: formatBytes(run.progress.bytesCopied), bytesTotal: formatBytes(run.progress.bytesTotal) })}</p>
               {run.progress.currentKey && <p className="truncate text-xs text-slate-400 dark:text-slate-500">{run.progress.currentKey}</p>}
             </>
           )}
@@ -136,8 +138,8 @@ export function LocalSyncScreen({
       {run.result && (
         <div className="mt-4 rounded border border-slate-200 dark:border-slate-700 p-3 text-sm">
           <p className="text-slate-700 dark:text-slate-200">
-            {run.result.canceled ? 'Canceled — ' : ''}Copied {run.result.copied} object(s), {formatBytes(run.result.bytesCopied)}
-            {run.result.failed.length > 0 ? ` · ${run.result.failed.length} failed` : ''}
+            {run.result.canceled ? t('sync.resultCanceledPrefix') : ''}{t('sync.resultCopied', { count: run.result.copied, bytes: formatBytes(run.result.bytesCopied) })}
+            {run.result.failed.length > 0 ? t('sync.resultFailedSuffix', { count: run.result.failed.length }) : ''}
           </p>
           {run.result.failed.length > 0 && (
             <ul className="mt-2 max-h-40 overflow-auto text-xs text-red-600 dark:text-red-400">

@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { SyncScreen } from './SyncScreen';
 import { LocalSyncScreen } from './LocalSyncScreen';
 
@@ -9,6 +10,7 @@ export function SyncSection({
   initialAccountId: string | null;
   initialBucket: string | null;
 }) {
+  const { t } = useTranslation();
   const [mode, setMode] = useState<'bucket' | 'local'>('bucket');
 
   const tab = (m: 'bucket' | 'local', label: string) => (
@@ -25,8 +27,8 @@ export function SyncSection({
   return (
     <div className="flex h-full flex-col">
       <div className="flex gap-1 border-b border-slate-200 dark:border-slate-700 p-2">
-        {tab('bucket', 'Bucket → Bucket')}
-        {tab('local', 'Local ↔ Bucket')}
+        {tab('bucket', t('sync.tabBucket'))}
+        {tab('local', t('sync.tabLocal'))}
       </div>
       <div className="flex-1 overflow-hidden">
         {mode === 'bucket' ? (

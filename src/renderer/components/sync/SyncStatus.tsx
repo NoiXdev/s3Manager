@@ -1,11 +1,15 @@
+import { useTranslation } from 'react-i18next';
 import { useSyncRun } from './SyncRunProvider';
 
 export function SyncStatus({ onOpen }: { onOpen: () => void }) {
+  const { t } = useTranslation();
   const { running, progress } = useSyncRun();
   if (!running) return null;
 
   const label =
-    progress?.phase === 'copying' ? `Syncing… ${progress.copied}/${progress.total}` : 'Listing…';
+    progress?.phase === 'copying'
+      ? t('sync.status.syncing', { copied: progress.copied, total: progress.total })
+      : t('sync.status.listing');
 
   return (
     <button

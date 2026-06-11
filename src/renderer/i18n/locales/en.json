@@ -258,5 +258,49 @@
     "removeConfirm": "Remove the default retention from this bucket? Object Lock stays enabled.",
     "removeConfirmLabel": "Remove default retention",
     "removed": "Default retention removed"
+  },
+  "sync": {
+    "tabBucket": "Bucket → Bucket",
+    "tabLocal": "Local ↔ Bucket",
+    "bucketTitle": "Sync (bucket → bucket)",
+    "localTitle": "Sync (local ↔ bucket)",
+    "source": "Source",
+    "destination": "Destination",
+    "bucket": "Bucket",
+    "localFolder": "Local folder",
+    "upload": "Upload (local → bucket)",
+    "download": "Download (bucket → local)",
+    "identical": "Source and destination are the same.",
+    "overlap": "Destination overlaps the source prefix in the same bucket.",
+    "preview": "Preview",
+    "computingPlan": "Computing plan…",
+    "alreadyInSync": "Already in sync — nothing to copy ({{count}} up-to-date).",
+    "planSummary": "{{toCopy}} to copy · {{upToDate}} up-to-date · {{bytes}} to transfer",
+    "runSync": "Run sync",
+    "listingBothSides": "Listing both sides…",
+    "progress": "{{copied}} / {{total}} objects · {{bytesCopied}} / {{bytesTotal}}",
+    "resultCopied": "Copied {{count}} object(s), {{bytes}}",
+    "resultCanceledPrefix": "Canceled — ",
+    "resultFailedSuffix": " · {{count}} failed",
+    "endpoint": {
+      "accountAria": "{{label}} account",
+      "bucketAria": "{{label}} bucket",
+      "prefixAria": "{{label}} prefix",
+      "selectAccount": "Select account…",
+      "selectBucket": "Select bucket…",
+      "prefixPlaceholder": "prefix/ (optional)"
+    },
+    "folder": {
+      "choose": "Choose folder…",
+      "none": "No folder chosen"
+    },
+    "status": {
+      "syncing": "Syncing… {{copied}}/{{total}}",
+      "listing": "Listing…"
+    },
+    "toast": {
+      "canceled": "Sync canceled",
+      "synced": "Synced {{count}} object(s)"
+    }
   }
 }
