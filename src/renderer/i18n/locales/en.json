@@ -71,5 +71,20 @@
     "emptyHelp": "Add an Amazon S3 or Hetzner account to get started.",
     "editAria": "Edit {{label}}",
     "removeAria": "Remove {{label}}"
+  },
+  "buckets": {
+    "ariaBucket": "Bucket",
+    "selectAccountFirst": "Select account first",
+    "selectBucket": "Select bucket",
+    "createAria": "Create bucket",
+    "createTitle": "Create bucket",
+    "name": "Bucket name",
+    "nameAria": "Bucket name",
+    "nameRules": "3–63 characters, lowercase letters, numbers, hyphens or dots (no consecutive dots), starting and ending with a letter or number.",
+    "enableObjectLock": "Enable Object Lock",
+    "enableVersioning": "Enable versioning",
+    "createHelp": "The bucket is created in this account's region. Object Lock can only be enabled at creation and requires versioning.",
+    "create": "Create bucket",
+    "created": "Bucket created"
   }
 }
