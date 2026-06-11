@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useSettings } from './hooks/useSettings';
 import { useTheme } from './hooks/useTheme';
+import { useLanguage } from './hooks/useLanguage';
 import { SectionNav, type Section } from './components/SectionNav';
 import { AccountSelect } from './components/accounts/AccountSelect';
 import { BucketSelect } from './components/buckets/BucketSelect';
@@ -22,6 +23,7 @@ const SELECTOR_SECTIONS: Section[] = ['files', 'cors', 'objectLock'];
 export function App() {
   const { settings } = useSettings();
   useTheme(settings.data?.theme);
+  useLanguage(settings.data?.language);
 
   const [section, setSection] = useState<Section>('files');
   const [accountId, setAccountId] = useState<string | null>(null);
