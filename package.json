@@ -21,6 +21,7 @@
     "lint": "eslint --ext .ts,.tsx .",
     "test": "vitest run",
     "test:watch": "vitest",
+    "generate:icons": "bash scripts/generate-icons.sh",
     "generate:licenses": "node scripts/generate-licenses.mjs",
     "prepackage": "npm run generate:licenses",
     "changelog": "conventional-changelog -n ./.github/changelog-preset.cjs -i CHANGELOG.md -s -r 0"

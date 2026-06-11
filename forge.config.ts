@@ -23,6 +23,8 @@ const config: ForgeConfig = {
   packagerConfig: {
     asar: true,
     appBundleId: 'de.dginx.s3manager',
+    // Extensionless: electron-packager appends .icns on macOS, .ico on Windows.
+    icon: 'build/icons/icon',
     osxSign: isSigning
       ? {
           optionsForFile: (filePath) =>
@@ -52,10 +54,10 @@ const config: ForgeConfig = {
     },
   },
   makers: [
-    new MakerSquirrel({}),
-    new MakerDMG({}),
-    new MakerRpm({}),
-    new MakerDeb({}),
+    new MakerSquirrel({ setupIcon: 'build/icons/icon.ico' }),
+    new MakerDMG({ icon: 'build/icons/icon.icns' }),
+    new MakerRpm({ options: { icon: 'build/icons/icon.png' } }),
+    new MakerDeb({ options: { icon: 'build/icons/icon.png' } }),
   ],
   plugins: [
     new VitePlugin({

@@ -53,6 +53,12 @@ const createWindow = () => {
 };
 
 app.on('ready', () => {
+  // In dev (`npm start`) macOS shows the generic Electron Dock icon because the
+  // Electron binary runs directly; packaged builds use the bundled .icns. Set it
+  // explicitly here so dev matches the shipped icon. cwd is the project root in dev.
+  if (process.platform === 'darwin' && MAIN_WINDOW_VITE_DEV_SERVER_URL) {
+    app.dock?.setIcon(path.join(process.cwd(), 'build/icons/icon.png'));
+  }
   initBackend();
   createWindow();
 });
