@@ -19,7 +19,7 @@ export function AccountSelect({
   return (
     <select
       aria-label="Account"
-      className="w-full rounded border border-slate-300 px-2 py-1 text-sm"
+      className="w-full rounded border border-slate-300 px-2 py-1 text-sm dark:border-slate-700"
       value={selectedId ?? ''}
       onChange={(e) => {
         if (e.target.value) onSelect(e.target.value);

@@ -65,8 +65,8 @@ export function App() {
   return (
     <ToastProvider>
       <SyncRunProvider>
-      <div className="flex h-full text-sm text-slate-800">
-        <aside className="flex w-48 shrink-0 flex-col border-r border-slate-200 bg-slate-50 p-3">
+      <div className="flex h-full text-sm text-slate-800 dark:bg-slate-900 dark:text-slate-100">
+        <aside className="flex w-48 shrink-0 flex-col border-r border-slate-200 bg-slate-50 p-3 dark:border-slate-700 dark:bg-slate-900">
           <h1 className="px-2 pb-3 text-base font-semibold">S3 Manager</h1>
 
           {showSelectors && (
@@ -81,7 +81,9 @@ export function App() {
             onClick={() => setSection('connections')}
             aria-current={section === 'connections' ? 'page' : undefined}
             className={`mb-3 rounded px-2 py-1.5 text-left ${
-              section === 'connections' ? 'bg-slate-200 font-medium' : 'hover:bg-slate-100'
+              section === 'connections'
+                ? 'bg-slate-200 font-medium dark:bg-slate-700'
+                : 'hover:bg-slate-100 dark:hover:bg-slate-800'
             }`}
           >
             Manage connections
@@ -89,7 +91,7 @@ export function App() {
 
           <SectionNav active={section} onSelect={goToSection} />
           <SyncStatus onOpen={() => goToSection('sync')} />
-          <p className="mt-auto px-2 pt-3 text-xs text-slate-400">
+          <p className="mt-auto px-2 pt-3 text-xs text-slate-400 dark:text-slate-500">
             © {new Date().getFullYear()} S3 Manager
           </p>
         </aside>
@@ -139,7 +141,7 @@ export function App() {
           ) : section === 'sync' ? null : section === 'settings' ? (
             <SettingsScreen />
           ) : (
-            <div className="flex h-full items-center justify-center text-slate-400">Coming soon</div>
+            <div className="flex h-full items-center justify-center text-slate-400 dark:text-slate-500">Coming soon</div>
           )}
 
           {/* Sync stays mounted once opened (hidden when inactive) so a running

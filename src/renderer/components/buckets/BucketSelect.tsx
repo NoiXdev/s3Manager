@@ -21,7 +21,7 @@ export function BucketSelect({
     <div className="flex items-center gap-1">
       <select
         aria-label="Bucket"
-        className="w-full rounded border border-slate-300 px-2 py-1 text-sm disabled:bg-slate-100 disabled:text-slate-400"
+        className="w-full rounded border border-slate-300 px-2 py-1 text-sm disabled:bg-slate-100 disabled:text-slate-400 dark:border-slate-700 dark:disabled:bg-slate-800 dark:disabled:text-slate-500"
         value={selectedBucket ?? ''}
         disabled={accountId === null}
         onChange={(e) => {
@@ -39,7 +39,7 @@ export function BucketSelect({
         <button
           type="button"
           aria-label="Create bucket"
-          className="shrink-0 rounded border border-slate-300 px-2 py-1 text-sm hover:bg-slate-100"
+          className="shrink-0 rounded border border-slate-300 px-2 py-1 text-sm hover:bg-slate-100 dark:border-slate-700 dark:hover:bg-slate-800"
           onClick={() => setCreating(true)}
         >
           +
