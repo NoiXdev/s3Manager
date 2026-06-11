@@ -5,5 +5,13 @@
     "close": "Close",
     "loading": "Loading…",
     "settingsSaved": "Settings saved"
+  },
+  "nav": {
+    "files": "Files",
+    "objectLock": "Object Lock",
+    "cors": "CORS",
+    "sync": "Sync",
+    "dashboard": "Dashboard",
+    "settings": "Settings"
   }
 }
