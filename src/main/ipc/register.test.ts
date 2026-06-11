@@ -478,7 +478,7 @@ describe('settings & app info handlers', () => {
   it('settings:get returns the default and settings:set persists a new value', async () => {
     const { handlers } = buildHarness();
     const before = (await handlers.get(CH.getSettings)!()) as { ok: boolean; data: { presignExpirySeconds: number } };
-    expect(before).toEqual({ ok: true, data: { presignExpirySeconds: 3600 } });
+    expect(before).toEqual({ ok: true, data: { presignExpirySeconds: 3600, theme: 'system' } });
 
     const saved = (await handlers.get(CH.setSettings)!({ presignExpirySeconds: 86400 })) as { ok: boolean; data: { presignExpirySeconds: number } };
     expect(saved.data.presignExpirySeconds).toBe(86400);
