@@ -45,5 +45,23 @@
     "showLicenses_other": "Show open source licenses ({{count}})",
     "hideLicenses_one": "Hide open source licenses ({{count}})",
     "hideLicenses_other": "Hide open source licenses ({{count}})"
+  },
+  "accounts": {
+    "label": "Label",
+    "provider": "Provider",
+    "endpointUrl": "Endpoint URL",
+    "endpointPlaceholder": "https://minio.example.com:9000",
+    "pathStyle": "Path-style addressing",
+    "region": "Region",
+    "accessKeyId": "Access key ID",
+    "secretAccessKey": "Secret access key",
+    "secretPlaceholder": "••••• (unchanged)",
+    "testConnection": "Test connection",
+    "connectionOk": "Connection OK",
+    "saveChanges": "Save changes",
+    "add": "Add account",
+    "select": "Select account",
+    "ariaAccount": "Account",
+    "optionLabel": "{{label}} ({{provider}})"
   }
 }
