@@ -118,6 +118,13 @@ jobs:
           echo "APPLE_API_ISSUER=${{ secrets.APPLE_API_ISSUER }}" >> "$GITHUB_ENV"
 
       - name: Build distributables
+        # @electron/osx-sign and @electron/notarize log via the `debug` module and are
+        # silent by default. On macOS, notarization can wait several minutes on Apple's
+        # notary service with no output — which looks like a hang. Enabling DEBUG surfaces
+        # the signing + "waiting for notarization" progress so the build is never mistaken
+        # for stuck. Harmless on Windows/Linux (those namespaces never fire).
+        env:
+          DEBUG: electron-osx-sign,electron-notarize
         run: npm run make
 
       - name: Clean up notarization key (macOS)
