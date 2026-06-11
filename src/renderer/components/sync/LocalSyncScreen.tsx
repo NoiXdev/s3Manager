@@ -54,7 +54,7 @@ export function LocalSyncScreen({
       type="button"
       aria-pressed={direction === d}
       onClick={() => { setDirection(d); clearOutputs(); }}
-      className={`rounded border px-3 py-1 text-sm ${direction === d ? 'border-slate-800 bg-slate-800 text-white' : 'border-slate-300 hover:bg-slate-50'}`}
+      className={`rounded border px-3 py-1 text-sm ${direction === d ? 'border-slate-800 bg-slate-800 text-white dark:border-slate-200 dark:bg-slate-200 dark:text-slate-900' : 'border-slate-300 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800'}`}
     >
       {label}
     </button>
@@ -71,7 +71,7 @@ export function LocalSyncScreen({
 
       <div className="grid max-w-2xl grid-cols-2 gap-6">
         <div className="flex flex-col gap-2">
-          <h3 className="text-sm font-medium text-slate-700">Local folder</h3>
+          <h3 className="text-sm font-medium text-slate-700 dark:text-slate-200">Local folder</h3>
           <LocalFolderPicker path={localPath} onPick={(p) => { setLocalPath(p); clearOutputs(); }} />
         </div>
         <EndpointPicker label="Bucket" value={remote} onChange={(v) => { setRemote(v); clearOutputs(); }} />
@@ -81,7 +81,7 @@ export function LocalSyncScreen({
         <button
           type="button"
           disabled={!canPreview}
-          className="rounded bg-slate-800 px-3 py-1 text-sm text-white hover:bg-slate-700 disabled:opacity-40"
+          className="rounded bg-slate-800 px-3 py-1 text-sm text-white hover:bg-slate-700 disabled:opacity-40 dark:bg-slate-200 dark:text-slate-900 dark:hover:bg-slate-300"
           onClick={onPreview}
         >
           Preview
@@ -93,19 +93,19 @@ export function LocalSyncScreen({
         )}
       </div>
 
-      {planMutation.isPending && <p className="mt-4 text-slate-500">Computing plan…</p>}
+      {planMutation.isPending && <p className="mt-4 text-slate-500 dark:text-slate-400">Computing plan…</p>}
 
       {plan && !run.running && (
-        <div className="mt-4 rounded border border-slate-200 p-3">
+        <div className="mt-4 rounded border border-slate-200 dark:border-slate-700 p-3">
           {plan.toCopy === 0 ? (
-            <p className="text-slate-600">Already in sync — nothing to copy ({plan.upToDate} up-to-date).</p>
+            <p className="text-slate-600 dark:text-slate-400">Already in sync — nothing to copy ({plan.upToDate} up-to-date).</p>
           ) : (
-            <p className="text-slate-700">{plan.toCopy} to copy · {plan.upToDate} up-to-date · {formatBytes(plan.bytesToCopy)} to transfer</p>
+            <p className="text-slate-700 dark:text-slate-200">{plan.toCopy} to copy · {plan.upToDate} up-to-date · {formatBytes(plan.bytesToCopy)} to transfer</p>
           )}
           {plan.sample.length > 0 && (
-            <ul className="mt-2 max-h-40 overflow-auto text-xs text-slate-500">
+            <ul className="mt-2 max-h-40 overflow-auto text-xs text-slate-500 dark:text-slate-400">
               {plan.sample.map((op) => (
-                <li key={op.relKey}>{op.relKey} <span className="text-slate-400">({op.reason})</span></li>
+                <li key={op.relKey}>{op.relKey} <span className="text-slate-400 dark:text-slate-500">({op.reason})</span></li>
               ))}
             </ul>
           )}
@@ -121,21 +121,21 @@ export function LocalSyncScreen({
       )}
 
       {run.running && run.progress && (
-        <div className="mt-4 rounded border border-slate-200 p-3 text-sm text-slate-700">
+        <div className="mt-4 rounded border border-slate-200 dark:border-slate-700 p-3 text-sm text-slate-700 dark:text-slate-200">
           {run.progress.phase === 'listing' ? (
             <p>Listing both sides…</p>
           ) : (
             <>
               <p>{run.progress.copied} / {run.progress.total} objects · {formatBytes(run.progress.bytesCopied)} / {formatBytes(run.progress.bytesTotal)}</p>
-              {run.progress.currentKey && <p className="truncate text-xs text-slate-400">{run.progress.currentKey}</p>}
+              {run.progress.currentKey && <p className="truncate text-xs text-slate-400 dark:text-slate-500">{run.progress.currentKey}</p>}
             </>
           )}
         </div>
       )}
 
       {run.result && (
-        <div className="mt-4 rounded border border-slate-200 p-3 text-sm">
-          <p className="text-slate-700">
+        <div className="mt-4 rounded border border-slate-200 dark:border-slate-700 p-3 text-sm">
+          <p className="text-slate-700 dark:text-slate-200">
             {run.result.canceled ? 'Canceled — ' : ''}Copied {run.result.copied} object(s), {formatBytes(run.result.bytesCopied)}
             {run.result.failed.length > 0 ? ` · ${run.result.failed.length} failed` : ''}
           </p>

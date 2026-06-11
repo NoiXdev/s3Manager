@@ -67,25 +67,25 @@ export function RetentionSection({
   };
 
   return (
-    <div className="flex flex-col gap-2 border-b border-slate-100 py-2">
-      <span className="text-xs uppercase tracking-wide text-slate-400">Retention &amp; legal hold</span>
+    <div className="flex flex-col gap-2 border-b border-slate-100 dark:border-slate-800 py-2">
+      <span className="text-xs uppercase tracking-wide text-slate-400 dark:text-slate-500">Retention &amp; legal hold</span>
 
       <div className="flex flex-col gap-1">
-        <span className="text-xs text-slate-500">Retention: <span className="text-slate-700">{retentionLabel}</span></span>
+        <span className="text-xs text-slate-500 dark:text-slate-400">Retention: <span className="text-slate-700 dark:text-slate-200">{retentionLabel}</span></span>
         {retention.isSuccess && !isCompliance && (
           <div className="flex items-center gap-2">
             <input
               type="date"
               aria-label="Retain until"
               min={minDate}
-              className="rounded border border-slate-300 px-2 py-0.5 text-xs"
+              className="rounded border border-slate-300 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100 px-2 py-0.5 text-xs"
               value={date}
               onChange={(e) => setDate(e.target.value)}
             />
             <button
               type="button"
               disabled={!canApply}
-              className="rounded border border-slate-300 px-2 py-0.5 text-xs hover:bg-slate-50 disabled:opacity-40"
+              className="rounded border border-slate-300 dark:border-slate-700 px-2 py-0.5 text-xs hover:bg-slate-50 dark:hover:bg-slate-800 disabled:opacity-40"
               onClick={() => setConfirming(true)}
             >
               Apply
@@ -95,12 +95,12 @@ export function RetentionSection({
       </div>
 
       <div className="flex items-center justify-between">
-        <span className="text-xs text-slate-500">Legal hold: <span className="text-slate-700">{holdLabel}</span></span>
+        <span className="text-xs text-slate-500 dark:text-slate-400">Legal hold: <span className="text-slate-700 dark:text-slate-200">{holdLabel}</span></span>
         {legalHold.isSuccess && (
           <button
             type="button"
             disabled={setLegalHold.isPending}
-            className="rounded border border-slate-300 px-2 py-0.5 text-xs hover:bg-slate-50 disabled:opacity-40"
+            className="rounded border border-slate-300 dark:border-slate-700 px-2 py-0.5 text-xs hover:bg-slate-50 dark:hover:bg-slate-800 disabled:opacity-40"
             onClick={toggleHold}
           >
             {legalHold.data === 'ON' ? 'Turn off legal hold' : 'Turn on legal hold'}

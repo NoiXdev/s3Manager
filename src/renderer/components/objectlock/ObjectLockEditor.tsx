@@ -42,26 +42,26 @@ export function ObjectLockEditor({
   const periodNum = Number(period);
   const periodValid = period.trim() !== '' && Number.isInteger(periodNum) && periodNum > 0;
 
-  const fieldClass = 'rounded border border-slate-300 px-2 py-1 text-sm';
+  const fieldClass = 'rounded border border-slate-300 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100 px-2 py-1 text-sm';
 
   return (
     <div className="h-full overflow-auto p-6">
       <h2 className="pb-3 text-lg font-semibold">Object Lock</h2>
 
-      {bucket === null && <p className="mt-4 text-slate-500">Select a bucket to view its Object Lock settings.</p>}
+      {bucket === null && <p className="mt-4 text-slate-500 dark:text-slate-400">Select a bucket to view its Object Lock settings.</p>}
 
-      {bucket !== null && lock.query.isLoading && <p className="mt-4 text-slate-500">Loading Object Lock…</p>}
+      {bucket !== null && lock.query.isLoading && <p className="mt-4 text-slate-500 dark:text-slate-400">Loading Object Lock…</p>}
       {bucket !== null && lock.query.isError && <p className="mt-4 text-red-600">{(lock.query.error as Error).message}</p>}
 
       {bucket !== null && lock.query.isSuccess && !lock.query.data.enabled && (
-        <p className="mt-4 rounded border border-slate-200 bg-slate-50 p-3 text-sm text-slate-600">
+        <p className="mt-4 rounded border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 p-3 text-sm text-slate-600 dark:text-slate-400">
           Object Lock is not enabled on this bucket. It can only be enabled when a bucket is created.
         </p>
       )}
 
       {bucket !== null && lock.query.isSuccess && lock.query.data.enabled && (
         <div className="mt-4 flex max-w-md flex-col gap-3">
-          <p className="text-sm text-slate-600">Default retention applied to new objects:</p>
+          <p className="text-sm text-slate-600 dark:text-slate-400">Default retention applied to new objects:</p>
 
           <label className="block text-sm">
             Mode
@@ -89,7 +89,7 @@ export function ObjectLockEditor({
             <button
               type="button"
               disabled={!periodValid}
-              className="rounded bg-slate-800 px-3 py-1 text-sm text-white hover:bg-slate-700 disabled:opacity-40"
+              className="rounded bg-slate-800 px-3 py-1 text-sm text-white hover:bg-slate-700 disabled:opacity-40 dark:bg-slate-200 dark:text-slate-900 dark:hover:bg-slate-300"
               onClick={async () => {
                 try {
                   await lock.save.mutateAsync({

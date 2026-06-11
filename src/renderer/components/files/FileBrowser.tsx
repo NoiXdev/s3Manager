@@ -42,26 +42,26 @@ export function FileBrowser({
   const [itemToMove, setItemToMove] = useState<MoveItem | null>(null);
 
   if (bucket === null) {
-    return <div className="flex h-full items-center justify-center text-slate-400">Select a bucket</div>;
+    return <div className="flex h-full items-center justify-center text-slate-400 dark:text-slate-500">Select a bucket</div>;
   }
 
   const isEmpty = query.isSuccess && folders.length === 0 && files.length === 0;
 
   return (
     <div className="flex h-full flex-col">
-      <div className="flex items-center justify-between border-b border-slate-200 p-2">
+      <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-700 p-2">
         <Breadcrumb prefix={prefix} onNavigate={onNavigate} />
         <div className="flex gap-2">
           <button
             type="button"
-            className="rounded border border-slate-300 px-2 py-1 text-xs hover:bg-slate-50"
+            className="rounded border border-slate-300 dark:border-slate-700 px-2 py-1 text-xs hover:bg-slate-50 dark:hover:bg-slate-800"
             onClick={() => setUploadLinkOpen(true)}
           >
             Upload link…
           </button>
           <button
             type="button"
-            className="rounded border border-slate-300 px-2 py-1 text-xs hover:bg-slate-50"
+            className="rounded border border-slate-300 dark:border-slate-700 px-2 py-1 text-xs hover:bg-slate-50 dark:hover:bg-slate-800"
             onClick={() => setNewFolderOpen(true)}
           >
             New folder
@@ -69,9 +69,9 @@ export function FileBrowser({
         </div>
       </div>
 
-      {query.isLoading && <p className="p-3 text-slate-500">Loading…</p>}
+      {query.isLoading && <p className="p-3 text-slate-500 dark:text-slate-400">Loading…</p>}
       {query.isError && <p className="p-3 text-red-600">{(query.error as Error).message}</p>}
-      {isEmpty && <p className="p-3 text-slate-500">This folder is empty</p>}
+      {isEmpty && <p className="p-3 text-slate-500 dark:text-slate-400">This folder is empty</p>}
 
       <DropZone onDropFiles={(droppedFiles) => void uploads.upload(droppedFiles, prefix)}>
         <div className="h-full overflow-auto">
@@ -81,15 +81,15 @@ export function FileBrowser({
                 <tr
                   key={folder.prefix}
                   onClick={() => onNavigate(folder.prefix)}
-                  className="cursor-pointer border-b border-slate-100 hover:bg-slate-50"
+                  className="cursor-pointer border-b border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800"
                 >
                   <td className="px-3 py-1.5">📁 <span>{folder.name}</span></td>
-                  <td className="px-3 py-1.5 text-right text-slate-400">—</td>
+                  <td className="px-3 py-1.5 text-right text-slate-400 dark:text-slate-500">—</td>
                   <td className="px-3 py-1.5">
                     <button
                       type="button"
                       aria-label={`Rename folder ${folder.name}`}
-                      className="rounded px-1 text-slate-400 hover:bg-slate-100 hover:text-slate-700"
+                      className="rounded px-1 text-slate-400 dark:text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-700 dark:hover:text-slate-200"
                       onClick={(e) => {
                         e.stopPropagation();
                         setFolderToRename(folder);
@@ -100,7 +100,7 @@ export function FileBrowser({
                     <button
                       type="button"
                       aria-label={`Move folder ${folder.name}`}
-                      className="rounded px-1 text-slate-400 hover:bg-slate-100 hover:text-slate-700"
+                      className="rounded px-1 text-slate-400 dark:text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-700 dark:hover:text-slate-200"
                       onClick={(e) => {
                         e.stopPropagation();
                         setItemToMove({ kind: 'folder', name: folder.name, parent: parentPrefix(folder.prefix), prefix: folder.prefix });
@@ -126,13 +126,13 @@ export function FileBrowser({
                 <tr
                   key={file.key}
                   onClick={() => onSelectFile(file.key)}
-                  className={`cursor-pointer border-b border-slate-100 ${
-                    file.key === selectedKey ? 'bg-slate-100' : 'hover:bg-slate-50'
+                  className={`cursor-pointer border-b border-slate-100 dark:border-slate-800 ${
+                    file.key === selectedKey ? 'bg-slate-100 dark:bg-slate-800' : 'hover:bg-slate-50 dark:hover:bg-slate-800'
                   }`}
                 >
                   <td className="px-3 py-1.5">📄 <span>{file.name}</span></td>
                   <td className="px-3 py-1.5 text-right tabular-nums">{formatBytes(file.size)}</td>
-                  <td className="px-3 py-1.5 text-slate-500">{formatTimestamp(file.lastModified)}</td>
+                  <td className="px-3 py-1.5 text-slate-500 dark:text-slate-400">{formatTimestamp(file.lastModified)}</td>
                 </tr>
               ))}
             </tbody>
@@ -143,7 +143,7 @@ export function FileBrowser({
               type="button"
               disabled={query.isFetchingNextPage}
               onClick={() => query.fetchNextPage()}
-              className="m-3 rounded border border-slate-300 px-3 py-1 text-sm hover:bg-slate-50"
+              className="m-3 rounded border border-slate-300 dark:border-slate-700 px-3 py-1 text-sm hover:bg-slate-50 dark:hover:bg-slate-800"
             >
               {query.isFetchingNextPage ? 'Loading…' : 'Load more'}
             </button>

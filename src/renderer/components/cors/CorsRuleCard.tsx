@@ -22,9 +22,9 @@ export function CorsRuleCard({
   };
 
   return (
-    <div className="rounded border border-slate-200 bg-white p-3">
+    <div className="rounded border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-3">
       <div className="flex items-center justify-between">
-        <span className="text-xs font-semibold uppercase tracking-wide text-slate-500">Rule</span>
+        <span className="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Rule</span>
         <button type="button" aria-label="Remove rule" className="text-slate-400 hover:text-red-600" onClick={onRemove}>
           <FiTrash2 className="h-4 w-4" aria-hidden />
         </button>
@@ -47,7 +47,7 @@ export function CorsRuleCard({
         Max age (seconds)
         <input
           type="number"
-          className="mt-1 block w-40 rounded border border-slate-300 px-2 py-1"
+          className="mt-1 block w-40 rounded border border-slate-300 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100 px-2 py-1"
           value={rule.maxAgeSeconds ?? ''}
           onChange={(e) => onChange({ ...rule, maxAgeSeconds: e.target.value === '' ? null : Number(e.target.value) })}
         />

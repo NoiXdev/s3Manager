@@ -79,17 +79,17 @@ export function CorsEditor({
     <div className="h-full overflow-auto p-6">
       <h2 className="pb-3 text-lg font-semibold">CORS configuration</h2>
 
-      {bucket === null && <p className="mt-4 text-slate-500">Select a bucket to edit its CORS rules.</p>}
+      {bucket === null && <p className="mt-4 text-slate-500 dark:text-slate-400">Select a bucket to edit its CORS rules.</p>}
 
-      {bucket !== null && cors.query.isLoading && <p className="mt-4 text-slate-500">Loading CORS…</p>}
+      {bucket !== null && cors.query.isLoading && <p className="mt-4 text-slate-500 dark:text-slate-400">Loading CORS…</p>}
       {bucket !== null && cors.query.isError && <p className="mt-4 text-red-600">{(cors.query.error as Error).message}</p>}
 
       {bucket !== null && cors.query.isSuccess && (
         <div className="mt-4 flex flex-col gap-3">
-          <div className="inline-flex w-fit rounded border border-slate-300 text-sm">
+          <div className="inline-flex w-fit rounded border border-slate-300 dark:border-slate-700 text-sm">
             <button
               type="button"
-              className={`rounded-l px-3 py-1 ${mode === 'form' ? 'bg-slate-800 text-white' : 'hover:bg-slate-50'}`}
+              className={`rounded-l px-3 py-1 ${mode === 'form' ? 'bg-slate-800 text-white dark:bg-slate-200 dark:text-slate-900' : 'hover:bg-slate-50 dark:hover:bg-slate-800'}`}
               aria-pressed={mode === 'form'}
               disabled={jsonInvalid}
               onClick={() => setMode('form')}
@@ -98,7 +98,7 @@ export function CorsEditor({
             </button>
             <button
               type="button"
-              className={`rounded-r px-3 py-1 ${mode === 'json' ? 'bg-slate-800 text-white' : 'hover:bg-slate-50'}`}
+              className={`rounded-r px-3 py-1 ${mode === 'json' ? 'bg-slate-800 text-white dark:bg-slate-200 dark:text-slate-900' : 'hover:bg-slate-50 dark:hover:bg-slate-800'}`}
               aria-pressed={mode === 'json'}
               onClick={enterJsonMode}
             >
@@ -118,7 +118,7 @@ export function CorsEditor({
               ))}
               <button
                 type="button"
-                className="w-fit rounded border border-slate-300 px-3 py-1 text-sm hover:bg-slate-50"
+                className="w-fit rounded border border-slate-300 dark:border-slate-700 px-3 py-1 text-sm hover:bg-slate-50 dark:hover:bg-slate-800"
                 onClick={() => setRules([...rules, { ...NEW_RULE }])}
               >
                 + Add rule
@@ -132,7 +132,7 @@ export function CorsEditor({
                 aria-label="CORS JSON"
                 aria-invalid={jsonError !== null}
                 aria-describedby={jsonError ? 'cors-json-error' : undefined}
-                className="h-72 w-full rounded border border-slate-300 bg-slate-900 p-3 font-mono text-xs text-slate-100"
+                className="h-72 w-full rounded border border-slate-300 dark:border-slate-700 bg-slate-900 p-3 font-mono text-xs text-slate-100"
                 spellCheck={false}
                 value={jsonText}
                 onChange={(e) => onJsonChange(e.target.value)}
@@ -144,7 +144,7 @@ export function CorsEditor({
           <div className="flex gap-2">
             <button
               type="button"
-              className="rounded bg-slate-800 px-3 py-1 text-sm text-white hover:bg-slate-700 disabled:opacity-50"
+              className="rounded bg-slate-800 px-3 py-1 text-sm text-white hover:bg-slate-700 disabled:opacity-50 dark:bg-slate-200 dark:text-slate-900 dark:hover:bg-slate-300"
               disabled={jsonInvalid}
               onClick={async () => {
                 try {

@@ -16,12 +16,12 @@ export function LocalFolderPicker({
     <div className="flex items-center gap-2">
       <button
         type="button"
-        className="rounded border border-slate-300 px-2 py-1 text-sm hover:bg-slate-50"
+        className="rounded border border-slate-300 dark:border-slate-700 px-2 py-1 text-sm hover:bg-slate-50 dark:hover:bg-slate-800"
         onClick={choose}
       >
         Choose folder…
       </button>
-      <span className="truncate text-sm text-slate-600">{path ?? 'No folder chosen'}</span>
+      <span className="truncate text-sm text-slate-600 dark:text-slate-400">{path ?? 'No folder chosen'}</span>
     </div>
   );
 }
