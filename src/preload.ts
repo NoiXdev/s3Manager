@@ -12,6 +12,7 @@ const api = {
   accounts: {
     list: () => invoke(CH.accountsList),
     create: (input: ApiMap[typeof CH.accountsCreate]['args'][0]) => invoke(CH.accountsCreate, input),
+    update: (input: ApiMap[typeof CH.accountsUpdate]['args'][0]) => invoke(CH.accountsUpdate, input),
     remove: (id: string) => invoke(CH.accountsRemove, id),
     test: (input: ApiMap[typeof CH.accountsTest]['args'][0]) => invoke(CH.accountsTest, input),
   },

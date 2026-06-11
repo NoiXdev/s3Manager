@@ -1,5 +1,5 @@
 import { basename } from 'node:path';
-import { CH, UPLOAD_PROGRESS_CHANNEL, SYNC_PROGRESS_CHANNEL, type CreateAccountInput } from './channels';
+import { CH, UPLOAD_PROGRESS_CHANNEL, SYNC_PROGRESS_CHANNEL, type CreateAccountInput, type UpdateAccountInput, type TestAccountInput } from './channels';
 import { ok, err, type Result } from '../shared/result';
 import { resolveEndpoint, getProvider, PROVIDERS, bucketLocationConstraint, type ProviderId } from '../s3/providers';
 import { createClient } from '../s3/clientFactory';
@@ -74,7 +74,9 @@ interface ConnParams {
  * The effective endpoint + addressing style for a connection: custom providers
  * use the user-supplied values; built-in providers derive them as before.
  */
-function resolveConnParams(input: CreateAccountInput): Result<ConnParams> {
+type ConnInput = Pick<CreateAccountInput, 'provider' | 'region' | 'endpoint' | 'forcePathStyle'>;
+
+function resolveConnParams(input: ConnInput): Result<ConnParams> {
   if (input.provider === 'custom') {
     const endpoint = input.endpoint?.trim();
     if (!endpoint || !isHttpUrl(endpoint)) {
@@ -127,25 +129,56 @@ export function registerIpc(ipcMain: IpcMainLike, deps: RegisterDeps): void {
     return ok(account);
   });
 
+  h(CH.accountsUpdate, (input: UpdateAccountInput) => {
+    if (!isKnownProvider(input.provider)) {
+      return err('InvalidProvider', `Unknown provider: ${input.provider}`);
+    }
+    if (!deps.accounts.get(input.id)) {
+      return err('AccountNotFound', `Unknown account: ${input.id}`);
+    }
+    const params = resolveConnParams(input);
+    if (!params.ok) return params;
+    const account = deps.db.transaction(() => {
+      const updated = deps.accounts.update(input.id, {
+        label: input.label,
+        provider: input.provider,
+        endpoint: params.data.endpoint,
+        region: input.region,
+        accessKeyId: input.accessKeyId,
+        forcePathStyle: params.data.forcePathStyle,
+      });
+      if (input.secretAccessKey) {
+        deps.secrets.set(input.id, input.secretAccessKey);
+      }
+      return updated;
+    })();
+    return ok(account);
+  });
+
   h(CH.accountsRemove, (id: string) => {
     deps.secrets.remove(id);
     deps.accounts.remove(id);
     return ok(true as const);
   });
 
-  h(CH.accountsTest, async (input: CreateAccountInput) => {
+  h(CH.accountsTest, async (input: TestAccountInput) => {
     if (!isKnownProvider(input.provider)) {
       return err('InvalidProvider', `Unknown provider: ${input.provider}`);
     }
     const params = resolveConnParams(input);
     if (!params.ok) return params;
+    const secretAccessKey =
+      input.secretAccessKey || (input.id ? deps.secrets.get(input.id) : undefined);
+    if (!secretAccessKey) {
+      return err('MissingSecret', 'A secret access key is required to test the connection');
+    }
     const client = createClient({
       provider: input.provider,
       region: input.region,
       endpoint: params.data.endpoint,
       forcePathStyle: params.data.forcePathStyle,
       accessKeyId: input.accessKeyId,
-      secretAccessKey: input.secretAccessKey,
+      secretAccessKey,
     });
     const r = await listBuckets(client);
     return r.ok ? ok(true as const) : err(r.error.code, r.error.message);

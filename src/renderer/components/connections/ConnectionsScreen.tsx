@@ -1,37 +1,48 @@
 import { useState } from 'react';
-import { FiTrash2 } from 'react-icons/fi';
-import { useAccounts, useCreateAccount, useRemoveAccount } from '../../hooks/useAccounts';
+import { FiTrash2, FiEdit2 } from 'react-icons/fi';
+import { useAccounts, useCreateAccount, useUpdateAccount, useRemoveAccount } from '../../hooks/useAccounts';
 import { ProviderBadge } from '../accounts/ProviderBadge';
-import { AddAccountForm } from '../accounts/AddAccountForm';
+import { AccountForm } from '../accounts/AccountForm';
+import type { Account } from '../../../main/storage/accountsRepo';
+
+// null = list view; 'new' = add form; Account = edit form for that account
+type Editing = null | 'new' | Account;
 
 export function ConnectionsScreen({ onAccountRemoved }: { onAccountRemoved?: (id: string) => void } = {}) {
   const accounts = useAccounts();
   const createAccount = useCreateAccount();
+  const updateAccount = useUpdateAccount();
   const removeAccount = useRemoveAccount();
-  const [adding, setAdding] = useState(false);
+  const [editing, setEditing] = useState<Editing>(null);
 
   return (
     <div className="h-full overflow-auto p-6">
       <div className="flex items-center justify-between pb-3">
         <h2 className="text-lg font-semibold">Connections</h2>
-        {!adding && (
+        {editing === null && (
           <button
             type="button"
             className="rounded border border-slate-300 px-3 py-1 text-sm hover:bg-slate-50"
-            onClick={() => setAdding(true)}
+            onClick={() => setEditing('new')}
           >
             + Add account
           </button>
         )}
       </div>
 
-      {adding ? (
+      {editing !== null ? (
         <div className="max-w-md">
-          <AddAccountForm
-            onCancel={() => setAdding(false)}
+          <AccountForm
+            key={editing === 'new' ? 'new' : editing.id}
+            account={editing === 'new' ? undefined : editing}
+            onCancel={() => setEditing(null)}
             onSubmit={async (input) => {
-              await createAccount.mutateAsync(input);
-              setAdding(false);
+              if ('id' in input) {
+                await updateAccount.mutateAsync(input);
+              } else {
+                await createAccount.mutateAsync(input);
+              }
+              setEditing(null);
             }}
           />
         </div>
@@ -54,18 +65,28 @@ export function ConnectionsScreen({ onAccountRemoved }: { onAccountRemoved?: (id
                   <span className="font-medium">{acc.label}</span>
                   <ProviderBadge provider={acc.provider} />
                 </span>
-                <button
-                  type="button"
-                  aria-label={`Remove ${acc.label}`}
-                  className="rounded px-1 text-slate-400 hover:bg-red-50 hover:text-red-600"
-                  onClick={() =>
-                    removeAccount.mutate(acc.id, {
-                      onSuccess: () => onAccountRemoved?.(acc.id),
-                    })
-                  }
-                >
-                  <FiTrash2 className="h-4 w-4" aria-hidden />
-                </button>
+                <div className="flex items-center gap-1">
+                  <button
+                    type="button"
+                    aria-label={`Edit ${acc.label}`}
+                    className="rounded px-1 text-slate-400 hover:bg-slate-100 hover:text-slate-700"
+                    onClick={() => setEditing(acc)}
+                  >
+                    <FiEdit2 className="h-4 w-4" aria-hidden />
+                  </button>
+                  <button
+                    type="button"
+                    aria-label={`Remove ${acc.label}`}
+                    className="rounded px-1 text-slate-400 hover:bg-red-50 hover:text-red-600"
+                    onClick={() =>
+                      removeAccount.mutate(acc.id, {
+                        onSuccess: () => onAccountRemoved?.(acc.id),
+                      })
+                    }
+                  >
+                    <FiTrash2 className="h-4 w-4" aria-hidden />
+                  </button>
+                </div>
               </li>
             ))}
           </ul>

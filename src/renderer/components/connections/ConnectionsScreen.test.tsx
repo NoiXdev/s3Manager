@@ -33,6 +33,34 @@ describe('ConnectionsScreen', () => {
     expect(screen.getByLabelText('Label')).toBeInTheDocument();
   });
 
+  it('opens a pre-filled edit form and submits via the update path', async () => {
+    const update = vi.fn().mockResolvedValue({ ok: true, data: { ...account, label: 'AWS renamed' } });
+    (window as unknown as { s3: unknown }).s3 = {
+      accounts: {
+        list: vi.fn().mockResolvedValue({ ok: true, data: [account] }),
+        update,
+        test: vi.fn().mockResolvedValue({ ok: true, data: true }),
+      },
+    };
+    wrap(<ConnectionsScreen />);
+
+    await userEvent.click(await screen.findByRole('button', { name: 'Edit AWS prod' }));
+
+    // form opens pre-filled from the account
+    const labelField = screen.getByLabelText('Label');
+    expect(labelField).toHaveValue('AWS prod');
+    expect(screen.getByLabelText('Region')).toHaveValue('eu-central-1');
+
+    await userEvent.clear(labelField);
+    await userEvent.type(labelField, 'AWS renamed');
+    await userEvent.click(screen.getByRole('button', { name: 'Save changes' }));
+
+    await waitFor(() => expect(update).toHaveBeenCalledTimes(1));
+    expect(update).toHaveBeenCalledWith(
+      expect.objectContaining({ id: 'acc-1', label: 'AWS renamed', provider: 'amazon-s3' }),
+    );
+  });
+
   it('removes an account', async () => {
     const remove = vi.fn().mockResolvedValue({ ok: true, data: true });
     (window as unknown as { s3: unknown }).s3 = {
