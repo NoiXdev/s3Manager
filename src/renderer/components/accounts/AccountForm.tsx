@@ -1,33 +1,63 @@
 import { useState } from 'react';
-import type { CreateAccountInput } from '../../../main/ipc/channels';
+import type { CreateAccountInput, UpdateAccountInput, TestAccountInput } from '../../../main/ipc/channels';
+import type { Account } from '../../../main/storage/accountsRepo';
 import { UI_PROVIDERS } from '../../lib/providers';
 import { useTestConnection } from '../../hooks/useAccounts';
 
 const fieldClass = 'mt-1 w-full rounded border border-slate-300 px-2 py-1';
 
-export function AddAccountForm({
+export function AccountForm({
+  account,
   onSubmit,
   onCancel,
 }: {
-  onSubmit: (input: CreateAccountInput) => Promise<void>;
+  account?: Account;
+  onSubmit: (input: CreateAccountInput | UpdateAccountInput) => Promise<void>;
   onCancel: () => void;
 }) {
-  const [label, setLabel] = useState('');
-  const [provider, setProvider] = useState<CreateAccountInput['provider']>(UI_PROVIDERS[0].id);
-  const [region, setRegion] = useState('');
-  const [accessKeyId, setAccessKeyId] = useState('');
+  const isEdit = account !== undefined;
+  const [label, setLabel] = useState(account?.label ?? '');
+  const [provider, setProvider] = useState<CreateAccountInput['provider']>(
+    account?.provider ?? UI_PROVIDERS[0].id,
+  );
+  const [region, setRegion] = useState(account?.region ?? '');
+  const [accessKeyId, setAccessKeyId] = useState(account?.accessKeyId ?? '');
   const [secretAccessKey, setSecretAccessKey] = useState('');
-  const [endpoint, setEndpoint] = useState('');
-  const [forcePathStyle, setForcePathStyle] = useState(true);
+  const [endpoint, setEndpoint] = useState(account?.endpoint ?? '');
+  const [forcePathStyle, setForcePathStyle] = useState(account?.forcePathStyle ?? true);
   const test = useTestConnection();
 
-  const input: CreateAccountInput = {
+  const custom = provider === 'custom';
+  const customFields = custom ? { endpoint, forcePathStyle } : {};
+  const hasSecret = secretAccessKey.trim() !== '';
+
+  const submitInput: CreateAccountInput | UpdateAccountInput = isEdit
+    ? {
+        id: account!.id,
+        label,
+        provider,
+        region,
+        accessKeyId,
+        ...(hasSecret ? { secretAccessKey } : {}),
+        ...customFields,
+      }
+    : {
+        label,
+        provider,
+        region,
+        accessKeyId,
+        secretAccessKey,
+        ...customFields,
+      };
+
+  const testInput: TestAccountInput = {
+    ...(isEdit ? { id: account!.id } : {}),
     label,
     provider,
     region,
     accessKeyId,
-    secretAccessKey,
-    ...(provider === 'custom' ? { endpoint, forcePathStyle } : {}),
+    ...(hasSecret ? { secretAccessKey } : {}),
+    ...customFields,
   };
 
   return (
@@ -35,7 +65,7 @@ export function AddAccountForm({
       className="flex flex-col gap-3"
       onSubmit={(e) => {
         e.preventDefault();
-        void onSubmit(input);
+        void onSubmit(submitInput);
       }}
     >
       <label className="block">
@@ -60,7 +90,7 @@ export function AddAccountForm({
           ))}
         </select>
       </label>
-      {provider === 'custom' && (
+      {custom && (
         <>
           <label className="block">
             Endpoint URL
@@ -91,7 +121,13 @@ export function AddAccountForm({
       </label>
       <label className="block">
         Secret access key
-        <input type="password" className={fieldClass} value={secretAccessKey} onChange={(e) => setSecretAccessKey(e.target.value)} />
+        <input
+          type="password"
+          className={fieldClass}
+          placeholder={isEdit ? '••••• (unchanged)' : ''}
+          value={secretAccessKey}
+          onChange={(e) => setSecretAccessKey(e.target.value)}
+        />
       </label>
 
       <div className="flex items-center gap-2">
@@ -99,7 +135,7 @@ export function AddAccountForm({
           type="button"
           className="rounded border border-slate-300 px-3 py-1 hover:bg-slate-50"
           disabled={test.isPending}
-          onClick={() => test.mutate(input)}
+          onClick={() => test.mutate(testInput)}
         >
           Test connection
         </button>
@@ -112,7 +148,7 @@ export function AddAccountForm({
           Cancel
         </button>
         <button type="submit" className="rounded bg-slate-800 px-3 py-1 text-white hover:bg-slate-700">
-          Add account
+          {isEdit ? 'Save changes' : 'Add account'}
         </button>
       </div>
     </form>
