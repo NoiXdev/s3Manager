@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useObjectRetention } from '../../hooks/useObjectRetention';
 import { useToast } from '../ui/ToastProvider';
 import { ConfirmDialog } from '../ui/ConfirmDialog';
@@ -20,6 +21,7 @@ export function RetentionSection({
   bucket: string;
   objectKey: string;
 }) {
+  const { t } = useTranslation();
   const { retention, legalHold, setRetention, setLegalHold } = useObjectRetention(accountId, bucket, objectKey);
   const { show } = useToast();
   const [date, setDate] = useState('');
@@ -33,24 +35,24 @@ export function RetentionSection({
 
   const retentionLabel = retention.isSuccess
     ? ret && ret.mode
-      ? `${ret.mode} until ${formatTimestamp(ret.retainUntil)}`
-      : 'None'
+      ? t('files.retention.retentionUntil', { mode: ret.mode, date: formatTimestamp(ret.retainUntil) })
+      : t('files.retention.none')
     : retention.isError
-      ? 'unavailable'
+      ? t('files.retention.unavailable')
       : '…';
   const holdLabel = legalHold.isSuccess
     ? legalHold.data === 'ON'
-      ? 'On'
-      : 'Off'
+      ? t('files.retention.holdOn')
+      : t('files.retention.holdOff')
     : legalHold.isError
-      ? 'unavailable'
+      ? t('files.retention.unavailable')
       : '…';
 
   const applyRetention = async () => {
     setConfirming(false);
     try {
       await setRetention.mutateAsync({ retainUntil: `${date}T00:00:00.000Z` });
-      show('Retention updated');
+      show(t('files.retention.retentionUpdated'));
     } catch (e) {
       show((e as Error).message, 'error');
     }
@@ -60,7 +62,7 @@ export function RetentionSection({
     const next = legalHold.data === 'ON' ? 'OFF' : 'ON';
     try {
       await setLegalHold.mutateAsync(next);
-      show(next === 'ON' ? 'Legal hold on' : 'Legal hold off');
+      show(next === 'ON' ? t('files.retention.holdOnToast') : t('files.retention.holdOffToast'));
     } catch (e) {
       show((e as Error).message, 'error');
     }
@@ -68,15 +70,15 @@ export function RetentionSection({
 
   return (
     <div className="flex flex-col gap-2 border-b border-slate-100 dark:border-slate-800 py-2">
-      <span className="text-xs uppercase tracking-wide text-slate-400 dark:text-slate-500">Retention &amp; legal hold</span>
+      <span className="text-xs uppercase tracking-wide text-slate-400 dark:text-slate-500">{t('files.retention.heading')}</span>
 
       <div className="flex flex-col gap-1">
-        <span className="text-xs text-slate-500 dark:text-slate-400">Retention: <span className="text-slate-700 dark:text-slate-200">{retentionLabel}</span></span>
+        <span className="text-xs text-slate-500 dark:text-slate-400">{t('files.retention.retentionLabel')} <span className="text-slate-700 dark:text-slate-200">{retentionLabel}</span></span>
         {retention.isSuccess && !isCompliance && (
           <div className="flex items-center gap-2">
             <input
               type="date"
-              aria-label="Retain until"
+              aria-label={t('files.retention.retainUntilAria')}
               min={minDate}
               className="rounded border border-slate-300 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100 px-2 py-0.5 text-xs"
               value={date}
@@ -88,14 +90,14 @@ export function RetentionSection({
               className="rounded border border-slate-300 dark:border-slate-700 px-2 py-0.5 text-xs hover:bg-slate-50 dark:hover:bg-slate-800 disabled:opacity-40"
               onClick={() => setConfirming(true)}
             >
-              Apply
+              {t('files.retention.apply')}
             </button>
           </div>
         )}
       </div>
 
       <div className="flex items-center justify-between">
-        <span className="text-xs text-slate-500 dark:text-slate-400">Legal hold: <span className="text-slate-700 dark:text-slate-200">{holdLabel}</span></span>
+        <span className="text-xs text-slate-500 dark:text-slate-400">{t('files.retention.legalHoldLabel')} <span className="text-slate-700 dark:text-slate-200">{holdLabel}</span></span>
         {legalHold.isSuccess && (
           <button
             type="button"
@@ -103,15 +105,15 @@ export function RetentionSection({
             className="rounded border border-slate-300 dark:border-slate-700 px-2 py-0.5 text-xs hover:bg-slate-50 dark:hover:bg-slate-800 disabled:opacity-40"
             onClick={toggleHold}
           >
-            {legalHold.data === 'ON' ? 'Turn off legal hold' : 'Turn on legal hold'}
+            {legalHold.data === 'ON' ? t('files.retention.turnOffHold') : t('files.retention.turnOnHold')}
           </button>
         )}
       </div>
 
       {confirming && (
         <ConfirmDialog
-          message={`Lock this object from deletion until ${date}? You won't be able to shorten this here.`}
-          confirmLabel="Apply retention"
+          message={t('files.retention.lockConfirm', { date })}
+          confirmLabel={t('files.retention.applyRetention')}
           onCancel={() => setConfirming(false)}
           onConfirm={applyRetention}
         />
