@@ -1,4 +1,4 @@
-import { app, BrowserWindow, ipcMain, safeStorage, dialog } from 'electron';
+import { app, BrowserWindow, ipcMain, safeStorage, dialog, shell } from 'electron';
 import path from 'node:path';
 import started from 'electron-squirrel-startup';
 import { openDatabase } from './main/storage/db';
@@ -30,7 +30,7 @@ function initBackend() {
       : await dialog.showOpenDialog({ properties: ['openDirectory'] });
     return result.canceled || !result.filePaths[0] ? null : result.filePaths[0];
   };
-  registerIpc(ipcMain, { accounts, settings, secrets, crypto: safeStorage, db, saveDialog, selectDirectory, appVersion: app.getVersion() });
+  registerIpc(ipcMain, { accounts, settings, secrets, crypto: safeStorage, db, saveDialog, selectDirectory, appVersion: app.getVersion(), openExternal: (url) => shell.openExternal(url) });
 }
 
 const createWindow = () => {

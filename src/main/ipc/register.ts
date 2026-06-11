@@ -54,6 +54,8 @@ export interface RegisterDeps {
   selectDirectory: () => Promise<string | null>;
   /** The app version string (Electron app.getVersion()), injected by main.ts. */
   appVersion: string;
+  /** Opens a URL in the user's default browser (Electron shell.openExternal), injected by main.ts. */
+  openExternal: (url: string) => Promise<void>;
 }
 
 function isHttpUrl(value: string): boolean {
@@ -107,6 +109,12 @@ export function registerIpc(ipcMain: IpcMainLike, deps: RegisterDeps): void {
   h(CH.accountsList, () => ok(deps.accounts.list()));
 
   h(CH.encryptionAvailable, () => ok(deps.crypto.isEncryptionAvailable()));
+
+  h(CH.openExternal, async (url: string) => {
+    if (!isHttpUrl(url)) return err('InvalidUrl', 'Only http(s) URLs can be opened externally');
+    await deps.openExternal(url);
+    return ok(true as const);
+  });
 
   h(CH.accountsCreate, (input: CreateAccountInput) => {
     if (!isKnownProvider(input.provider)) {

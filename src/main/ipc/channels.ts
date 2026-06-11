@@ -52,6 +52,7 @@ export const CH = {
   getSettings: 'settings:get',
   setSettings: 'settings:set',
   getAppInfo: 'app:getInfo',
+  openExternal: 'shell:openExternal',
   getObjectAcl: 's3:getObjectAcl',
   putObjectAcl: 's3:putObjectAcl',
   getEditableMetadata: 's3:getEditableMetadata',
@@ -135,6 +136,7 @@ export interface ApiMap {
   [CH.getSettings]: { args: []; res: Result<AppSettings> };
   [CH.setSettings]: { args: [Partial<AppSettings>]; res: Result<AppSettings> };
   [CH.getAppInfo]: { args: []; res: Result<AppInfo> };
+  [CH.openExternal]: { args: [string]; res: Result<true> };
   [CH.getObjectAcl]: { args: [{ accountId: string; bucket: string; key: string }]; res: Result<ObjectAcl> };
   [CH.putObjectAcl]: { args: [{ accountId: string; bucket: string; key: string; acl: ObjectAcl }]; res: Result<true> };
   [CH.getEditableMetadata]: { args: [{ accountId: string; bucket: string; key: string }]; res: Result<EditableMetadata> };

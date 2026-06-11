@@ -42,6 +42,7 @@ function buildHarness() {
     saveDialog: vi.fn().mockResolvedValue(null),
     selectDirectory: vi.fn().mockResolvedValue('/picked/dir'),
     appVersion: '1.2.3',
+    openExternal: vi.fn().mockResolvedValue(undefined),
   };
   registerIpc(ipcMain, deps);
   return { handlers, deps, progressEvents };
@@ -53,6 +54,20 @@ describe('registerIpc', () => {
     for (const channel of Object.values(CH)) {
       expect(handlers.has(channel)).toBe(true);
     }
+  });
+
+  it('shell:openExternal opens http(s) urls', async () => {
+    const { handlers, deps } = buildHarness();
+    const res = await handlers.get(CH.openExternal)!('https://github.com/facebook/react');
+    expect(res).toEqual({ ok: true, data: true });
+    expect(deps.openExternal).toHaveBeenCalledWith('https://github.com/facebook/react');
+  });
+
+  it('shell:openExternal rejects non-http schemes', async () => {
+    const { handlers, deps } = buildHarness();
+    const res = await handlers.get(CH.openExternal)!('file:///etc/passwd');
+    expect(res.ok).toBe(false);
+    expect(deps.openExternal).not.toHaveBeenCalled();
   });
 
   it('accounts:create stores account + secret and returns the account', async () => {
