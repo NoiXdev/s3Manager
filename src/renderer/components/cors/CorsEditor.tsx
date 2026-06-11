@@ -82,7 +82,7 @@ export function CorsEditor({
       {bucket === null && <p className="mt-4 text-slate-500 dark:text-slate-400">Select a bucket to edit its CORS rules.</p>}
 
       {bucket !== null && cors.query.isLoading && <p className="mt-4 text-slate-500 dark:text-slate-400">Loading CORS…</p>}
-      {bucket !== null && cors.query.isError && <p className="mt-4 text-red-600">{(cors.query.error as Error).message}</p>}
+      {bucket !== null && cors.query.isError && <p className="mt-4 text-red-600 dark:text-red-400">{(cors.query.error as Error).message}</p>}
 
       {bucket !== null && cors.query.isSuccess && (
         <div className="mt-4 flex flex-col gap-3">
@@ -137,7 +137,7 @@ export function CorsEditor({
                 value={jsonText}
                 onChange={(e) => onJsonChange(e.target.value)}
               />
-              {jsonError && <p id="cors-json-error" className="text-sm text-red-600">{jsonError}</p>}
+              {jsonError && <p id="cors-json-error" className="text-sm text-red-600 dark:text-red-400">{jsonError}</p>}
             </div>
           )}
 
@@ -157,7 +157,7 @@ export function CorsEditor({
             >
               Save
             </button>
-            <button type="button" className="rounded border border-red-300 px-3 py-1 text-sm text-red-600 hover:bg-red-50" onClick={() => setConfirmClear(true)}>
+            <button type="button" className="rounded border border-red-300 dark:border-red-800 px-3 py-1 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/50" onClick={() => setConfirmClear(true)}>
               Clear all
             </button>
           </div>

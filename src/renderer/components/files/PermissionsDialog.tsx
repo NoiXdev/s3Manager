@@ -71,7 +71,7 @@ export function PermissionsDialog({
         </div>
 
         {acl.isLoading && <p className="py-4 text-sm text-slate-500 dark:text-slate-400">Loading permissions…</p>}
-        {acl.isError && <p className="py-4 text-sm text-red-600">{(acl.error as Error).message}</p>}
+        {acl.isError && <p className="py-4 text-sm text-red-600 dark:text-red-400">{(acl.error as Error).message}</p>}
 
         {acl.isSuccess && (
           <>
@@ -102,7 +102,7 @@ export function PermissionsDialog({
                       <button
                         type="button"
                         aria-label={`Remove ${granteeLabel(g)}`}
-                        className="rounded px-1 text-slate-400 hover:bg-red-50 hover:text-red-600 dark:text-slate-500"
+                        className="rounded px-1 text-slate-400 hover:bg-red-50 dark:hover:bg-red-950/50 hover:text-red-600 dark:hover:text-red-400 dark:text-slate-500"
                         onClick={() => setGrants((prev) => prev.filter((_, j) => j !== i))}
                       >
                         <FiTrash2 className="h-3.5 w-3.5" aria-hidden />

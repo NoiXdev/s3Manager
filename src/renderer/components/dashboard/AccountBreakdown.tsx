@@ -37,7 +37,7 @@ export function AccountBreakdown({
           </button>
 
           {isLoading && <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">Loading buckets…</p>}
-          {isError && <p className="mt-2 text-sm text-red-600">{"Couldn't load buckets"}</p>}
+          {isError && <p className="mt-2 text-sm text-red-600 dark:text-red-400">{"Couldn't load buckets"}</p>}
 
           {!isLoading && !isError && buckets.length > 0 && (
             <div className="mt-2 flex flex-wrap gap-1.5">

@@ -49,7 +49,7 @@ export function ConnectionsScreen({ onAccountRemoved }: { onAccountRemoved?: (id
       ) : (
         <>
           {accounts.isLoading && <p className="text-slate-500 dark:text-slate-400">Loading…</p>}
-          {accounts.isError && <p className="text-red-600">{(accounts.error as Error).message}</p>}
+          {accounts.isError && <p className="text-red-600 dark:text-red-400">{(accounts.error as Error).message}</p>}
 
           {accounts.isSuccess && accounts.data.length === 0 && (
             <div className="text-slate-500 dark:text-slate-400">
@@ -77,7 +77,7 @@ export function ConnectionsScreen({ onAccountRemoved }: { onAccountRemoved?: (id
                   <button
                     type="button"
                     aria-label={`Remove ${acc.label}`}
-                    className="rounded px-1 text-slate-400 hover:bg-red-50 hover:text-red-600"
+                    className="rounded px-1 text-slate-400 hover:bg-red-50 dark:hover:bg-red-950/50 hover:text-red-600 dark:hover:text-red-400"
                     onClick={() =>
                       removeAccount.mutate(acc.id, {
                         onSuccess: () => onAccountRemoved?.(acc.id),

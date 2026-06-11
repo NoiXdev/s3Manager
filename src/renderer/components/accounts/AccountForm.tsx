@@ -139,8 +139,8 @@ export function AccountForm({
         >
           Test connection
         </button>
-        {test.isSuccess && <span className="text-sm text-green-600">Connection OK</span>}
-        {test.isError && <span className="text-sm text-red-600">{(test.error as Error).message}</span>}
+        {test.isSuccess && <span className="text-sm text-green-600 dark:text-green-400">Connection OK</span>}
+        {test.isError && <span className="text-sm text-red-600 dark:text-red-400">{(test.error as Error).message}</span>}
       </div>
 
       <div className="mt-2 flex justify-end gap-2">

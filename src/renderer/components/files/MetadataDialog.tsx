@@ -72,7 +72,7 @@ export function MetadataDialog({
         </div>
 
         {editable.isLoading && <p className="py-4 text-sm text-slate-500 dark:text-slate-400">Loading metadata…</p>}
-        {editable.isError && <p className="py-4 text-sm text-red-600">{(editable.error as Error).message}</p>}
+        {editable.isError && <p className="py-4 text-sm text-red-600 dark:text-red-400">{(editable.error as Error).message}</p>}
 
         {editable.isSuccess && (
           <>
@@ -110,7 +110,7 @@ export function MetadataDialog({
                   <button
                     type="button"
                     aria-label={`Remove metadata ${i + 1}`}
-                    className="rounded px-1 text-slate-400 hover:bg-red-50 hover:text-red-600 dark:text-slate-500"
+                    className="rounded px-1 text-slate-400 hover:bg-red-50 dark:hover:bg-red-950/50 hover:text-red-600 dark:hover:text-red-400 dark:text-slate-500"
                     onClick={() => setPairs((prev) => prev.filter((_, j) => j !== i))}
                   >
                     <FiTrash2 className="h-3.5 w-3.5" aria-hidden />

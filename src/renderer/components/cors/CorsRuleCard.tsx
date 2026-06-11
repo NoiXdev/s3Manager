@@ -25,7 +25,7 @@ export function CorsRuleCard({
     <div className="rounded border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-3">
       <div className="flex items-center justify-between">
         <span className="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Rule</span>
-        <button type="button" aria-label="Remove rule" className="text-slate-400 hover:text-red-600" onClick={onRemove}>
+        <button type="button" aria-label="Remove rule" className="text-slate-400 hover:text-red-600 dark:hover:text-red-400" onClick={onRemove}>
           <FiTrash2 className="h-4 w-4" aria-hidden />
         </button>
       </div>

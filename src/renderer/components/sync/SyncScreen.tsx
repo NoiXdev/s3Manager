@@ -54,8 +54,8 @@ export function SyncScreen({
         <EndpointPicker label="Destination" value={dest} onChange={(v) => { setDest(v); clearOutputs(); }} />
       </div>
 
-      {identical && <p className="mt-3 text-sm text-red-600">Source and destination are the same.</p>}
-      {!identical && overlap && <p className="mt-3 text-sm text-red-600">Destination overlaps the source prefix in the same bucket.</p>}
+      {identical && <p className="mt-3 text-sm text-red-600 dark:text-red-400">Source and destination are the same.</p>}
+      {!identical && overlap && <p className="mt-3 text-sm text-red-600 dark:text-red-400">Destination overlaps the source prefix in the same bucket.</p>}
 
       <div className="mt-4 flex gap-2">
         <button
@@ -67,7 +67,7 @@ export function SyncScreen({
           Preview
         </button>
         {run.running && (
-          <button type="button" className="rounded border border-red-300 px-3 py-1 text-sm text-red-600 hover:bg-red-50" onClick={run.cancel}>
+          <button type="button" className="rounded border border-red-300 dark:border-red-800 px-3 py-1 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/50" onClick={run.cancel}>
             Cancel
           </button>
         )}
@@ -120,7 +120,7 @@ export function SyncScreen({
             {run.result.failed.length > 0 ? ` · ${run.result.failed.length} failed` : ''}
           </p>
           {run.result.failed.length > 0 && (
-            <ul className="mt-2 max-h-40 overflow-auto text-xs text-red-600">
+            <ul className="mt-2 max-h-40 overflow-auto text-xs text-red-600 dark:text-red-400">
               {run.result.failed.map((f) => (
                 <li key={f.key}>{f.key} — {f.code}: {f.message}</li>
               ))}

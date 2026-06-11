@@ -19,7 +19,7 @@ export function Dashboard({
     return <div className="p-6 text-slate-500 dark:text-slate-400">Loading…</div>;
   }
   if (accountsQuery.isError) {
-    return <div className="p-6 text-red-600">{(accountsQuery.error as Error).message}</div>;
+    return <div className="p-6 text-red-600 dark:text-red-400">{(accountsQuery.error as Error).message}</div>;
   }
   if (accounts.length === 0) {
     return (

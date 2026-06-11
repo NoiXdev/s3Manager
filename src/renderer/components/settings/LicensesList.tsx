@@ -42,7 +42,7 @@ export function LicensesList({ licenses }: { licenses: LicenseEntry[] }) {
                   <button
                     type="button"
                     onClick={() => void window.s3.openExternal(repo)}
-                    className="text-sky-700 hover:underline"
+                    className="text-sky-700 dark:text-sky-400 hover:underline"
                   >
                     {l.name}
                   </button>

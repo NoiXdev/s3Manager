@@ -70,7 +70,7 @@ export function FileBrowser({
       </div>
 
       {query.isLoading && <p className="p-3 text-slate-500 dark:text-slate-400">Loading…</p>}
-      {query.isError && <p className="p-3 text-red-600">{(query.error as Error).message}</p>}
+      {query.isError && <p className="p-3 text-red-600 dark:text-red-400">{(query.error as Error).message}</p>}
       {isEmpty && <p className="p-3 text-slate-500 dark:text-slate-400">This folder is empty</p>}
 
       <DropZone onDropFiles={(droppedFiles) => void uploads.upload(droppedFiles, prefix)}>
@@ -111,7 +111,7 @@ export function FileBrowser({
                     <button
                       type="button"
                       aria-label={`Delete folder ${folder.name}`}
-                      className="rounded px-1 text-slate-400 hover:bg-red-50 hover:text-red-600"
+                      className="rounded px-1 text-slate-400 hover:bg-red-50 dark:hover:bg-red-950/50 hover:text-red-600 dark:hover:text-red-400"
                       onClick={(e) => {
                         e.stopPropagation();
                         setFolderToDelete(folder);

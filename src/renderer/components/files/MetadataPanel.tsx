@@ -77,7 +77,7 @@ export function MetadataPanel({
           <FiTag className="h-4 w-4" aria-hidden />
         </button>
         {!confirming && (
-          <button type="button" aria-label="Delete" title="Delete" className="rounded border border-red-300 p-1.5 text-red-600 hover:bg-red-50" onClick={() => setConfirming(true)}>
+          <button type="button" aria-label="Delete" title="Delete" className="rounded border border-red-300 dark:border-red-800 p-1.5 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/50" onClick={() => setConfirming(true)}>
             <FiTrash2 className="h-4 w-4" aria-hidden />
           </button>
         )}
@@ -169,7 +169,7 @@ export function MetadataPanel({
             {visibility.isSuccess ? (
               <span
                 className={`inline-block rounded px-1.5 py-0.5 text-xs ${
-                  visibility.data === 'public' ? 'bg-amber-100 text-amber-700' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400'
+                  visibility.data === 'public' ? 'bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-400' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400'
                 }`}
               >
                 {visibility.data}
@@ -208,7 +208,7 @@ export function MetadataPanel({
         )}
 
         {metadata.isLoading && <p className="py-2 text-slate-500 dark:text-slate-400">Loading…</p>}
-        {metadata.isError && <p className="py-2 text-red-600">{(metadata.error as Error).message}</p>}
+        {metadata.isError && <p className="py-2 text-red-600 dark:text-red-400">{(metadata.error as Error).message}</p>}
 
         {metadata.isSuccess && (
           <>

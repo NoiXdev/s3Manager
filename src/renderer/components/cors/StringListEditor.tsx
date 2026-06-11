@@ -30,7 +30,7 @@ export function StringListEditor({
             <button
               type="button"
               aria-label={`Remove ${value}`}
-              className="text-slate-400 dark:text-slate-500 hover:text-red-600"
+              className="text-slate-400 dark:text-slate-500 hover:text-red-600 dark:hover:text-red-400"
               onClick={() => onChange(values.filter((_, j) => j !== i))}
             >
               <FiTrash2 className="h-3.5 w-3.5" aria-hidden />

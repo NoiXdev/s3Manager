@@ -51,7 +51,7 @@ export function ObjectLockEditor({
       {bucket === null && <p className="mt-4 text-slate-500 dark:text-slate-400">Select a bucket to view its Object Lock settings.</p>}
 
       {bucket !== null && lock.query.isLoading && <p className="mt-4 text-slate-500 dark:text-slate-400">Loading Object Lock…</p>}
-      {bucket !== null && lock.query.isError && <p className="mt-4 text-red-600">{(lock.query.error as Error).message}</p>}
+      {bucket !== null && lock.query.isError && <p className="mt-4 text-red-600 dark:text-red-400">{(lock.query.error as Error).message}</p>}
 
       {bucket !== null && lock.query.isSuccess && !lock.query.data.enabled && (
         <p className="mt-4 rounded border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 p-3 text-sm text-slate-600 dark:text-slate-400">
@@ -105,7 +105,7 @@ export function ObjectLockEditor({
             >
               Save
             </button>
-            <button type="button" className="rounded border border-red-300 px-3 py-1 text-sm text-red-600 hover:bg-red-50" onClick={() => setConfirmRemove(true)}>
+            <button type="button" className="rounded border border-red-300 dark:border-red-800 px-3 py-1 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/50" onClick={() => setConfirmRemove(true)}>
               Remove default
             </button>
           </div>

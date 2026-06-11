@@ -60,7 +60,7 @@ export function CreateBucketDialog({
           />
         </label>
         {trimmed.length > 0 && !valid && (
-          <p className="mt-1 text-xs text-red-600">
+          <p className="mt-1 text-xs text-red-600 dark:text-red-400">
             3–63 characters, lowercase letters, numbers, hyphens or dots (no consecutive dots), starting and ending with a letter or number.
           </p>
         )}

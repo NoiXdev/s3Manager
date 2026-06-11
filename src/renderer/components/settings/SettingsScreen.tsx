@@ -102,7 +102,7 @@ export function SettingsScreen() {
           type="button"
           onClick={() => setShowLicenses((v) => !v)}
           aria-expanded={showLicenses}
-          className="text-sm text-sky-700 hover:underline"
+          className="text-sm text-sky-700 dark:text-sky-400 hover:underline"
         >
           {showLicenses ? 'Hide' : 'Show'} open source licenses ({LICENSES.length})
         </button>
