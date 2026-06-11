@@ -44,7 +44,10 @@
     "showLicenses_one": "Show open source licenses ({{count}})",
     "showLicenses_other": "Show open source licenses ({{count}})",
     "hideLicenses_one": "Hide open source licenses ({{count}})",
-    "hideLicenses_other": "Hide open source licenses ({{count}})"
+    "hideLicenses_other": "Hide open source licenses ({{count}})",
+    "filterPackages": "Filter packages",
+    "filterPackagesPlaceholder": "Filter packages…",
+    "noPackagesMatch": "No packages match."
   },
   "accounts": {
     "label": "Label",
@@ -302,5 +305,25 @@
       "canceled": "Sync canceled",
       "synced": "Synced {{count}} object(s)"
     }
+  },
+  "transfer": {
+    "moveTitle": "Move “{{name}}” to…",
+    "moved": "Moved",
+    "name": "Name",
+    "noSubfolders": "No subfolders",
+    "moveHere": "Move here"
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "emptyTitle": "No accounts yet",
+    "emptyHelp": "Add an account in the Files view to populate the dashboard.",
+    "accounts": "Accounts",
+    "buckets": "Buckets",
+    "providers": "Providers",
+    "openAccountAria": "Open account {{label}}",
+    "bucketCount_one": "{{count}} bucket",
+    "bucketCount_other": "{{count}} buckets",
+    "loadingBuckets": "Loading buckets…",
+    "loadError": "Couldn't load buckets"
   }
 }

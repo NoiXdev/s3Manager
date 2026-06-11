@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useObjects } from '../../hooks/useObjects';
 import { Breadcrumb } from '../files/Breadcrumb';
 
@@ -13,6 +14,7 @@ export function FolderPicker({
   canPick: (prefix: string) => boolean;
   onPick: (prefix: string) => void;
 }) {
+  const { t } = useTranslation();
   const [prefix, setPrefix] = useState('');
   const { query, folders } = useObjects(accountId, bucket, prefix);
 
@@ -20,9 +22,9 @@ export function FolderPicker({
     <div className="flex flex-col gap-2">
       <Breadcrumb prefix={prefix} onNavigate={setPrefix} />
       <div className="h-48 overflow-auto rounded border border-slate-200 dark:border-slate-700">
-        {query.isLoading && <p className="p-2 text-sm text-slate-500 dark:text-slate-400">Loading…</p>}
+        {query.isLoading && <p className="p-2 text-sm text-slate-500 dark:text-slate-400">{t('common.loading')}</p>}
         {query.isSuccess && folders.length === 0 && (
-          <p className="p-2 text-sm text-slate-400 dark:text-slate-500">No subfolders</p>
+          <p className="p-2 text-sm text-slate-400 dark:text-slate-500">{t('transfer.noSubfolders')}</p>
         )}
         <ul>
           {folders.map((folder) => (
@@ -45,7 +47,7 @@ export function FolderPicker({
         className="self-end rounded bg-slate-800 px-3 py-1 text-sm text-white hover:bg-slate-700 disabled:opacity-40 dark:bg-slate-200 dark:text-slate-900 dark:hover:bg-slate-300"
         onClick={() => onPick(prefix)}
       >
-        Move here
+        {t('transfer.moveHere')}
       </button>
     </div>
   );

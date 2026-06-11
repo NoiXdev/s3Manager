@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 export interface LicenseEntry {
   name: string;
@@ -8,6 +9,7 @@ export interface LicenseEntry {
 }
 
 export function LicensesList({ licenses }: { licenses: LicenseEntry[] }) {
+  const { t } = useTranslation();
   const [query, setQuery] = useState('');
 
   const filtered = useMemo(() => {
@@ -20,14 +22,14 @@ export function LicensesList({ licenses }: { licenses: LicenseEntry[] }) {
     <div className="mt-2">
       <input
         type="search"
-        aria-label="Filter packages"
-        placeholder="Filter packages…"
+        aria-label={t('settings.filterPackages')}
+        placeholder={t('settings.filterPackagesPlaceholder')}
         value={query}
         onChange={(e) => setQuery(e.target.value)}
         className="mb-2 block w-full rounded border border-slate-300 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100 px-2 py-1 text-sm"
       />
       {filtered.length === 0 ? (
-        <p className="py-2 text-slate-500 dark:text-slate-400">No packages match.</p>
+        <p className="py-2 text-slate-500 dark:text-slate-400">{t('settings.noPackagesMatch')}</p>
       ) : (
         <ul className="max-h-80 overflow-auto rounded border border-slate-100 dark:border-slate-800">
           {filtered.map((l) => {

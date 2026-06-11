@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import type { Account } from '../../../main/storage/accountsRepo';
 import { ProviderBadge } from '../accounts/ProviderBadge';
 
@@ -17,13 +18,14 @@ export function AccountBreakdown({
   onOpenAccount: (accountId: string) => void;
   onOpenBucket: (accountId: string, bucket: string) => void;
 }) {
+  const { t } = useTranslation();
   return (
     <ul className="mt-4 flex flex-col gap-3">
       {items.map(({ account, buckets, isLoading, isError }) => (
         <li key={account.id} className="rounded border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-3">
           <button
             type="button"
-            aria-label={`Open account ${account.label}`}
+            aria-label={t('dashboard.openAccountAria', { label: account.label })}
             onClick={() => onOpenAccount(account.id)}
             className="flex items-center gap-2 text-left"
           >
@@ -31,13 +33,13 @@ export function AccountBreakdown({
             <ProviderBadge provider={account.provider} />
             {!isLoading && !isError && (
               <span className="text-xs text-slate-400 dark:text-slate-500">
-                {buckets.length} bucket{buckets.length === 1 ? '' : 's'}
+                {t('dashboard.bucketCount', { count: buckets.length })}
               </span>
             )}
           </button>
 
-          {isLoading && <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">Loading buckets…</p>}
-          {isError && <p className="mt-2 text-sm text-red-600 dark:text-red-400">{"Couldn't load buckets"}</p>}
+          {isLoading && <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">{t('dashboard.loadingBuckets')}</p>}
+          {isError && <p className="mt-2 text-sm text-red-600 dark:text-red-400">{t('dashboard.loadError')}</p>}
 
           {!isLoading && !isError && buckets.length > 0 && (
             <div className="mt-2 flex flex-wrap gap-1.5">
