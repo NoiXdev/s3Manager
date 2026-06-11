@@ -1,0 +1,27 @@
+<svg width="470" height="140" viewBox="0 0 470 140" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="s3Manager logo">
+  <defs>
+    <linearGradient id="iconGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0EA5E9"/>
+      <stop offset="1" stop-color="#6366F1"/>
+    </linearGradient>
+    <filter id="softShadow" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="0" dy="4" stdDeviation="6" flood-color="#1E293B" flood-opacity="0.18"/>
+    </filter>
+  </defs>
+
+  <!-- Icon: three stacked storage layers -->
+  <g filter="url(#softShadow)">
+    <rect x="18" y="20" width="100" height="100" rx="24" fill="url(#iconGrad)"/>
+  </g>
+  <rect x="38" y="40" width="60" height="13" rx="6.5" fill="#FFFFFF" fill-opacity="0.96"/>
+  <rect x="38" y="61" width="60" height="13" rx="6.5" fill="#FFFFFF" fill-opacity="0.80"/>
+  <rect x="38" y="82" width="60" height="13" rx="6.5" fill="#FFFFFF" fill-opacity="0.64"/>
+  <!-- "managed/active" status indicator -->
+  <circle cx="90" cy="46.5" r="4" fill="#F59E0B"/>
+
+  <!-- Wordmark -->
+  <text x="140" y="84" font-family="'Inter','Helvetica Neue',Arial,sans-serif" font-size="56" letter-spacing="-1">
+    <tspan font-weight="800" fill="url(#iconGrad)">s3</tspan><tspan font-weight="300" fill="#1E293B">Manager</tspan>
+  </text>
+  <text x="143" y="110" font-family="'Inter','Helvetica Neue',Arial,sans-serif" font-size="12.5" letter-spacing="3" font-weight="600" fill="#64748B">CLOUD STORAGE MANAGEMENT</text>
+</svg>
