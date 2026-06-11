@@ -111,7 +111,7 @@ export function FileBrowser({
                     <button
                       type="button"
                       aria-label={`Delete folder ${folder.name}`}
-                      className="rounded px-1 text-slate-400 hover:bg-red-50 dark:hover:bg-red-950/50 hover:text-red-600 dark:hover:text-red-400"
+                      className="rounded px-1 text-slate-400 dark:text-slate-500 hover:bg-red-50 dark:hover:bg-red-950/50 hover:text-red-600 dark:hover:text-red-400"
                       onClick={(e) => {
                         e.stopPropagation();
                         setFolderToDelete(folder);
