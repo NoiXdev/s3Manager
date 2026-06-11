@@ -22,7 +22,7 @@ const isSigning = !!process.env.APPLE_API_KEY_ID;
 const config: ForgeConfig = {
   packagerConfig: {
     asar: true,
-    appBundleId: 'de.dginx.s3manager',
+    appBundleId: 'dev.noix.s3manager',
     // Extensionless: electron-packager appends .icns on macOS, .ico on Windows.
     icon: 'build/icons/icon',
     osxSign: isSigning
