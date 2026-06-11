@@ -54,16 +54,7 @@ jobs:
           fi
 
       - name: Assemble release body
-        run: |
-          cat RELEASE_NOTES.md > release_body.md
-          cat >> release_body.md <<'EOF'
-
-          ---
-          > **macOS users:** if you see *"the app is damaged and can't be opened"*, run this once in Terminal after moving the app to Applications:
-          > ```
-          > xattr -cr /Applications/dginxNotes.app
-          > ```
-          EOF
+        run: cp RELEASE_NOTES.md release_body.md
 
       - name: Create / update GitHub Release
         uses: softprops/action-gh-release@v3
@@ -80,7 +71,7 @@ jobs:
         include:
           - name: macOS (Apple Silicon)
             os: macos-latest
-            artifact: out/make/**/*.zip
+            artifact: out/make/**/*.dmg
 
           - name: Windows x64
             os: windows-latest
@@ -110,8 +101,28 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Import signing certificate (macOS)
+        if: matrix.os == 'macos-latest'
+        uses: apple-actions/import-codesign-certs@v7
+        with:
+          p12-file-base64: ${{ secrets.MACOS_CERTIFICATE }}
+          p12-password: ${{ secrets.MACOS_CERTIFICATE_PASSWORD }}
+
+      - name: Prepare notarization credentials (macOS)
+        if: matrix.os == 'macos-latest'
+        run: |
+          KEY_PATH="$RUNNER_TEMP/apple_api_key.p8"
+          echo "${{ secrets.APPLE_API_KEY }}" | base64 --decode > "$KEY_PATH"
+          echo "APPLE_API_KEY=$KEY_PATH" >> "$GITHUB_ENV"
+          echo "APPLE_API_KEY_ID=${{ secrets.APPLE_API_KEY_ID }}" >> "$GITHUB_ENV"
+          echo "APPLE_API_ISSUER=${{ secrets.APPLE_API_ISSUER }}" >> "$GITHUB_ENV"
+
       - name: Build distributables
         run: npm run make
+
+      - name: Clean up notarization key (macOS)
+        if: always() && matrix.os == 'macos-latest'
+        run: rm -f "$RUNNER_TEMP/apple_api_key.p8"
 
       - name: Upload to GitHub Release
         uses: softprops/action-gh-release@v3
