@@ -133,6 +133,9 @@ export function registerIpc(ipcMain: IpcMainLike, deps: RegisterDeps): void {
     if (!isKnownProvider(input.provider)) {
       return err('InvalidProvider', `Unknown provider: ${input.provider}`);
     }
+    if (!deps.accounts.get(input.id)) {
+      return err('AccountNotFound', `Unknown account: ${input.id}`);
+    }
     const params = resolveConnParams(input);
     if (!params.ok) return params;
     const account = deps.db.transaction(() => {

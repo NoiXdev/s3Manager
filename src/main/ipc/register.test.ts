@@ -105,6 +105,29 @@ describe('registerIpc', () => {
     expect(res.error.code).toBe('InvalidProvider');
   });
 
+  it('accounts:update keeps the stored secret when given an empty-string secret', async () => {
+    const { handlers, deps } = buildHarness();
+    const created = (await handlers.get(CH.accountsCreate)!({
+      label: 'AWS', provider: 'amazon-s3', region: 'eu-central-1', accessKeyId: 'AK', secretAccessKey: 'SK',
+    })) as { data: { id: string } };
+
+    await handlers.get(CH.accountsUpdate)!({
+      id: created.data.id, label: 'AWS', provider: 'amazon-s3',
+      region: 'eu-central-1', accessKeyId: 'AK', secretAccessKey: '',
+    });
+
+    expect(deps.secrets.get(created.data.id)).toBe('SK'); // empty string does not overwrite
+  });
+
+  it('accounts:update returns AccountNotFound for an unknown id', async () => {
+    const { handlers } = buildHarness();
+    const res = (await handlers.get(CH.accountsUpdate)!({
+      id: 'missing', label: 'L', provider: 'amazon-s3', region: 'eu-central-1', accessKeyId: 'AK',
+    })) as { ok: boolean; error: { code: string } };
+    expect(res.ok).toBe(false);
+    expect(res.error.code).toBe('AccountNotFound');
+  });
+
   it('accounts:test uses the stored secret when given an id and no secret', async () => {
     const { handlers, deps } = buildHarness();
     const created = (await handlers.get(CH.accountsCreate)!({
