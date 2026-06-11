@@ -19,5 +19,31 @@
     "manageConnections": "Manage connections",
     "comingSoon": "Coming soon",
     "copyright": "© {{year}} S3 Manager"
+  },
+  "settings": {
+    "title": "Settings",
+    "appearance": "Appearance",
+    "appearanceHelp": "Choose how s3manager looks. \"System\" follows your OS appearance.",
+    "themeSystem": "System",
+    "themeLight": "Light",
+    "themeDark": "Dark",
+    "language": "Language",
+    "languageHelp": "Choose the app language. \"System\" follows your OS language.",
+    "languageSystem": "System",
+    "defaultLinkExpiry": "Default link expiry",
+    "linkExpiryHelp": "Applies to \"Copy URL\" links generated from the metadata panel.",
+    "expiry1h": "1 hour",
+    "expiry24h": "24 hours",
+    "expiry7d": "7 days",
+    "about": "About",
+    "version": "Version",
+    "secretsEncryption": "Secrets encryption",
+    "encryptionEnabled": "Enabled",
+    "encryptionUnavailable": "Unavailable",
+    "accounts": "Accounts",
+    "showLicenses_one": "Show open source licenses ({{count}})",
+    "showLicenses_other": "Show open source licenses ({{count}})",
+    "hideLicenses_one": "Hide open source licenses ({{count}})",
+    "hideLicenses_other": "Hide open source licenses ({{count}})"
   }
 }

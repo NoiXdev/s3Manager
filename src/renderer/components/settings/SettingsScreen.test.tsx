@@ -62,4 +62,17 @@ describe('SettingsScreen', () => {
     await userEvent.selectOptions(select, 'dark');
     await waitFor(() => expect(window.s3.setSettings).toHaveBeenCalledWith({ theme: 'dark' }));
   });
+
+  it('persists a language choice', async () => {
+    (window as unknown as { s3: unknown }).s3 = {
+      getSettings: vi.fn().mockResolvedValue({ ok: true, data: { presignExpirySeconds: 3600, language: 'system' } }),
+      setSettings: vi.fn().mockResolvedValue({ ok: true, data: { presignExpirySeconds: 3600, language: 'de' } }),
+      getAppInfo: vi.fn().mockResolvedValue({ ok: true, data: { version: '1.0.0', encryptionAvailable: true, accountCount: 0 } }),
+      openExternal: vi.fn().mockResolvedValue({ ok: true, data: true }),
+    };
+    wrap(<SettingsScreen />);
+    const select = await screen.findByLabelText('Language');
+    await userEvent.selectOptions(select, 'de');
+    await waitFor(() => expect(window.s3.setSettings).toHaveBeenCalledWith({ language: 'de' }));
+  });
 });
