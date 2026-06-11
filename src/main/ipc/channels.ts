@@ -15,6 +15,7 @@ import type { EditableMetadata } from '../s3/objectMetadata';
 export const CH = {
   accountsList: 'accounts:list',
   accountsCreate: 'accounts:create',
+  accountsUpdate: 'accounts:update',
   accountsRemove: 'accounts:remove',
   accountsTest: 'accounts:test',
   encryptionAvailable: 'secrets:available',
@@ -69,12 +70,37 @@ export interface CreateAccountInput {
   forcePathStyle?: boolean;
 }
 
+export interface UpdateAccountInput {
+  id: string;
+  label: string;
+  provider: ProviderId;
+  region: string;
+  accessKeyId: string;
+  /** Blank/omitted keeps the stored secret; a value replaces it. */
+  secretAccessKey?: string;
+  endpoint?: string;
+  forcePathStyle?: boolean;
+}
+
+/** Test input: secret optional so edit-mode can reuse the stored secret by id. */
+export interface TestAccountInput {
+  id?: string;
+  label: string;
+  provider: ProviderId;
+  region: string;
+  accessKeyId: string;
+  secretAccessKey?: string;
+  endpoint?: string;
+  forcePathStyle?: boolean;
+}
+
 // Map of channel -> { args, response } shapes. Used by preload + register.
 export interface ApiMap {
   [CH.accountsList]: { args: []; res: Result<Account[]> };
   [CH.accountsCreate]: { args: [CreateAccountInput]; res: Result<Account> };
+  [CH.accountsUpdate]: { args: [UpdateAccountInput]; res: Result<Account> };
   [CH.accountsRemove]: { args: [string]; res: Result<true> };
-  [CH.accountsTest]: { args: [CreateAccountInput]; res: Result<true> };
+  [CH.accountsTest]: { args: [TestAccountInput]; res: Result<true> };
   [CH.encryptionAvailable]: { args: []; res: Result<boolean> };
   [CH.listBuckets]: { args: [string]; res: Result<string[]> };
   [CH.createBucket]: { args: [{ accountId: string; bucket: string; objectLock: boolean; versioning: boolean }]; res: Result<true> };
