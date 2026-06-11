@@ -65,7 +65,7 @@ export function ConnectionsScreen({ onAccountRemoved }: { onAccountRemoved?: (id
                   <span className="font-medium">{acc.label}</span>
                   <ProviderBadge provider={acc.provider} />
                 </span>
-                <span className="flex items-center gap-1">
+                <div className="flex items-center gap-1">
                   <button
                     type="button"
                     aria-label={`Edit ${acc.label}`}
@@ -86,7 +86,7 @@ export function ConnectionsScreen({ onAccountRemoved }: { onAccountRemoved?: (id
                   >
                     <FiTrash2 className="h-4 w-4" aria-hidden />
                   </button>
-                </span>
+                </div>
               </li>
             ))}
           </ul>
