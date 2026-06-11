@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useCors } from '../../hooks/useCors';
 import { useToast } from '../ui/ToastProvider';
 import { ConfirmDialog } from '../ui/ConfirmDialog';
@@ -24,6 +25,7 @@ export function CorsEditor({
   accountId: string | null;
   bucket: string | null;
 }) {
+  const { t } = useTranslation();
   const cors = useCors(accountId, bucket);
   const { show } = useToast();
 
@@ -77,11 +79,11 @@ export function CorsEditor({
 
   return (
     <div className="h-full overflow-auto p-6">
-      <h2 className="pb-3 text-lg font-semibold">CORS configuration</h2>
+      <h2 className="pb-3 text-lg font-semibold">{t('cors.title')}</h2>
 
-      {bucket === null && <p className="mt-4 text-slate-500 dark:text-slate-400">Select a bucket to edit its CORS rules.</p>}
+      {bucket === null && <p className="mt-4 text-slate-500 dark:text-slate-400">{t('cors.selectBucket')}</p>}
 
-      {bucket !== null && cors.query.isLoading && <p className="mt-4 text-slate-500 dark:text-slate-400">Loading CORS…</p>}
+      {bucket !== null && cors.query.isLoading && <p className="mt-4 text-slate-500 dark:text-slate-400">{t('cors.loading')}</p>}
       {bucket !== null && cors.query.isError && <p className="mt-4 text-red-600 dark:text-red-400">{(cors.query.error as Error).message}</p>}
 
       {bucket !== null && cors.query.isSuccess && (
@@ -94,7 +96,7 @@ export function CorsEditor({
               disabled={jsonInvalid}
               onClick={() => setMode('form')}
             >
-              Form
+              {t('cors.modeForm')}
             </button>
             <button
               type="button"
@@ -102,7 +104,7 @@ export function CorsEditor({
               aria-pressed={mode === 'json'}
               onClick={enterJsonMode}
             >
-              JSON
+              {t('cors.modeJson')}
             </button>
           </div>
 
@@ -121,7 +123,7 @@ export function CorsEditor({
                 className="w-fit rounded border border-slate-300 dark:border-slate-700 px-3 py-1 text-sm hover:bg-slate-50 dark:hover:bg-slate-800"
                 onClick={() => setRules([...rules, { ...NEW_RULE }])}
               >
-                + Add rule
+                {t('cors.addRule')}
               </button>
             </>
           )}
@@ -129,7 +131,7 @@ export function CorsEditor({
           {mode === 'json' && (
             <div className="flex flex-col gap-1">
               <textarea
-                aria-label="CORS JSON"
+                aria-label={t('cors.jsonAria')}
                 aria-invalid={jsonError !== null}
                 aria-describedby={jsonError ? 'cors-json-error' : undefined}
                 className="h-72 w-full rounded border border-slate-300 dark:border-slate-700 bg-slate-900 p-3 font-mono text-xs text-slate-100"
@@ -149,16 +151,16 @@ export function CorsEditor({
               onClick={async () => {
                 try {
                   await cors.save.mutateAsync(rules);
-                  show('CORS saved');
+                  show(t('cors.saved'));
                 } catch (e) {
                   show((e as Error).message, 'error');
                 }
               }}
             >
-              Save
+              {t('cors.save')}
             </button>
             <button type="button" className="rounded border border-red-300 dark:border-red-800 px-3 py-1 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/50" onClick={() => setConfirmClear(true)}>
-              Clear all
+              {t('cors.clearAll')}
             </button>
           </div>
         </div>
@@ -166,8 +168,8 @@ export function CorsEditor({
 
       {confirmClear && (
         <ConfirmDialog
-          message="Remove all CORS rules from this bucket?"
-          confirmLabel="Clear all rules"
+          message={t('cors.clearConfirm')}
+          confirmLabel={t('cors.clearConfirmLabel')}
           onCancel={() => setConfirmClear(false)}
           onConfirm={async () => {
             setConfirmClear(false);
@@ -175,7 +177,7 @@ export function CorsEditor({
               await cors.clear.mutateAsync();
               setRules([]);
               setMode('form');
-              show('CORS cleared');
+              show(t('cors.cleared'));
             } catch (e) {
               show((e as Error).message, 'error');
             }

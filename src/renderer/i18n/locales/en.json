@@ -208,5 +208,33 @@
       "clearFinished": "Clear finished",
       "error": "error"
     }
+  },
+  "cors": {
+    "title": "CORS configuration",
+    "selectBucket": "Select a bucket to edit its CORS rules.",
+    "loading": "Loading CORS…",
+    "modeForm": "Form",
+    "modeJson": "JSON",
+    "addRule": "+ Add rule",
+    "jsonAria": "CORS JSON",
+    "save": "Save",
+    "clearAll": "Clear all",
+    "saved": "CORS saved",
+    "cleared": "CORS cleared",
+    "clearConfirm": "Remove all CORS rules from this bucket?",
+    "clearConfirmLabel": "Clear all rules",
+    "rule": {
+      "label": "Rule",
+      "removeAria": "Remove rule",
+      "allowedOrigins": "Allowed origins",
+      "allowedHeaders": "Allowed headers",
+      "exposeHeaders": "Expose headers",
+      "maxAge": "Max age (seconds)"
+    },
+    "list": {
+      "add": "Add",
+      "addToAria": "Add to {{label}}",
+      "removeAria": "Remove {{value}}"
+    }
   }
 }
