@@ -62,7 +62,7 @@ export function createAccountsRepo(db: DB) {
       return row ? toAccount(row) : undefined;
     },
     update(id: string, input: NewAccount): Account {
-      const existing = db.prepare('SELECT * FROM accounts WHERE id = ?').get(id) as Row | undefined;
+      const existing = this.get(id);
       if (!existing) throw new Error(`Account not found: ${id}`);
       db.prepare(
         `UPDATE accounts
@@ -72,7 +72,7 @@ export function createAccountsRepo(db: DB) {
         input.label, input.provider, input.endpoint ?? null, input.region,
         input.accessKeyId, input.forcePathStyle ? 1 : 0, id,
       );
-      return { ...input, id, createdAt: existing.created_at };
+      return { ...input, id, createdAt: existing.createdAt };
     },
     remove(id: string): void {
       db.prepare('DELETE FROM accounts WHERE id = ?').run(id);

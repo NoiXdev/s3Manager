@@ -55,6 +55,7 @@ describe('accountsRepo', () => {
     });
     expect(updated.id).toBe(created.id);
     expect(updated.createdAt).toBe(created.createdAt);
+    expect(updated.createdAt).toBeGreaterThan(0);
     expect(updated.label).toBe('AWS staging');
     expect(updated.provider).toBe('custom');
     expect(updated.endpoint).toBe('https://minio.example.com:9000');
@@ -66,6 +67,6 @@ describe('accountsRepo', () => {
 
   it('throws when updating a missing account', () => {
     const repo = createAccountsRepo(openDatabase(':memory:'));
-    expect(() => repo.update('missing', sample)).toThrow();
+    expect(() => repo.update('missing', sample)).toThrow('Account not found');
   });
 });
