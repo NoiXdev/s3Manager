@@ -63,5 +63,13 @@
     "select": "Select account",
     "ariaAccount": "Account",
     "optionLabel": "{{label}} ({{provider}})"
+  },
+  "connections": {
+    "title": "Connections",
+    "addAccount": "+ Add account",
+    "emptyTitle": "No accounts yet",
+    "emptyHelp": "Add an Amazon S3 or Hetzner account to get started.",
+    "editAria": "Edit {{label}}",
+    "removeAria": "Remove {{label}}"
   }
 }
