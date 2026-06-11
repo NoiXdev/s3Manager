@@ -128,6 +128,30 @@ describe('registerIpc', () => {
     expect(res.error.code).toBe('AccountNotFound');
   });
 
+  it('accounts:update re-resolves endpoint and forcePathStyle on a provider switch', async () => {
+    const { handlers, deps } = buildHarness();
+    // start as a custom provider with an explicit endpoint + path-style
+    const created = (await handlers.get(CH.accountsCreate)!({
+      label: 'MinIO', provider: 'custom', region: 'us-east-1', accessKeyId: 'AK', secretAccessKey: 'SK',
+      endpoint: 'https://minio.example.com:9000', forcePathStyle: true,
+    })) as { data: { id: string; endpoint?: string; forcePathStyle: boolean } };
+    expect(created.data.endpoint).toBe('https://minio.example.com:9000');
+    expect(created.data.forcePathStyle).toBe(true);
+
+    // switch to amazon-s3: endpoint should be cleared, forcePathStyle reset to the provider default (false)
+    const updated = (await handlers.get(CH.accountsUpdate)!({
+      id: created.data.id, label: 'MinIO', provider: 'amazon-s3', region: 'us-east-1', accessKeyId: 'AK',
+    })) as { ok: boolean; data: { endpoint?: string; forcePathStyle: boolean } };
+
+    expect(updated.ok).toBe(true);
+    expect(updated.data.endpoint).toBeUndefined();
+    expect(updated.data.forcePathStyle).toBe(false);
+    // persisted, not just returned
+    const stored = deps.accounts.get(created.data.id);
+    expect(stored?.endpoint).toBeUndefined();
+    expect(stored?.forcePathStyle).toBe(false);
+  });
+
   it('accounts:test uses the stored secret when given an id and no secret', async () => {
     const { handlers, deps } = buildHarness();
     const created = (await handlers.get(CH.accountsCreate)!({
