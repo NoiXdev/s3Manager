@@ -20,6 +20,7 @@ beforeEach(() => {
     getSettings: vi.fn().mockResolvedValue({ ok: true, data: { presignExpirySeconds: 3600 } }),
     setSettings: vi.fn().mockResolvedValue({ ok: true, data: { presignExpirySeconds: 86400 } }),
     getAppInfo: vi.fn().mockResolvedValue({ ok: true, data: { version: '1.2.3', encryptionAvailable: true, accountCount: 2 } }),
+    openExternal: vi.fn().mockResolvedValue({ ok: true, data: true }),
   };
 });
 
@@ -37,5 +38,15 @@ describe('SettingsScreen', () => {
     expect(select).toHaveValue('3600');
     await userEvent.selectOptions(select, '86400');
     await waitFor(() => expect(window.s3.setSettings).toHaveBeenCalledWith({ presignExpirySeconds: 86400 }));
+  });
+
+  it('toggles the open-source licenses list', async () => {
+    wrap(<SettingsScreen />);
+    const toggle = await screen.findByRole('button', { name: /open source licenses/i });
+    expect(screen.queryByPlaceholderText('Filter packages…')).not.toBeInTheDocument();
+    await userEvent.click(toggle);
+    expect(screen.getByPlaceholderText('Filter packages…')).toBeInTheDocument();
+    await userEvent.click(toggle);
+    expect(screen.queryByPlaceholderText('Filter packages…')).not.toBeInTheDocument();
   });
 });

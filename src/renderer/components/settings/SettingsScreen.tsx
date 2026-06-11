@@ -1,5 +1,10 @@
 import { useSettings } from '../../hooks/useSettings';
 import { useToast } from '../ui/ToastProvider';
+import { useState } from 'react';
+import { LicensesList, type LicenseEntry } from './LicensesList';
+import licensesData from './licenses.generated.json';
+
+const LICENSES = licensesData as unknown as LicenseEntry[];
 
 const EXPIRY_OPTIONS = [
   { label: '1 hour', value: 3600 },
@@ -21,6 +26,7 @@ export function SettingsScreen() {
   const { show } = useToast();
 
   const expiry = settings.data?.presignExpirySeconds ?? 3600;
+  const [showLicenses, setShowLicenses] = useState(false);
 
   const onChangeExpiry = async (value: number) => {
     try {
@@ -64,6 +70,18 @@ export function SettingsScreen() {
         ) : (
           <p className="py-2 text-slate-500">Loading…</p>
         )}
+      </div>
+
+      <div className="max-w-md pt-4">
+        <button
+          type="button"
+          onClick={() => setShowLicenses((v) => !v)}
+          aria-expanded={showLicenses}
+          className="text-sm text-sky-700 hover:underline"
+        >
+          {showLicenses ? 'Hide' : 'Show'} open source licenses ({LICENSES.length})
+        </button>
+        {showLicenses && <LicensesList licenses={LICENSES} />}
       </div>
     </div>
   );
