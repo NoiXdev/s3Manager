@@ -56,6 +56,8 @@ export interface RegisterDeps {
   appVersion: string;
   /** Opens a URL in the user's default browser (Electron shell.openExternal), injected by main.ts. */
   openExternal: (url: string) => Promise<void>;
+  /** Applies the chosen theme to native chrome (nativeTheme.themeSource), injected by main.ts. Optional so tests/headless can omit it. */
+  applyTheme?: (theme: AppSettings['theme']) => void;
 }
 
 function isHttpUrl(value: string): boolean {
@@ -373,7 +375,11 @@ export function registerIpc(ipcMain: IpcMainLike, deps: RegisterDeps): void {
   h(CH.selectDirectory, async () => ok(await deps.selectDirectory()));
 
   h(CH.getSettings, () => ok(readSettings(deps.settings)));
-  h(CH.setSettings, (patch: Partial<AppSettings>) => ok(writeSettings(deps.settings, patch)));
+  h(CH.setSettings, (patch: Partial<AppSettings>) => {
+    const next = writeSettings(deps.settings, patch);
+    deps.applyTheme?.(next.theme);
+    return ok(next);
+  });
   h(CH.getAppInfo, () =>
     ok({
       version: deps.appVersion,
