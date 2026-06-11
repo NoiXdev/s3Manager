@@ -64,30 +64,30 @@ export function PermissionsDialog({
 
   return (
     <div className="fixed inset-0 z-10 flex items-center justify-center bg-black/30" role="dialog" aria-modal="true">
-      <div className="max-h-[80vh] w-[34rem] overflow-auto rounded bg-white p-4 shadow-lg">
+      <div className="max-h-[80vh] w-[34rem] overflow-auto rounded bg-white p-4 shadow-lg dark:bg-slate-900">
         <div className="flex items-center justify-between pb-2">
-          <p className="text-sm font-medium text-slate-800">Permissions</p>
-          <button type="button" aria-label="Close" className="rounded px-2 hover:bg-slate-100" onClick={onClose}><FiX className="h-4 w-4" aria-hidden /></button>
+          <p className="text-sm font-medium text-slate-800 dark:text-slate-100">Permissions</p>
+          <button type="button" aria-label="Close" className="rounded px-2 hover:bg-slate-100 dark:hover:bg-slate-800" onClick={onClose}><FiX className="h-4 w-4" aria-hidden /></button>
         </div>
 
-        {acl.isLoading && <p className="py-4 text-sm text-slate-500">Loading permissions…</p>}
-        {acl.isError && <p className="py-4 text-sm text-red-600">{(acl.error as Error).message}</p>}
+        {acl.isLoading && <p className="py-4 text-sm text-slate-500 dark:text-slate-400">Loading permissions…</p>}
+        {acl.isError && <p className="py-4 text-sm text-red-600 dark:text-red-400">{(acl.error as Error).message}</p>}
 
         {acl.isSuccess && (
           <>
-            <p className="pb-2 text-xs text-slate-500">
-              Owner: <span className="text-slate-700">{acl.data.owner.displayName || acl.data.owner.id || '—'}</span>
+            <p className="pb-2 text-xs text-slate-500 dark:text-slate-400">
+              Owner: <span className="text-slate-700 dark:text-slate-200">{acl.data.owner.displayName || acl.data.owner.id || '—'}</span>
             </p>
 
             <table className="w-full text-left text-sm">
               <tbody>
                 {grants.map((g, i) => (
-                  <tr key={i} className="border-b border-slate-100">
+                  <tr key={i} className="border-b border-slate-100 dark:border-slate-800">
                     <td className="py-1.5 pr-2 break-all">{granteeLabel(g)}</td>
                     <td className="py-1.5 pr-2">
                       <select
                         aria-label={`Permission for ${granteeLabel(g)}`}
-                        className="rounded border border-slate-300 px-1 py-0.5 text-xs"
+                        className="rounded border border-slate-300 px-1 py-0.5 text-xs dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
                         value={g.permission}
                         onChange={(e) =>
                           setGrants((prev) => prev.map((x, j) => (j === i ? { ...x, permission: e.target.value as AclPermission } : x)))
@@ -102,7 +102,7 @@ export function PermissionsDialog({
                       <button
                         type="button"
                         aria-label={`Remove ${granteeLabel(g)}`}
-                        className="rounded px-1 text-slate-400 hover:bg-red-50 hover:text-red-600"
+                        className="rounded px-1 text-slate-400 hover:bg-red-50 dark:hover:bg-red-950/50 hover:text-red-600 dark:hover:text-red-400 dark:text-slate-500"
                         onClick={() => setGrants((prev) => prev.filter((_, j) => j !== i))}
                       >
                         <FiTrash2 className="h-3.5 w-3.5" aria-hidden />
@@ -112,16 +112,16 @@ export function PermissionsDialog({
                 ))}
                 {grants.length === 0 && (
                   <tr>
-                    <td className="py-2 text-xs text-slate-400" colSpan={3}>No grants</td>
+                    <td className="py-2 text-xs text-slate-400 dark:text-slate-500" colSpan={3}>No grants</td>
                   </tr>
                 )}
               </tbody>
             </table>
 
-            <div className="mt-3 flex flex-wrap items-center gap-2 border-t border-slate-200 pt-3">
+            <div className="mt-3 flex flex-wrap items-center gap-2 border-t border-slate-200 pt-3 dark:border-slate-700">
               <select
                 aria-label="Grantee type"
-                className="rounded border border-slate-300 px-1 py-0.5 text-xs"
+                className="rounded border border-slate-300 px-1 py-0.5 text-xs dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
                 value={addType}
                 onChange={(e) => setAddType(e.target.value as 'Group' | 'CanonicalUser')}
               >
@@ -129,30 +129,30 @@ export function PermissionsDialog({
                 <option value="CanonicalUser">Canonical User</option>
               </select>
               {addType === 'Group' ? (
-                <select aria-label="Group" className="rounded border border-slate-300 px-1 py-0.5 text-xs" value={addUri} onChange={(e) => setAddUri(e.target.value)}>
+                <select aria-label="Group" className="rounded border border-slate-300 px-1 py-0.5 text-xs dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100" value={addUri} onChange={(e) => setAddUri(e.target.value)}>
                   {GROUPS.map((g) => (
                     <option key={g.uri} value={g.uri}>{g.label}</option>
                   ))}
                 </select>
               ) : (
                 <>
-                  <input aria-label="Canonical user ID" className="rounded border border-slate-300 px-1 py-0.5 text-xs" placeholder="Canonical user ID" value={addId} onChange={(e) => setAddId(e.target.value)} />
-                  <input aria-label="Display name" className="rounded border border-slate-300 px-1 py-0.5 text-xs" placeholder="Display name (optional)" value={addName} onChange={(e) => setAddName(e.target.value)} />
+                  <input aria-label="Canonical user ID" className="rounded border border-slate-300 px-1 py-0.5 text-xs dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100" placeholder="Canonical user ID" value={addId} onChange={(e) => setAddId(e.target.value)} />
+                  <input aria-label="Display name" className="rounded border border-slate-300 px-1 py-0.5 text-xs dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100" placeholder="Display name (optional)" value={addName} onChange={(e) => setAddName(e.target.value)} />
                 </>
               )}
-              <select aria-label="New grant permission" className="rounded border border-slate-300 px-1 py-0.5 text-xs" value={addPerm} onChange={(e) => setAddPerm(e.target.value as AclPermission)}>
+              <select aria-label="New grant permission" className="rounded border border-slate-300 px-1 py-0.5 text-xs dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100" value={addPerm} onChange={(e) => setAddPerm(e.target.value as AclPermission)}>
                 {PERMISSIONS.map((p) => (
                   <option key={p} value={p}>{p}</option>
                 ))}
               </select>
-              <button type="button" disabled={!canAdd} className="rounded border border-slate-300 px-2 py-0.5 text-xs hover:bg-slate-50 disabled:opacity-40" onClick={addGrant}>
+              <button type="button" disabled={!canAdd} className="rounded border border-slate-300 px-2 py-0.5 text-xs hover:bg-slate-50 disabled:opacity-40 dark:border-slate-700 dark:hover:bg-slate-800" onClick={addGrant}>
                 Add
               </button>
             </div>
 
             <div className="mt-4 flex justify-end gap-2">
-              <button type="button" className="rounded px-3 py-1 text-sm hover:bg-slate-100" onClick={onClose}>Cancel</button>
-              <button type="button" disabled={save.isPending} className="rounded bg-slate-800 px-3 py-1 text-sm text-white hover:bg-slate-700 disabled:opacity-40" onClick={onSave}>
+              <button type="button" className="rounded px-3 py-1 text-sm hover:bg-slate-100 dark:hover:bg-slate-800" onClick={onClose}>Cancel</button>
+              <button type="button" disabled={save.isPending} className="rounded bg-slate-800 px-3 py-1 text-sm text-white hover:bg-slate-700 disabled:opacity-40 dark:bg-slate-200 dark:text-slate-900 dark:hover:bg-slate-300" onClick={onSave}>
                 Save permissions
               </button>
             </div>

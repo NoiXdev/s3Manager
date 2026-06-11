@@ -1,5 +1,9 @@
 @import 'tailwindcss';
 
+/* Drive `dark:` off a `.dark` class on <html> instead of the OS media query,
+   so the in-app theme toggle (system/light/dark) controls it. */
+@custom-variant dark (&:where(.dark, .dark *));
+
 html,
 body,
 #root {

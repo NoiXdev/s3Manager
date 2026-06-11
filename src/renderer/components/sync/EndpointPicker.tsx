@@ -18,11 +18,11 @@ export function EndpointPicker({
 }) {
   const accounts = useAccounts();
   const buckets = useBuckets(value.accountId);
-  const field = 'rounded border border-slate-300 px-2 py-1 text-sm';
+  const field = 'rounded border border-slate-300 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100 px-2 py-1 text-sm';
 
   return (
     <div className="flex flex-col gap-2">
-      <h3 className="text-sm font-medium text-slate-700">{label}</h3>
+      <h3 className="text-sm font-medium text-slate-700 dark:text-slate-200">{label}</h3>
       <select
         aria-label={`${label} account`}
         className={field}

@@ -49,4 +49,17 @@ describe('SettingsScreen', () => {
     await userEvent.click(toggle);
     expect(screen.queryByPlaceholderText('Filter packages…')).not.toBeInTheDocument();
   });
+
+  it('renders the theme control and saves the chosen theme', async () => {
+    (window as unknown as { s3: unknown }).s3 = {
+      getSettings: vi.fn().mockResolvedValue({ ok: true, data: { presignExpirySeconds: 3600, theme: 'system' } }),
+      setSettings: vi.fn().mockResolvedValue({ ok: true, data: { presignExpirySeconds: 3600, theme: 'dark' } }),
+      getAppInfo: vi.fn().mockResolvedValue({ ok: true, data: { version: '1.0.0', encryptionAvailable: true, accountCount: 0 } }),
+      openExternal: vi.fn().mockResolvedValue({ ok: true, data: true }),
+    };
+    wrap(<SettingsScreen />);
+    const select = await screen.findByLabelText('Appearance');
+    await userEvent.selectOptions(select, 'dark');
+    await waitFor(() => expect(window.s3.setSettings).toHaveBeenCalledWith({ theme: 'dark' }));
+  });
 });

@@ -11,10 +11,10 @@ export function ConfirmDialog({
 }) {
   return (
     <div className="fixed inset-0 z-10 flex items-center justify-center bg-black/30" role="dialog" aria-modal="true">
-      <div className="w-80 rounded bg-white p-4 shadow-lg">
-        <p className="text-sm text-slate-800">{message}</p>
+      <div className="w-80 rounded bg-white p-4 shadow-lg dark:bg-slate-900">
+        <p className="text-sm text-slate-800 dark:text-slate-100">{message}</p>
         <div className="mt-4 flex justify-end gap-2">
-          <button type="button" className="rounded px-3 py-1 text-sm hover:bg-slate-100" onClick={onCancel}>
+          <button type="button" className="rounded px-3 py-1 text-sm hover:bg-slate-100 dark:hover:bg-slate-800" onClick={onCancel}>
             Cancel
           </button>
           <button

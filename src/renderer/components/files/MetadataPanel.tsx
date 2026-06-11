@@ -16,8 +16,8 @@ import { MetadataDialog } from './MetadataDialog';
 
 function Row({ label, value }: { label: string; value: string }) {
   return (
-    <div className="flex flex-col border-b border-slate-100 py-1.5">
-      <span className="text-xs uppercase tracking-wide text-slate-400">{label}</span>
+    <div className="flex flex-col border-b border-slate-100 dark:border-slate-800 py-1.5">
+      <span className="text-xs uppercase tracking-wide text-slate-400 dark:text-slate-500">{label}</span>
       <span className="break-all">{value}</span>
     </div>
   );
@@ -47,37 +47,37 @@ export function MetadataPanel({
   const [metadataOpen, setMetadataOpen] = useState(false);
 
   return (
-    <div className="flex h-full w-80 flex-col border-l border-slate-200 bg-white">
-      <div className="flex items-center justify-between border-b border-slate-200 p-2">
-        <span className="text-xs font-semibold uppercase tracking-wide text-slate-500">Details</span>
-        <button type="button" aria-label="Close" className="rounded px-2 hover:bg-slate-100" onClick={onClose}>
+    <div className="flex h-full w-80 flex-col border-l border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900">
+      <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-700 p-2">
+        <span className="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Details</span>
+        <button type="button" aria-label="Close" className="rounded px-2 hover:bg-slate-100 dark:hover:bg-slate-800" onClick={onClose}>
           <FiX className="h-4 w-4" aria-hidden />
         </button>
       </div>
 
-      <div className="flex gap-1 border-b border-slate-200 p-2">
-        <button type="button" aria-label="Download" title="Download" className="rounded border border-slate-300 p-1.5 text-slate-600 hover:bg-slate-50" onClick={() => void actions.download(objectKey)}>
+      <div className="flex gap-1 border-b border-slate-200 dark:border-slate-700 p-2">
+        <button type="button" aria-label="Download" title="Download" className="rounded border border-slate-300 dark:border-slate-700 p-1.5 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800" onClick={() => void actions.download(objectKey)}>
           <FiDownload className="h-4 w-4" aria-hidden />
         </button>
-        <button type="button" aria-label="Copy URL" title="Copy URL" className="rounded border border-slate-300 p-1.5 text-slate-600 hover:bg-slate-50" onClick={() => void actions.copyPresignedUrl(objectKey)}>
+        <button type="button" aria-label="Copy URL" title="Copy URL" className="rounded border border-slate-300 dark:border-slate-700 p-1.5 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800" onClick={() => void actions.copyPresignedUrl(objectKey)}>
           <FiLink className="h-4 w-4" aria-hidden />
         </button>
         {!renaming && (
-          <button type="button" aria-label="Rename" title="Rename" className="rounded border border-slate-300 p-1.5 text-slate-600 hover:bg-slate-50" onClick={() => setRenaming(true)}>
+          <button type="button" aria-label="Rename" title="Rename" className="rounded border border-slate-300 dark:border-slate-700 p-1.5 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800" onClick={() => setRenaming(true)}>
             <FiEdit3 className="h-4 w-4" aria-hidden />
           </button>
         )}
-        <button type="button" aria-label="Move" title="Move" className="rounded border border-slate-300 p-1.5 text-slate-600 hover:bg-slate-50" onClick={() => setMoving(true)}>
+        <button type="button" aria-label="Move" title="Move" className="rounded border border-slate-300 dark:border-slate-700 p-1.5 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800" onClick={() => setMoving(true)}>
           <FiMove className="h-4 w-4" aria-hidden />
         </button>
-        <button type="button" aria-label="Permissions…" title="Permissions…" className="rounded border border-slate-300 p-1.5 text-slate-600 hover:bg-slate-50" onClick={() => setPermissionsOpen(true)}>
+        <button type="button" aria-label="Permissions…" title="Permissions…" className="rounded border border-slate-300 dark:border-slate-700 p-1.5 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800" onClick={() => setPermissionsOpen(true)}>
           <FiLock className="h-4 w-4" aria-hidden />
         </button>
-        <button type="button" aria-label="Edit metadata…" title="Edit metadata…" className="rounded border border-slate-300 p-1.5 text-slate-600 hover:bg-slate-50" onClick={() => setMetadataOpen(true)}>
+        <button type="button" aria-label="Edit metadata…" title="Edit metadata…" className="rounded border border-slate-300 dark:border-slate-700 p-1.5 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800" onClick={() => setMetadataOpen(true)}>
           <FiTag className="h-4 w-4" aria-hidden />
         </button>
         {!confirming && (
-          <button type="button" aria-label="Delete" title="Delete" className="rounded border border-red-300 p-1.5 text-red-600 hover:bg-red-50" onClick={() => setConfirming(true)}>
+          <button type="button" aria-label="Delete" title="Delete" className="rounded border border-red-300 dark:border-red-800 p-1.5 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/50" onClick={() => setConfirming(true)}>
             <FiTrash2 className="h-4 w-4" aria-hidden />
           </button>
         )}
@@ -163,19 +163,19 @@ export function MetadataPanel({
       <div className="flex-1 overflow-auto p-3 text-sm">
         <Row label="Key" value={objectKey} />
 
-        <div className="flex flex-col border-b border-slate-100 py-1.5">
-          <span className="text-xs uppercase tracking-wide text-slate-400">Visibility</span>
+        <div className="flex flex-col border-b border-slate-100 dark:border-slate-800 py-1.5">
+          <span className="text-xs uppercase tracking-wide text-slate-400 dark:text-slate-500">Visibility</span>
           <span>
             {visibility.isSuccess ? (
               <span
                 className={`inline-block rounded px-1.5 py-0.5 text-xs ${
-                  visibility.data === 'public' ? 'bg-amber-100 text-amber-700' : 'bg-slate-100 text-slate-600'
+                  visibility.data === 'public' ? 'bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-400' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400'
                 }`}
               >
                 {visibility.data}
               </span>
             ) : visibility.isError ? (
-              <span className="text-xs text-slate-400">unavailable</span>
+              <span className="text-xs text-slate-400 dark:text-slate-500">unavailable</span>
             ) : (
               '…'
             )}
@@ -184,7 +184,7 @@ export function MetadataPanel({
             <button
               type="button"
               disabled={setVisibility.isPending}
-              className="mt-1 self-start rounded border border-slate-300 px-2 py-0.5 text-xs hover:bg-slate-50 disabled:opacity-40"
+              className="mt-1 self-start rounded border border-slate-300 dark:border-slate-700 px-2 py-0.5 text-xs hover:bg-slate-50 dark:hover:bg-slate-800 disabled:opacity-40"
               onClick={async () => {
                 if (visibility.data === 'private') {
                   setConfirmingPublic(true);
@@ -207,8 +207,8 @@ export function MetadataPanel({
           <RetentionSection accountId={accountId ?? ''} bucket={bucket ?? ''} objectKey={objectKey} />
         )}
 
-        {metadata.isLoading && <p className="py-2 text-slate-500">Loading…</p>}
-        {metadata.isError && <p className="py-2 text-red-600">{(metadata.error as Error).message}</p>}
+        {metadata.isLoading && <p className="py-2 text-slate-500 dark:text-slate-400">Loading…</p>}
+        {metadata.isError && <p className="py-2 text-red-600 dark:text-red-400">{(metadata.error as Error).message}</p>}
 
         {metadata.isSuccess && (
           <>

@@ -3,8 +3,8 @@ import { UI_PROVIDERS } from '../../lib/providers';
 
 function Card({ label, children }: { label: string; children: React.ReactNode }) {
   return (
-    <div className="rounded border border-slate-200 bg-white p-4">
-      <div className="text-xs font-semibold uppercase tracking-wide text-slate-500">{label}</div>
+    <div className="rounded border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-4">
+      <div className="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">{label}</div>
       <div className="mt-1">{children}</div>
     </div>
   );
@@ -30,7 +30,7 @@ export function SummaryCards({
         <span className="text-2xl font-semibold">{bucketCount}</span>
       </Card>
       <Card label="Providers">
-        <ul className="text-sm text-slate-700">
+        <ul className="text-sm text-slate-700 dark:text-slate-200">
           {providerAccountCounts.map((pc) => (
             <li key={pc.provider}>
               {label(pc.provider)} · {pc.count}

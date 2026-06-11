@@ -16,7 +16,7 @@ export function SyncSection({
       type="button"
       aria-pressed={mode === m}
       onClick={() => setMode(m)}
-      className={`rounded px-3 py-1 text-sm ${mode === m ? 'bg-slate-200 font-medium' : 'hover:bg-slate-100'}`}
+      className={`rounded px-3 py-1 text-sm ${mode === m ? 'bg-slate-200 dark:bg-slate-700 font-medium' : 'hover:bg-slate-100 dark:hover:bg-slate-800'}`}
     >
       {label}
     </button>
@@ -24,7 +24,7 @@ export function SyncSection({
 
   return (
     <div className="flex h-full flex-col">
-      <div className="flex gap-1 border-b border-slate-200 p-2">
+      <div className="flex gap-1 border-b border-slate-200 dark:border-slate-700 p-2">
         {tab('bucket', 'Bucket → Bucket')}
         {tab('local', 'Local ↔ Bucket')}
       </div>

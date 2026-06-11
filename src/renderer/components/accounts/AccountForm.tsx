@@ -4,7 +4,7 @@ import type { Account } from '../../../main/storage/accountsRepo';
 import { UI_PROVIDERS } from '../../lib/providers';
 import { useTestConnection } from '../../hooks/useAccounts';
 
-const fieldClass = 'mt-1 w-full rounded border border-slate-300 px-2 py-1';
+const fieldClass = 'mt-1 w-full rounded border border-slate-300 px-2 py-1 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100';
 
 export function AccountForm({
   account,
@@ -133,21 +133,21 @@ export function AccountForm({
       <div className="flex items-center gap-2">
         <button
           type="button"
-          className="rounded border border-slate-300 px-3 py-1 hover:bg-slate-50"
+          className="rounded border border-slate-300 px-3 py-1 hover:bg-slate-50 dark:border-slate-700 dark:hover:bg-slate-800"
           disabled={test.isPending}
           onClick={() => test.mutate(testInput)}
         >
           Test connection
         </button>
-        {test.isSuccess && <span className="text-sm text-green-600">Connection OK</span>}
-        {test.isError && <span className="text-sm text-red-600">{(test.error as Error).message}</span>}
+        {test.isSuccess && <span className="text-sm text-green-600 dark:text-green-400">Connection OK</span>}
+        {test.isError && <span className="text-sm text-red-600 dark:text-red-400">{(test.error as Error).message}</span>}
       </div>
 
       <div className="mt-2 flex justify-end gap-2">
-        <button type="button" className="rounded px-3 py-1 hover:bg-slate-100" onClick={onCancel}>
+        <button type="button" className="rounded px-3 py-1 hover:bg-slate-100 dark:hover:bg-slate-800" onClick={onCancel}>
           Cancel
         </button>
-        <button type="submit" className="rounded bg-slate-800 px-3 py-1 text-white hover:bg-slate-700">
+        <button type="submit" className="rounded bg-slate-800 px-3 py-1 text-white hover:bg-slate-700 dark:bg-slate-200 dark:text-slate-900 dark:hover:bg-slate-300">
           {isEdit ? 'Save changes' : 'Add account'}
         </button>
       </div>

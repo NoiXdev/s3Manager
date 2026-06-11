@@ -10,14 +10,14 @@ export function Breadcrumb({
 }) {
   const crumbs = prefixToBreadcrumb(prefix);
   return (
-    <nav className="flex flex-wrap items-center gap-1 text-slate-600">
+    <nav className="flex flex-wrap items-center gap-1 text-slate-600 dark:text-slate-400">
       {crumbs.map((crumb, i) => (
         <Fragment key={crumb.prefix}>
-          {i > 0 && <span className="text-slate-300">/</span>}
+          {i > 0 && <span className="text-slate-300 dark:text-slate-600">/</span>}
           <button
             type="button"
             onClick={() => onNavigate(crumb.prefix)}
-            className="rounded px-1 hover:bg-slate-100"
+            className="rounded px-1 hover:bg-slate-100 dark:hover:bg-slate-800"
           >
             {crumb.label}
           </button>

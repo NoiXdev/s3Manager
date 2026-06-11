@@ -36,7 +36,7 @@ export function SectionNav({
         aria-current={isActive ? 'page' : undefined}
         onClick={() => onSelect(s.id)}
         className={`rounded px-2 py-1.5 text-left ${
-          isActive ? 'bg-slate-200 font-medium' : 'hover:bg-slate-100'
+          isActive ? 'bg-slate-200 font-medium dark:bg-slate-700' : 'hover:bg-slate-100 dark:hover:bg-slate-800'
         }`}
       >
         {s.label}
@@ -47,7 +47,7 @@ export function SectionNav({
   return (
     <nav className="flex flex-col gap-1">
       {PRIMARY.map(renderItem)}
-      <div role="separator" className="my-1 border-t border-slate-200" />
+      <div role="separator" className="my-1 border-t border-slate-200 dark:border-slate-700" />
       {SECONDARY.map(renderItem)}
     </nav>
   );

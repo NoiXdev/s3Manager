@@ -19,10 +19,10 @@ export function FolderPicker({
   return (
     <div className="flex flex-col gap-2">
       <Breadcrumb prefix={prefix} onNavigate={setPrefix} />
-      <div className="h-48 overflow-auto rounded border border-slate-200">
-        {query.isLoading && <p className="p-2 text-sm text-slate-500">Loading…</p>}
+      <div className="h-48 overflow-auto rounded border border-slate-200 dark:border-slate-700">
+        {query.isLoading && <p className="p-2 text-sm text-slate-500 dark:text-slate-400">Loading…</p>}
         {query.isSuccess && folders.length === 0 && (
-          <p className="p-2 text-sm text-slate-400">No subfolders</p>
+          <p className="p-2 text-sm text-slate-400 dark:text-slate-500">No subfolders</p>
         )}
         <ul>
           {folders.map((folder) => (
@@ -30,7 +30,7 @@ export function FolderPicker({
               <button
                 type="button"
                 aria-label={folder.name}
-                className="block w-full px-2 py-1 text-left text-sm hover:bg-slate-50"
+                className="block w-full px-2 py-1 text-left text-sm hover:bg-slate-50 dark:hover:bg-slate-800"
                 onClick={() => setPrefix(folder.prefix)}
               >
                 📁 {folder.name}
@@ -42,7 +42,7 @@ export function FolderPicker({
       <button
         type="button"
         disabled={!canPick(prefix)}
-        className="self-end rounded bg-slate-800 px-3 py-1 text-sm text-white hover:bg-slate-700 disabled:opacity-40"
+        className="self-end rounded bg-slate-800 px-3 py-1 text-sm text-white hover:bg-slate-700 disabled:opacity-40 dark:bg-slate-200 dark:text-slate-900 dark:hover:bg-slate-300"
         onClick={() => onPick(prefix)}
       >
         Move here

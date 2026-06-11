@@ -23,8 +23,8 @@ beforeEach(() => {
     getObjectLockConfig: vi.fn().mockResolvedValue({ ok: true, data: { enabled: false, defaultRetention: null } }),
     putObjectLockConfig: vi.fn().mockResolvedValue({ ok: true, data: true }),
     onSyncProgress: vi.fn(() => () => {}),
-    getSettings: vi.fn().mockResolvedValue({ ok: true, data: { presignExpirySeconds: 3600 } }),
-    setSettings: vi.fn().mockResolvedValue({ ok: true, data: { presignExpirySeconds: 3600 } }),
+    getSettings: vi.fn().mockResolvedValue({ ok: true, data: { presignExpirySeconds: 3600, theme: 'system' } }),
+    setSettings: vi.fn().mockResolvedValue({ ok: true, data: { presignExpirySeconds: 3600, theme: 'system' } }),
     getAppInfo: vi.fn().mockResolvedValue({ ok: true, data: { version: '0.0.0', encryptionAvailable: true, accountCount: 1 } }),
   };
 });

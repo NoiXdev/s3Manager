@@ -47,17 +47,17 @@ export function UploadLinkDialog({
 
   return (
     <div className="fixed inset-0 z-10 flex items-center justify-center bg-black/30" role="dialog" aria-modal="true">
-      <div className="w-[28rem] rounded bg-white p-4 shadow-lg">
+      <div className="w-[28rem] rounded bg-white p-4 shadow-lg dark:bg-slate-900">
         <div className="flex items-center justify-between pb-2">
-          <p className="text-sm font-medium text-slate-800">Upload link</p>
-          <button type="button" aria-label="Close" className="rounded px-2 hover:bg-slate-100" onClick={onClose}><FiX className="h-4 w-4" aria-hidden /></button>
+          <p className="text-sm font-medium text-slate-800 dark:text-slate-100">Upload link</p>
+          <button type="button" aria-label="Close" className="rounded px-2 hover:bg-slate-100 dark:hover:bg-slate-800" onClick={onClose}><FiX className="h-4 w-4" aria-hidden /></button>
         </div>
 
         <label className="block text-sm">
           File name
           <input
             aria-label="File name"
-            className="mt-1 w-full rounded border border-slate-300 px-2 py-1"
+            className="mt-1 w-full rounded border border-slate-300 px-2 py-1 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
             value={name}
             onChange={(e) => { setName(e.target.value); setUrl(null); }}
             autoFocus
@@ -68,7 +68,7 @@ export function UploadLinkDialog({
           Expiry
           <select
             aria-label="Expiry"
-            className="mt-1 w-full rounded border border-slate-300 px-2 py-1"
+            className="mt-1 w-full rounded border border-slate-300 px-2 py-1 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
             value={expiresIn}
             onChange={(e) => { setExpiresIn(Number(e.target.value)); setUrl(null); }}
           >
@@ -78,16 +78,16 @@ export function UploadLinkDialog({
           </select>
         </label>
 
-        <p className="pt-2 text-xs text-slate-500">
-          Uploads to <span className="break-all font-mono text-slate-600">{prefix}{trimmed}</span>
+        <p className="pt-2 text-xs text-slate-500 dark:text-slate-400">
+          Uploads to <span className="break-all font-mono text-slate-600 dark:text-slate-400">{prefix}{trimmed}</span>
         </p>
 
         <div className="mt-4 flex justify-end gap-2">
-          <button type="button" className="rounded px-3 py-1 text-sm hover:bg-slate-100" onClick={onClose}>Close</button>
+          <button type="button" className="rounded px-3 py-1 text-sm hover:bg-slate-100 dark:hover:bg-slate-800" onClick={onClose}>Close</button>
           <button
             type="button"
             disabled={!valid || pending}
-            className="rounded bg-slate-800 px-3 py-1 text-sm text-white hover:bg-slate-700 disabled:opacity-40"
+            className="rounded bg-slate-800 px-3 py-1 text-sm text-white hover:bg-slate-700 disabled:opacity-40 dark:bg-slate-200 dark:text-slate-900 dark:hover:bg-slate-300"
             onClick={generate}
           >
             Generate link
@@ -95,9 +95,9 @@ export function UploadLinkDialog({
         </div>
 
         {url && (
-          <div className="mt-4 flex flex-col gap-2 border-t border-slate-200 pt-3">
-            <input readOnly aria-label="Upload URL" className="w-full rounded border border-slate-300 px-2 py-1 text-xs" value={url} />
-            <button type="button" className="self-end rounded border border-slate-300 px-3 py-1 text-sm hover:bg-slate-50" onClick={copy}>
+          <div className="mt-4 flex flex-col gap-2 border-t border-slate-200 pt-3 dark:border-slate-700">
+            <input readOnly aria-label="Upload URL" className="w-full rounded border border-slate-300 px-2 py-1 text-xs dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100" value={url} />
+            <button type="button" className="self-end rounded border border-slate-300 px-3 py-1 text-sm hover:bg-slate-50 dark:border-slate-700 dark:hover:bg-slate-800" onClick={copy}>
               Copy
             </button>
           </div>
