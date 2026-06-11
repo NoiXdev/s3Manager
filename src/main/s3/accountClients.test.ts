@@ -21,7 +21,7 @@ function setup() {
 describe('createClientForAccount', () => {
   it('builds an S3Client from stored account + secret', () => {
     const { accounts, secrets } = setup();
-    const acc = accounts.create({ label: 'h', provider: 'hetzner', endpoint: 'https://fsn1.your-objectstorage.com', region: 'fsn1', accessKeyId: 'AK' });
+    const acc = accounts.create({ label: 'h', provider: 'hetzner', endpoint: 'https://fsn1.your-objectstorage.com', region: 'fsn1', accessKeyId: 'AK', forcePathStyle: false });
     secrets.set(acc.id, 'SK');
 
     const client = createClientForAccount(acc.id, { accounts, secrets });
@@ -35,7 +35,7 @@ describe('createClientForAccount', () => {
 
   it('throws when the secret is missing', () => {
     const { accounts, secrets } = setup();
-    const acc = accounts.create({ label: 'h', provider: 'hetzner', endpoint: 'e', region: 'fsn1', accessKeyId: 'AK' });
+    const acc = accounts.create({ label: 'h', provider: 'hetzner', endpoint: 'e', region: 'fsn1', accessKeyId: 'AK', forcePathStyle: false });
     expect(() => createClientForAccount(acc.id, { accounts, secrets })).toThrow(/secret/i);
   });
 });

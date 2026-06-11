@@ -5,13 +5,13 @@ import { AccountBreakdown, type BreakdownItem } from './AccountBreakdown';
 
 const items: BreakdownItem[] = [
   {
-    account: { id: 'acc-1', label: 'AWS prod', provider: 'amazon-s3', region: 'eu-central-1', accessKeyId: 'AK', createdAt: 1 },
+    account: { id: 'acc-1', label: 'AWS prod', provider: 'amazon-s3', region: 'eu-central-1', accessKeyId: 'AK', forcePathStyle: false, createdAt: 1 },
     buckets: ['assets', 'backups'],
     isLoading: false,
     isError: false,
   },
   {
-    account: { id: 'acc-2', label: 'Hetzner', provider: 'hetzner', region: 'fsn1', accessKeyId: 'AK', createdAt: 2 },
+    account: { id: 'acc-2', label: 'Hetzner', provider: 'hetzner', region: 'fsn1', accessKeyId: 'AK', forcePathStyle: false, createdAt: 2 },
     buckets: [],
     isLoading: false,
     isError: true,
