@@ -65,6 +65,60 @@ describe('registerIpc', () => {
     expect(deps.secrets.get(res.data.id)).toBe('SK');
   });
 
+  it('accounts:update changes fields and keeps the secret when none is given', async () => {
+    const { handlers, deps } = buildHarness();
+    const created = (await handlers.get(CH.accountsCreate)!({
+      label: 'AWS', provider: 'amazon-s3', region: 'eu-central-1', accessKeyId: 'AK', secretAccessKey: 'SK',
+    })) as { data: { id: string } };
+
+    const res = (await handlers.get(CH.accountsUpdate)!({
+      id: created.data.id, label: 'AWS renamed', provider: 'amazon-s3',
+      region: 'us-east-1', accessKeyId: 'AK2',
+    })) as { ok: boolean; data: { label: string; region: string } };
+
+    expect(res.ok).toBe(true);
+    expect(res.data.label).toBe('AWS renamed');
+    expect(deps.accounts.get(created.data.id)?.region).toBe('us-east-1');
+    expect(deps.secrets.get(created.data.id)).toBe('SK'); // unchanged
+  });
+
+  it('accounts:update replaces the secret when one is provided', async () => {
+    const { handlers, deps } = buildHarness();
+    const created = (await handlers.get(CH.accountsCreate)!({
+      label: 'AWS', provider: 'amazon-s3', region: 'eu-central-1', accessKeyId: 'AK', secretAccessKey: 'SK',
+    })) as { data: { id: string } };
+
+    await handlers.get(CH.accountsUpdate)!({
+      id: created.data.id, label: 'AWS', provider: 'amazon-s3',
+      region: 'eu-central-1', accessKeyId: 'AK', secretAccessKey: 'NEWSECRET',
+    });
+
+    expect(deps.secrets.get(created.data.id)).toBe('NEWSECRET');
+  });
+
+  it('accounts:update rejects an unknown provider', async () => {
+    const { handlers } = buildHarness();
+    const res = (await handlers.get(CH.accountsUpdate)!({
+      id: 'x', label: 'L', provider: 'nope', region: 'r', accessKeyId: 'AK',
+    })) as { ok: boolean; error: { code: string } };
+    expect(res.ok).toBe(false);
+    expect(res.error.code).toBe('InvalidProvider');
+  });
+
+  it('accounts:test uses the stored secret when given an id and no secret', async () => {
+    const { handlers, deps } = buildHarness();
+    const created = (await handlers.get(CH.accountsCreate)!({
+      label: 'AWS', provider: 'amazon-s3', region: 'eu-central-1', accessKeyId: 'AK', secretAccessKey: 'STORED',
+    })) as { data: { id: string } };
+    s3Mock.on(ListBucketsCommand).resolves({ Buckets: [] });
+
+    const res = (await handlers.get(CH.accountsTest)!({
+      id: created.data.id, label: 'AWS', provider: 'amazon-s3', region: 'eu-central-1', accessKeyId: 'AK',
+    })) as { ok: boolean };
+
+    expect(res.ok).toBe(true); // did not throw for a missing secret
+  });
+
   it('accounts:create persists forcePathStyle derived from the provider', async () => {
     const { handlers, deps } = buildHarness();
     const aws = (await handlers.get(CH.accountsCreate)!({
