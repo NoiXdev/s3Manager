@@ -44,9 +44,11 @@
     "showLicenses_one": "Pokaż licencje open source ({{count}})",
     "showLicenses_few": "Pokaż licencje open source ({{count}})",
     "showLicenses_many": "Pokaż licencje open source ({{count}})",
+    "showLicenses_other": "Pokaż licencje open source ({{count}})",
     "hideLicenses_one": "Ukryj licencje open source ({{count}})",
     "hideLicenses_few": "Ukryj licencje open source ({{count}})",
     "hideLicenses_many": "Ukryj licencje open source ({{count}})",
+    "hideLicenses_other": "Ukryj licencje open source ({{count}})",
     "filterPackages": "Filtruj pakiety",
     "filterPackagesPlaceholder": "Filtruj pakiety…",
     "noPackagesMatch": "Brak pasujących pakietów."
@@ -326,6 +328,7 @@
     "bucketCount_one": "{{count}} bucket",
     "bucketCount_few": "{{count}} buckety",
     "bucketCount_many": "{{count}} bucketów",
+    "bucketCount_other": "{{count}} bucketów",
     "loadingBuckets": "Ładowanie bucketów…",
     "loadError": "Nie udało się załadować bucketów"
   }
