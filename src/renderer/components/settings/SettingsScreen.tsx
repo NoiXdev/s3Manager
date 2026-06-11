@@ -26,6 +26,7 @@ export function SettingsScreen() {
   const { show } = useToast();
 
   const expiry = settings.data?.presignExpirySeconds ?? 3600;
+  const theme = settings.data?.theme ?? 'system';
   const [showLicenses, setShowLicenses] = useState(false);
 
   const onChangeExpiry = async (value: number) => {
@@ -37,11 +38,35 @@ export function SettingsScreen() {
     }
   };
 
+  const onChangeTheme = async (value: 'system' | 'light' | 'dark') => {
+    try {
+      await save.mutateAsync({ theme: value });
+      show('Settings saved');
+    } catch (e) {
+      show((e as Error).message, 'error');
+    }
+  };
+
   return (
     <div className="h-full overflow-auto p-6">
       <h2 className="pb-3 text-lg font-semibold">Settings</h2>
 
       <div className="max-w-md">
+        <label className="block text-sm">
+          Appearance
+          <select
+            aria-label="Appearance"
+            className="mt-1 block w-full rounded border border-slate-300 px-2 py-1 text-sm dark:border-slate-700 dark:bg-slate-800"
+            value={theme}
+            disabled={save.isPending}
+            onChange={(e) => void onChangeTheme(e.target.value as 'system' | 'light' | 'dark')}
+          >
+            <option value="system">System</option>
+            <option value="light">Light</option>
+            <option value="dark">Dark</option>
+          </select>
+        </label>
+        <p className="pb-4 pt-1 text-xs text-slate-500 dark:text-slate-400">Choose how s3manager looks. "System" follows your OS appearance.</p>
         <label className="block text-sm">
           Default link expiry
           <select
