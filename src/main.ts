@@ -1,4 +1,4 @@
-import { app, BrowserWindow, ipcMain, safeStorage, dialog, shell } from 'electron';
+import { app, BrowserWindow, ipcMain, safeStorage, dialog, shell, nativeTheme } from 'electron';
 import path from 'node:path';
 import started from 'electron-squirrel-startup';
 import { openDatabase } from './main/storage/db';
@@ -6,6 +6,7 @@ import { createAccountsRepo } from './main/storage/accountsRepo';
 import { createSettingsRepo } from './main/storage/settingsRepo';
 import { createSecretsStore } from './main/storage/secrets';
 import { registerIpc } from './main/ipc/register';
+import { readSettings } from './main/settings/appSettings';
 
 if (started) {
   app.quit();
@@ -30,7 +31,11 @@ function initBackend() {
       : await dialog.showOpenDialog({ properties: ['openDirectory'] });
     return result.canceled || !result.filePaths[0] ? null : result.filePaths[0];
   };
-  registerIpc(ipcMain, { accounts, settings, secrets, crypto: safeStorage, db, saveDialog, selectDirectory, appVersion: app.getVersion(), openExternal: (url) => shell.openExternal(url) });
+  const applyTheme = (theme: 'system' | 'light' | 'dark') => {
+    nativeTheme.themeSource = theme;
+  };
+  applyTheme(readSettings(settings).theme); // honor the persisted choice at launch
+  registerIpc(ipcMain, { accounts, settings, secrets, crypto: safeStorage, db, saveDialog, selectDirectory, appVersion: app.getVersion(), openExternal: (url) => shell.openExternal(url), applyTheme });
 }
 
 const createWindow = () => {
