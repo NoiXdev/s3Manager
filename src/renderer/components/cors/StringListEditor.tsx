@@ -1,4 +1,5 @@
 import { useId, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { FiTrash2 } from 'react-icons/fi';
 
 export function StringListEditor({
@@ -10,6 +11,7 @@ export function StringListEditor({
   values: string[];
   onChange: (values: string[]) => void;
 }) {
+  const { t } = useTranslation();
   const [draft, setDraft] = useState('');
   const inputId = useId();
 
@@ -29,7 +31,7 @@ export function StringListEditor({
             {value}
             <button
               type="button"
-              aria-label={`Remove ${value}`}
+              aria-label={t('cors.list.removeAria', { value })}
               className="text-slate-400 dark:text-slate-500 hover:text-red-600 dark:hover:text-red-400"
               onClick={() => onChange(values.filter((_, j) => j !== i))}
             >
@@ -39,7 +41,7 @@ export function StringListEditor({
         ))}
       </ul>
       <div className="mt-1 flex gap-1">
-        <label htmlFor={inputId} className="sr-only">{`Add to ${label}`}</label>
+        <label htmlFor={inputId} className="sr-only">{t('cors.list.addToAria', { label })}</label>
         <input
           id={inputId}
           value={draft}
@@ -51,8 +53,8 @@ export function StringListEditor({
           className="rounded border border-slate-300 dark:border-slate-700 px-2 py-0.5 text-xs hover:bg-slate-50 dark:hover:bg-slate-800"
           onClick={add}
         >
-          <span className="sr-only">{`Add to ${label}`}</span>
-          <span aria-hidden="true">Add</span>
+          <span className="sr-only">{t('cors.list.addToAria', { label })}</span>
+          <span aria-hidden="true">{t('cors.list.add')}</span>
         </button>
       </div>
     </div>

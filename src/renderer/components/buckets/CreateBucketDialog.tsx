@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { FiX } from 'react-icons/fi';
 import { useCreateBucket } from '../../hooks/useCreateBucket';
 import { useToast } from '../ui/ToastProvider';
@@ -19,6 +20,7 @@ export function CreateBucketDialog({
   onClose: () => void;
   onCreated: (bucket: string) => void;
 }) {
+  const { t } = useTranslation();
   const create = useCreateBucket(accountId);
   const { show } = useToast();
   const [name, setName] = useState('');
@@ -31,7 +33,7 @@ export function CreateBucketDialog({
   const onSubmit = async () => {
     try {
       await create.mutateAsync({ bucket: trimmed, objectLock, versioning: objectLock || versioning });
-      show('Bucket created');
+      show(t('buckets.created'));
       onCreated(trimmed);
       onClose();
     } catch (e) {
@@ -43,16 +45,16 @@ export function CreateBucketDialog({
     <div className="fixed inset-0 z-10 flex items-center justify-center bg-black/30" role="dialog" aria-modal="true">
       <div className="w-96 rounded bg-white p-4 shadow-lg dark:bg-slate-900">
         <div className="flex items-center justify-between pb-2">
-          <p className="text-sm font-medium text-slate-800 dark:text-slate-100">Create bucket</p>
-          <button type="button" aria-label="Close" className="rounded px-2 hover:bg-slate-100 dark:hover:bg-slate-800" onClick={onClose}>
+          <p className="text-sm font-medium text-slate-800 dark:text-slate-100">{t('buckets.createTitle')}</p>
+          <button type="button" aria-label={t('common.close')} className="rounded px-2 hover:bg-slate-100 dark:hover:bg-slate-800" onClick={onClose}>
             <FiX className="h-4 w-4" aria-hidden />
           </button>
         </div>
 
         <label className="block text-sm">
-          Bucket name
+          {t('buckets.name')}
           <input
-            aria-label="Bucket name"
+            aria-label={t('buckets.nameAria')}
             className="mt-1 w-full rounded border border-slate-300 px-2 py-1 text-sm dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
             value={name}
             onChange={(e) => setName(e.target.value)}
@@ -61,37 +63,37 @@ export function CreateBucketDialog({
         </label>
         {trimmed.length > 0 && !valid && (
           <p className="mt-1 text-xs text-red-600 dark:text-red-400">
-            3–63 characters, lowercase letters, numbers, hyphens or dots (no consecutive dots), starting and ending with a letter or number.
+            {t('buckets.nameRules')}
           </p>
         )}
 
         <label className="mt-3 flex items-center gap-2 text-sm">
-          <input type="checkbox" aria-label="Enable Object Lock" checked={objectLock} onChange={(e) => setObjectLock(e.target.checked)} />
-          Enable Object Lock
+          <input type="checkbox" aria-label={t('buckets.enableObjectLock')} checked={objectLock} onChange={(e) => setObjectLock(e.target.checked)} />
+          {t('buckets.enableObjectLock')}
         </label>
         <label className="mt-2 flex items-center gap-2 text-sm">
           <input
             type="checkbox"
-            aria-label="Enable versioning"
+            aria-label={t('buckets.enableVersioning')}
             checked={objectLock || versioning}
             disabled={objectLock}
             onChange={(e) => setVersioning(e.target.checked)}
           />
-          Enable versioning
+          {t('buckets.enableVersioning')}
         </label>
         <p className="mt-3 text-xs text-slate-400 dark:text-slate-500">
-          The bucket is created in this account's region. Object Lock can only be enabled at creation and requires versioning.
+          {t('buckets.createHelp')}
         </p>
 
         <div className="mt-4 flex justify-end gap-2">
-          <button type="button" className="rounded px-3 py-1 text-sm hover:bg-slate-100 dark:hover:bg-slate-800" onClick={onClose}>Cancel</button>
+          <button type="button" className="rounded px-3 py-1 text-sm hover:bg-slate-100 dark:hover:bg-slate-800" onClick={onClose}>{t('common.cancel')}</button>
           <button
             type="button"
             disabled={!valid || create.isPending}
             className="rounded bg-slate-800 px-3 py-1 text-sm text-white hover:bg-slate-700 disabled:opacity-40 dark:bg-slate-200 dark:text-slate-900 dark:hover:bg-slate-300"
             onClick={onSubmit}
           >
-            Create bucket
+            {t('buckets.create')}
           </button>
         </div>
       </div>

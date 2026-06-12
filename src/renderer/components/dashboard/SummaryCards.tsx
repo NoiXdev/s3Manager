@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import type { ProviderId } from '../../../main/s3/providers';
 import { UI_PROVIDERS } from '../../lib/providers';
 
@@ -19,17 +20,18 @@ export function SummaryCards({
   bucketCount: number;
   providerAccountCounts: { provider: ProviderId; count: number }[];
 }) {
+  const { t } = useTranslation();
   const label = (p: ProviderId) => UI_PROVIDERS.find((x) => x.id === p)?.label ?? p;
 
   return (
     <div className="grid grid-cols-3 gap-3">
-      <Card label="Accounts">
+      <Card label={t('dashboard.accounts')}>
         <span className="text-2xl font-semibold">{accountCount}</span>
       </Card>
-      <Card label="Buckets">
+      <Card label={t('dashboard.buckets')}>
         <span className="text-2xl font-semibold">{bucketCount}</span>
       </Card>
-      <Card label="Providers">
+      <Card label={t('dashboard.providers')}>
         <ul className="text-sm text-slate-700 dark:text-slate-200">
           {providerAccountCounts.map((pc) => (
             <li key={pc.provider}>

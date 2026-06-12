@@ -1,3 +1,5 @@
+import { useTranslation } from 'react-i18next';
+
 // 'connections' is reached via a standalone sidebar button in App, not rendered as a nav item here.
 export type Section =
   | 'files'
@@ -8,16 +10,16 @@ export type Section =
   | 'settings'
   | 'connections';
 
-const PRIMARY: { id: Section; label: string }[] = [
-  { id: 'files', label: 'Files' },
-  { id: 'objectLock', label: 'Object Lock' },
-  { id: 'cors', label: 'CORS' },
-  { id: 'sync', label: 'Sync' },
+const PRIMARY: { id: Section; key: string }[] = [
+  { id: 'files', key: 'nav.files' },
+  { id: 'objectLock', key: 'nav.objectLock' },
+  { id: 'cors', key: 'nav.cors' },
+  { id: 'sync', key: 'nav.sync' },
 ];
 
-const SECONDARY: { id: Section; label: string }[] = [
-  { id: 'dashboard', label: 'Dashboard' },
-  { id: 'settings', label: 'Settings' },
+const SECONDARY: { id: Section; key: string }[] = [
+  { id: 'dashboard', key: 'nav.dashboard' },
+  { id: 'settings', key: 'nav.settings' },
 ];
 
 export function SectionNav({
@@ -27,7 +29,8 @@ export function SectionNav({
   active: Section;
   onSelect: (section: Section) => void;
 }) {
-  const renderItem = (s: { id: Section; label: string }) => {
+  const { t } = useTranslation();
+  const renderItem = (s: { id: Section; key: string }) => {
     const isActive = s.id === active;
     return (
       <button
@@ -39,7 +42,7 @@ export function SectionNav({
           isActive ? 'bg-slate-200 font-medium dark:bg-slate-700' : 'hover:bg-slate-100 dark:hover:bg-slate-800'
         }`}
       >
-        {s.label}
+        {t(s.key)}
       </button>
     );
   };

@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 export function NameDialog({
   title,
@@ -13,6 +14,7 @@ export function NameDialog({
   onConfirm: (name: string) => void;
   onCancel: () => void;
 }) {
+  const { t } = useTranslation();
   const [value, setValue] = useState(initialValue);
   const trimmed = value.trim();
   const valid = trimmed !== '' && !trimmed.includes('/');
@@ -28,7 +30,7 @@ export function NameDialog({
       >
         <p className="pb-2 text-sm font-medium text-slate-800 dark:text-slate-100">{title}</p>
         <label className="block text-sm">
-          Name
+          {t('transfer.name')}
           <input
             className="mt-1 w-full rounded border border-slate-300 px-2 py-1 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
             value={value}
@@ -38,7 +40,7 @@ export function NameDialog({
         </label>
         <div className="mt-4 flex justify-end gap-2">
           <button type="button" className="rounded px-3 py-1 text-sm hover:bg-slate-100 dark:hover:bg-slate-800" onClick={onCancel}>
-            Cancel
+            {t('common.cancel')}
           </button>
           <button
             type="submit"

@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { useAccounts } from '../../hooks/useAccounts';
 import { useAllBuckets } from '../../hooks/useAllBuckets';
 import { UI_PROVIDERS } from '../../lib/providers';
@@ -11,12 +12,13 @@ export function Dashboard({
   onOpenAccount: (accountId: string) => void;
   onOpenBucket: (accountId: string, bucket: string) => void;
 }) {
+  const { t } = useTranslation();
   const accountsQuery = useAccounts();
   const accounts = accountsQuery.data ?? [];
   const perAccount = useAllBuckets(accounts);
 
   if (accountsQuery.isLoading) {
-    return <div className="p-6 text-slate-500 dark:text-slate-400">Loading…</div>;
+    return <div className="p-6 text-slate-500 dark:text-slate-400">{t('common.loading')}</div>;
   }
   if (accountsQuery.isError) {
     return <div className="p-6 text-red-600 dark:text-red-400">{(accountsQuery.error as Error).message}</div>;
@@ -24,8 +26,8 @@ export function Dashboard({
   if (accounts.length === 0) {
     return (
       <div className="p-6 text-slate-500 dark:text-slate-400">
-        <p className="font-medium text-slate-700 dark:text-slate-200">No accounts yet</p>
-        <p className="mt-1 text-sm">Add an account in the Files view to populate the dashboard.</p>
+        <p className="font-medium text-slate-700 dark:text-slate-200">{t('dashboard.emptyTitle')}</p>
+        <p className="mt-1 text-sm">{t('dashboard.emptyHelp')}</p>
       </div>
     );
   }
@@ -45,7 +47,7 @@ export function Dashboard({
 
   return (
     <div className="h-full overflow-auto p-6">
-      <h2 className="pb-3 text-lg font-semibold">Dashboard</h2>
+      <h2 className="pb-3 text-lg font-semibold">{t('dashboard.title')}</h2>
       <SummaryCards accountCount={accounts.length} bucketCount={bucketCount} providerAccountCounts={providerAccountCounts} />
       <AccountBreakdown items={items} onOpenAccount={onOpenAccount} onOpenBucket={onOpenBucket} />
     </div>

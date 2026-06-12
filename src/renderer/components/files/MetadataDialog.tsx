@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { FiX, FiTrash2 } from 'react-icons/fi';
 import { useObjectMetadataEditor } from '../../hooks/useObjectMetadataEditor';
 import { useToast } from '../ui/ToastProvider';
@@ -19,6 +20,7 @@ export function MetadataDialog({
   objectKey: string;
   onClose: () => void;
 }) {
+  const { t } = useTranslation();
   const { editable, update } = useObjectMetadataEditor(accountId, bucket, objectKey);
   const { show } = useToast();
   const [contentType, setContentType] = useState('');
@@ -40,7 +42,7 @@ export function MetadataDialog({
     const seen = new Set<string>();
     for (const p of trimmed) {
       if (seen.has(p.key)) {
-        show(`Duplicate metadata key: ${p.key}`, 'error');
+        show(t('files.metadataDialog.duplicateKey', { key: p.key }), 'error');
         return;
       }
       seen.add(p.key);
@@ -54,7 +56,7 @@ export function MetadataDialog({
         contentDisposition: contentDisposition.trim() || null,
         metadata,
       });
-      show('Metadata saved');
+      show(t('files.metadataDialog.saved'));
       onClose();
     } catch (e) {
       show((e as Error).message, 'error');
@@ -67,49 +69,49 @@ export function MetadataDialog({
     <div className="fixed inset-0 z-10 flex items-center justify-center bg-black/30" role="dialog" aria-modal="true">
       <div className="max-h-[80vh] w-[34rem] overflow-auto rounded bg-white p-4 shadow-lg dark:bg-slate-900">
         <div className="flex items-center justify-between pb-2">
-          <p className="text-sm font-medium text-slate-800 dark:text-slate-100">Edit metadata</p>
-          <button type="button" aria-label="Close" className="rounded px-2 hover:bg-slate-100 dark:hover:bg-slate-800" onClick={onClose}><FiX className="h-4 w-4" aria-hidden /></button>
+          <p className="text-sm font-medium text-slate-800 dark:text-slate-100">{t('files.metadataDialog.title')}</p>
+          <button type="button" aria-label={t('common.close')} className="rounded px-2 hover:bg-slate-100 dark:hover:bg-slate-800" onClick={onClose}><FiX className="h-4 w-4" aria-hidden /></button>
         </div>
 
-        {editable.isLoading && <p className="py-4 text-sm text-slate-500 dark:text-slate-400">Loading metadata…</p>}
+        {editable.isLoading && <p className="py-4 text-sm text-slate-500 dark:text-slate-400">{t('files.metadataDialog.loading')}</p>}
         {editable.isError && <p className="py-4 text-sm text-red-600 dark:text-red-400">{(editable.error as Error).message}</p>}
 
         {editable.isSuccess && (
           <>
             <label className="block text-sm">
-              Content-Type
-              <input aria-label="Content-Type" className={field} value={contentType} onChange={(e) => setContentType(e.target.value)} />
+              {t('files.metadataDialog.contentTypeLabel')}
+              <input aria-label={t('files.metadataDialog.contentTypeLabel')} className={field} value={contentType} onChange={(e) => setContentType(e.target.value)} />
             </label>
             <label className="mt-2 block text-sm">
-              Cache-Control
-              <input aria-label="Cache-Control" className={field} value={cacheControl} onChange={(e) => setCacheControl(e.target.value)} />
+              {t('files.metadataDialog.cacheControlLabel')}
+              <input aria-label={t('files.metadataDialog.cacheControlLabel')} className={field} value={cacheControl} onChange={(e) => setCacheControl(e.target.value)} />
             </label>
             <label className="mt-2 block text-sm">
-              Content-Disposition
-              <input aria-label="Content-Disposition" className={field} value={contentDisposition} onChange={(e) => setContentDisposition(e.target.value)} />
+              {t('files.metadataDialog.contentDispositionLabel')}
+              <input aria-label={t('files.metadataDialog.contentDispositionLabel')} className={field} value={contentDisposition} onChange={(e) => setContentDisposition(e.target.value)} />
             </label>
 
-            <p className="mt-4 pb-1 text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Custom metadata</p>
+            <p className="mt-4 pb-1 text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">{t('files.metadataDialog.customMetadata')}</p>
             <div className="flex flex-col gap-1">
               {pairs.map((p, i) => (
                 <div key={i} className="flex items-center gap-2">
                   <input
-                    aria-label={`Metadata key ${i + 1}`}
+                    aria-label={t('files.metadataDialog.keyAria', { n: i + 1 })}
                     className="w-1/3 rounded border border-slate-300 px-1 py-0.5 text-xs dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
-                    placeholder="key"
+                    placeholder={t('files.metadataDialog.keyPlaceholder')}
                     value={p.key}
                     onChange={(e) => setPairs((prev) => prev.map((x, j) => (j === i ? { ...x, key: e.target.value } : x)))}
                   />
                   <input
-                    aria-label={`Metadata value ${i + 1}`}
+                    aria-label={t('files.metadataDialog.valueAria', { n: i + 1 })}
                     className="flex-1 rounded border border-slate-300 px-1 py-0.5 text-xs dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
-                    placeholder="value"
+                    placeholder={t('files.metadataDialog.valuePlaceholder')}
                     value={p.value}
                     onChange={(e) => setPairs((prev) => prev.map((x, j) => (j === i ? { ...x, value: e.target.value } : x)))}
                   />
                   <button
                     type="button"
-                    aria-label={`Remove metadata ${i + 1}`}
+                    aria-label={t('files.metadataDialog.removeAria', { n: i + 1 })}
                     className="rounded px-1 text-slate-400 hover:bg-red-50 dark:hover:bg-red-950/50 hover:text-red-600 dark:hover:text-red-400 dark:text-slate-500"
                     onClick={() => setPairs((prev) => prev.filter((_, j) => j !== i))}
                   >
@@ -122,21 +124,21 @@ export function MetadataDialog({
                 className="mt-1 self-start rounded border border-slate-300 px-2 py-0.5 text-xs hover:bg-slate-50 dark:border-slate-700 dark:hover:bg-slate-800"
                 onClick={() => setPairs((prev) => [...prev, { key: '', value: '' }])}
               >
-                Add field
+                {t('files.metadataDialog.addField')}
               </button>
             </div>
 
-            <p className="mt-3 text-xs text-slate-400 dark:text-slate-500">Saving rewrites the object's metadata (its ETag and last-modified change).</p>
+            <p className="mt-3 text-xs text-slate-400 dark:text-slate-500">{t('files.metadataDialog.rewriteNote')}</p>
 
             <div className="mt-4 flex justify-end gap-2">
-              <button type="button" className="rounded px-3 py-1 text-sm hover:bg-slate-100 dark:hover:bg-slate-800" onClick={onClose}>Cancel</button>
+              <button type="button" className="rounded px-3 py-1 text-sm hover:bg-slate-100 dark:hover:bg-slate-800" onClick={onClose}>{t('common.cancel')}</button>
               <button
                 type="button"
                 disabled={update.isPending}
                 className="rounded bg-slate-800 px-3 py-1 text-sm text-white hover:bg-slate-700 disabled:opacity-40 dark:bg-slate-200 dark:text-slate-900 dark:hover:bg-slate-300"
                 onClick={onSave}
               >
-                Save metadata
+                {t('files.metadataDialog.save')}
               </button>
             </div>
           </>

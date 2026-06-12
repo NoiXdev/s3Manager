@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import type { CreateAccountInput, UpdateAccountInput, TestAccountInput } from '../../../main/ipc/channels';
 import type { Account } from '../../../main/storage/accountsRepo';
 import { UI_PROVIDERS } from '../../lib/providers';
@@ -15,6 +16,7 @@ export function AccountForm({
   onSubmit: (input: CreateAccountInput | UpdateAccountInput) => Promise<void>;
   onCancel: () => void;
 }) {
+  const { t } = useTranslation();
   const isEdit = account !== undefined;
   const [label, setLabel] = useState(account?.label ?? '');
   const [provider, setProvider] = useState<CreateAccountInput['provider']>(
@@ -69,11 +71,11 @@ export function AccountForm({
       }}
     >
       <label className="block">
-        Label
+        {t('accounts.label')}
         <input className={fieldClass} value={label} onChange={(e) => setLabel(e.target.value)} />
       </label>
       <label className="block">
-        Provider
+        {t('accounts.provider')}
         <select
           className={fieldClass}
           value={provider}
@@ -93,10 +95,10 @@ export function AccountForm({
       {custom && (
         <>
           <label className="block">
-            Endpoint URL
+            {t('accounts.endpointUrl')}
             <input
               className={fieldClass}
-              placeholder="https://minio.example.com:9000"
+              placeholder={t('accounts.endpointPlaceholder')}
               value={endpoint}
               onChange={(e) => setEndpoint(e.target.value)}
             />
@@ -107,24 +109,24 @@ export function AccountForm({
               checked={forcePathStyle}
               onChange={(e) => setForcePathStyle(e.target.checked)}
             />
-            Path-style addressing
+            {t('accounts.pathStyle')}
           </label>
         </>
       )}
       <label className="block">
-        Region
+        {t('accounts.region')}
         <input className={fieldClass} value={region} onChange={(e) => setRegion(e.target.value)} />
       </label>
       <label className="block">
-        Access key ID
+        {t('accounts.accessKeyId')}
         <input className={fieldClass} value={accessKeyId} onChange={(e) => setAccessKeyId(e.target.value)} />
       </label>
       <label className="block">
-        Secret access key
+        {t('accounts.secretAccessKey')}
         <input
           type="password"
           className={fieldClass}
-          placeholder={isEdit ? '••••• (unchanged)' : ''}
+          placeholder={isEdit ? t('accounts.secretPlaceholder') : ''}
           value={secretAccessKey}
           onChange={(e) => setSecretAccessKey(e.target.value)}
         />
@@ -137,18 +139,18 @@ export function AccountForm({
           disabled={test.isPending}
           onClick={() => test.mutate(testInput)}
         >
-          Test connection
+          {t('accounts.testConnection')}
         </button>
-        {test.isSuccess && <span className="text-sm text-green-600 dark:text-green-400">Connection OK</span>}
+        {test.isSuccess && <span className="text-sm text-green-600 dark:text-green-400">{t('accounts.connectionOk')}</span>}
         {test.isError && <span className="text-sm text-red-600 dark:text-red-400">{(test.error as Error).message}</span>}
       </div>
 
       <div className="mt-2 flex justify-end gap-2">
         <button type="button" className="rounded px-3 py-1 hover:bg-slate-100 dark:hover:bg-slate-800" onClick={onCancel}>
-          Cancel
+          {t('common.cancel')}
         </button>
         <button type="submit" className="rounded bg-slate-800 px-3 py-1 text-white hover:bg-slate-700 dark:bg-slate-200 dark:text-slate-900 dark:hover:bg-slate-300">
-          {isEdit ? 'Save changes' : 'Add account'}
+          {isEdit ? t('accounts.saveChanges') : t('accounts.add')}
         </button>
       </div>
     </form>

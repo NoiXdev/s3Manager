@@ -1,4 +1,5 @@
 import { FiX } from 'react-icons/fi';
+import { useTranslation } from 'react-i18next';
 import { useTransfer } from '../../hooks/useTransfer';
 import { useToast } from '../ui/ToastProvider';
 import { FolderPicker } from './FolderPicker';
@@ -22,6 +23,7 @@ export function MoveDialog({
   /** Called on a successful move, before onClose — e.g. to close a panel whose object no longer exists. */
   onMoved?: () => void;
 }) {
+  const { t } = useTranslation();
   const transfer = useTransfer(accountId, bucket);
   const { show } = useToast();
 
@@ -38,7 +40,7 @@ export function MoveDialog({
       } else {
         await transfer.moveFolder.mutateAsync({ sourcePrefix: item.prefix, destPrefix: `${dest}${item.name}/` });
       }
-      show('Moved');
+      show(t('transfer.moved'));
       onMoved?.();
       onClose();
     } catch (e) {
@@ -50,8 +52,8 @@ export function MoveDialog({
     <div className="fixed inset-0 z-10 flex items-center justify-center bg-black/30" role="dialog" aria-modal="true">
       <div className="w-96 rounded bg-white p-4 shadow-lg dark:bg-slate-900">
         <div className="flex items-center justify-between pb-2">
-          <p className="text-sm font-medium text-slate-800 dark:text-slate-100">Move &ldquo;{item.name}&rdquo; to&hellip;</p>
-          <button type="button" aria-label="Cancel" className="rounded px-2 hover:bg-slate-100 dark:hover:bg-slate-800" onClick={onClose}>
+          <p className="text-sm font-medium text-slate-800 dark:text-slate-100">{t('transfer.moveTitle', { name: item.name })}</p>
+          <button type="button" aria-label={t('common.cancel')} className="rounded px-2 hover:bg-slate-100 dark:hover:bg-slate-800" onClick={onClose}>
             <FiX className="h-4 w-4" aria-hidden />
           </button>
         </div>

@@ -1,21 +1,16 @@
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { FiX, FiTrash2 } from 'react-icons/fi';
 import { useObjectAcl } from '../../hooks/useObjectAcl';
 import { useToast } from '../ui/ToastProvider';
 import type { AclGrant, AclPermission } from '../../../main/s3/objectAcl';
 
 const PERMISSIONS: AclPermission[] = ['FULL_CONTROL', 'WRITE', 'WRITE_ACP', 'READ', 'READ_ACP'];
-const GROUPS = [
-  { label: 'Everyone (public)', uri: 'http://acs.amazonaws.com/groups/global/AllUsers' },
-  { label: 'Authenticated users', uri: 'http://acs.amazonaws.com/groups/global/AuthenticatedUsers' },
-  { label: 'Log delivery', uri: 'http://acs.amazonaws.com/groups/s3/LogDelivery' },
-];
-
-function granteeLabel(g: AclGrant): string {
-  if (g.granteeType === 'Group') return GROUPS.find((x) => x.uri === g.uri)?.label ?? g.uri ?? 'Group';
-  if (g.granteeType === 'AmazonCustomerByEmail') return g.email ?? 'Email';
-  return g.displayName || g.id || 'Canonical user';
-}
+const GROUP_URIS = {
+  allUsers: 'http://acs.amazonaws.com/groups/global/AllUsers',
+  authenticatedUsers: 'http://acs.amazonaws.com/groups/global/AuthenticatedUsers',
+  logDelivery: 'http://acs.amazonaws.com/groups/s3/LogDelivery',
+} as const;
 
 export function PermissionsDialog({
   accountId,
@@ -28,11 +23,24 @@ export function PermissionsDialog({
   objectKey: string;
   onClose: () => void;
 }) {
+  const { t } = useTranslation();
+  const GROUPS = [
+    { label: t('files.permissions.everyonePublic'), uri: GROUP_URIS.allUsers },
+    { label: t('files.permissions.authenticatedUsers'), uri: GROUP_URIS.authenticatedUsers },
+    { label: t('files.permissions.logDelivery'), uri: GROUP_URIS.logDelivery },
+  ];
+
+  const granteeLabel = (g: AclGrant): string => {
+    if (g.granteeType === 'Group') return GROUPS.find((x) => x.uri === g.uri)?.label ?? g.uri ?? t('files.permissions.group');
+    if (g.granteeType === 'AmazonCustomerByEmail') return g.email ?? t('files.permissions.email');
+    return g.displayName || g.id || t('files.permissions.canonicalUser');
+  };
+
   const { acl, save } = useObjectAcl(accountId, bucket, objectKey);
   const { show } = useToast();
   const [grants, setGrants] = useState<AclGrant[]>([]);
   const [addType, setAddType] = useState<'Group' | 'CanonicalUser'>('Group');
-  const [addUri, setAddUri] = useState(GROUPS[0].uri);
+  const [addUri, setAddUri] = useState<string>(GROUP_URIS.allUsers);
   const [addId, setAddId] = useState('');
   const [addName, setAddName] = useState('');
   const [addPerm, setAddPerm] = useState<AclPermission>('READ');
@@ -55,7 +63,7 @@ export function PermissionsDialog({
     if (!acl.data) return;
     try {
       await save.mutateAsync({ owner: acl.data.owner, grants });
-      show('Permissions saved');
+      show(t('files.permissions.saved'));
       onClose();
     } catch (e) {
       show((e as Error).message, 'error');
@@ -66,17 +74,17 @@ export function PermissionsDialog({
     <div className="fixed inset-0 z-10 flex items-center justify-center bg-black/30" role="dialog" aria-modal="true">
       <div className="max-h-[80vh] w-[34rem] overflow-auto rounded bg-white p-4 shadow-lg dark:bg-slate-900">
         <div className="flex items-center justify-between pb-2">
-          <p className="text-sm font-medium text-slate-800 dark:text-slate-100">Permissions</p>
-          <button type="button" aria-label="Close" className="rounded px-2 hover:bg-slate-100 dark:hover:bg-slate-800" onClick={onClose}><FiX className="h-4 w-4" aria-hidden /></button>
+          <p className="text-sm font-medium text-slate-800 dark:text-slate-100">{t('files.permissions.title')}</p>
+          <button type="button" aria-label={t('common.close')} className="rounded px-2 hover:bg-slate-100 dark:hover:bg-slate-800" onClick={onClose}><FiX className="h-4 w-4" aria-hidden /></button>
         </div>
 
-        {acl.isLoading && <p className="py-4 text-sm text-slate-500 dark:text-slate-400">Loading permissions…</p>}
+        {acl.isLoading && <p className="py-4 text-sm text-slate-500 dark:text-slate-400">{t('files.permissions.loading')}</p>}
         {acl.isError && <p className="py-4 text-sm text-red-600 dark:text-red-400">{(acl.error as Error).message}</p>}
 
         {acl.isSuccess && (
           <>
             <p className="pb-2 text-xs text-slate-500 dark:text-slate-400">
-              Owner: <span className="text-slate-700 dark:text-slate-200">{acl.data.owner.displayName || acl.data.owner.id || '—'}</span>
+              {t('files.permissions.owner')} <span className="text-slate-700 dark:text-slate-200">{acl.data.owner.displayName || acl.data.owner.id || '—'}</span>
             </p>
 
             <table className="w-full text-left text-sm">
@@ -86,7 +94,7 @@ export function PermissionsDialog({
                     <td className="py-1.5 pr-2 break-all">{granteeLabel(g)}</td>
                     <td className="py-1.5 pr-2">
                       <select
-                        aria-label={`Permission for ${granteeLabel(g)}`}
+                        aria-label={t('files.permissions.permissionForAria', { grantee: granteeLabel(g) })}
                         className="rounded border border-slate-300 px-1 py-0.5 text-xs dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
                         value={g.permission}
                         onChange={(e) =>
@@ -101,7 +109,7 @@ export function PermissionsDialog({
                     <td className="py-1.5 text-right">
                       <button
                         type="button"
-                        aria-label={`Remove ${granteeLabel(g)}`}
+                        aria-label={t('files.permissions.removeAria', { grantee: granteeLabel(g) })}
                         className="rounded px-1 text-slate-400 hover:bg-red-50 dark:hover:bg-red-950/50 hover:text-red-600 dark:hover:text-red-400 dark:text-slate-500"
                         onClick={() => setGrants((prev) => prev.filter((_, j) => j !== i))}
                       >
@@ -112,7 +120,7 @@ export function PermissionsDialog({
                 ))}
                 {grants.length === 0 && (
                   <tr>
-                    <td className="py-2 text-xs text-slate-400 dark:text-slate-500" colSpan={3}>No grants</td>
+                    <td className="py-2 text-xs text-slate-400 dark:text-slate-500" colSpan={3}>{t('files.permissions.noGrants')}</td>
                   </tr>
                 )}
               </tbody>
@@ -120,40 +128,40 @@ export function PermissionsDialog({
 
             <div className="mt-3 flex flex-wrap items-center gap-2 border-t border-slate-200 pt-3 dark:border-slate-700">
               <select
-                aria-label="Grantee type"
+                aria-label={t('files.permissions.granteeTypeAria')}
                 className="rounded border border-slate-300 px-1 py-0.5 text-xs dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
                 value={addType}
                 onChange={(e) => setAddType(e.target.value as 'Group' | 'CanonicalUser')}
               >
-                <option value="Group">Group</option>
-                <option value="CanonicalUser">Canonical User</option>
+                <option value="Group">{t('files.permissions.group')}</option>
+                <option value="CanonicalUser">{t('files.permissions.canonicalUserOption')}</option>
               </select>
               {addType === 'Group' ? (
-                <select aria-label="Group" className="rounded border border-slate-300 px-1 py-0.5 text-xs dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100" value={addUri} onChange={(e) => setAddUri(e.target.value)}>
+                <select aria-label={t('files.permissions.groupAria')} className="rounded border border-slate-300 px-1 py-0.5 text-xs dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100" value={addUri} onChange={(e) => setAddUri(e.target.value)}>
                   {GROUPS.map((g) => (
                     <option key={g.uri} value={g.uri}>{g.label}</option>
                   ))}
                 </select>
               ) : (
                 <>
-                  <input aria-label="Canonical user ID" className="rounded border border-slate-300 px-1 py-0.5 text-xs dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100" placeholder="Canonical user ID" value={addId} onChange={(e) => setAddId(e.target.value)} />
-                  <input aria-label="Display name" className="rounded border border-slate-300 px-1 py-0.5 text-xs dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100" placeholder="Display name (optional)" value={addName} onChange={(e) => setAddName(e.target.value)} />
+                  <input aria-label={t('files.permissions.canonicalUserIdAria')} className="rounded border border-slate-300 px-1 py-0.5 text-xs dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100" placeholder={t('files.permissions.canonicalUserIdPlaceholder')} value={addId} onChange={(e) => setAddId(e.target.value)} />
+                  <input aria-label={t('files.permissions.displayNameAria')} className="rounded border border-slate-300 px-1 py-0.5 text-xs dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100" placeholder={t('files.permissions.displayNamePlaceholder')} value={addName} onChange={(e) => setAddName(e.target.value)} />
                 </>
               )}
-              <select aria-label="New grant permission" className="rounded border border-slate-300 px-1 py-0.5 text-xs dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100" value={addPerm} onChange={(e) => setAddPerm(e.target.value as AclPermission)}>
+              <select aria-label={t('files.permissions.newGrantPermissionAria')} className="rounded border border-slate-300 px-1 py-0.5 text-xs dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100" value={addPerm} onChange={(e) => setAddPerm(e.target.value as AclPermission)}>
                 {PERMISSIONS.map((p) => (
                   <option key={p} value={p}>{p}</option>
                 ))}
               </select>
               <button type="button" disabled={!canAdd} className="rounded border border-slate-300 px-2 py-0.5 text-xs hover:bg-slate-50 disabled:opacity-40 dark:border-slate-700 dark:hover:bg-slate-800" onClick={addGrant}>
-                Add
+                {t('files.permissions.add')}
               </button>
             </div>
 
             <div className="mt-4 flex justify-end gap-2">
-              <button type="button" className="rounded px-3 py-1 text-sm hover:bg-slate-100 dark:hover:bg-slate-800" onClick={onClose}>Cancel</button>
+              <button type="button" className="rounded px-3 py-1 text-sm hover:bg-slate-100 dark:hover:bg-slate-800" onClick={onClose}>{t('common.cancel')}</button>
               <button type="button" disabled={save.isPending} className="rounded bg-slate-800 px-3 py-1 text-sm text-white hover:bg-slate-700 disabled:opacity-40 dark:bg-slate-200 dark:text-slate-900 dark:hover:bg-slate-300" onClick={onSave}>
-                Save permissions
+                {t('files.permissions.save')}
               </button>
             </div>
           </>

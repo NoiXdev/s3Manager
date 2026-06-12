@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { FiX, FiDownload, FiLink, FiEdit3, FiMove, FiLock, FiTag, FiTrash2 } from 'react-icons/fi';
 import { useObjectDetails } from '../../hooks/useObjectDetails';
 import { formatBytes, formatTimestamp } from '../../lib/format';
@@ -34,6 +35,7 @@ export function MetadataPanel({
   objectKey: string;
   onClose: () => void;
 }) {
+  const { t } = useTranslation();
   const { metadata, visibility, setVisibility } = useObjectDetails(accountId, bucket, objectKey);
   const lock = useObjectLock(accountId, bucket);
   const actions = useObjectActions(accountId ?? '', bucket ?? '');
@@ -49,35 +51,35 @@ export function MetadataPanel({
   return (
     <div className="flex h-full w-80 flex-col border-l border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900">
       <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-700 p-2">
-        <span className="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Details</span>
-        <button type="button" aria-label="Close" className="rounded px-2 hover:bg-slate-100 dark:hover:bg-slate-800" onClick={onClose}>
+        <span className="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">{t('files.metadata.details')}</span>
+        <button type="button" aria-label={t('common.close')} className="rounded px-2 hover:bg-slate-100 dark:hover:bg-slate-800" onClick={onClose}>
           <FiX className="h-4 w-4" aria-hidden />
         </button>
       </div>
 
       <div className="flex gap-1 border-b border-slate-200 dark:border-slate-700 p-2">
-        <button type="button" aria-label="Download" title="Download" className="rounded border border-slate-300 dark:border-slate-700 p-1.5 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800" onClick={() => void actions.download(objectKey)}>
+        <button type="button" aria-label={t('files.metadata.download')} title={t('files.metadata.download')} className="rounded border border-slate-300 dark:border-slate-700 p-1.5 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800" onClick={() => void actions.download(objectKey)}>
           <FiDownload className="h-4 w-4" aria-hidden />
         </button>
-        <button type="button" aria-label="Copy URL" title="Copy URL" className="rounded border border-slate-300 dark:border-slate-700 p-1.5 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800" onClick={() => void actions.copyPresignedUrl(objectKey)}>
+        <button type="button" aria-label={t('files.metadata.copyUrl')} title={t('files.metadata.copyUrl')} className="rounded border border-slate-300 dark:border-slate-700 p-1.5 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800" onClick={() => void actions.copyPresignedUrl(objectKey)}>
           <FiLink className="h-4 w-4" aria-hidden />
         </button>
         {!renaming && (
-          <button type="button" aria-label="Rename" title="Rename" className="rounded border border-slate-300 dark:border-slate-700 p-1.5 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800" onClick={() => setRenaming(true)}>
+          <button type="button" aria-label={t('files.metadata.rename')} title={t('files.metadata.rename')} className="rounded border border-slate-300 dark:border-slate-700 p-1.5 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800" onClick={() => setRenaming(true)}>
             <FiEdit3 className="h-4 w-4" aria-hidden />
           </button>
         )}
-        <button type="button" aria-label="Move" title="Move" className="rounded border border-slate-300 dark:border-slate-700 p-1.5 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800" onClick={() => setMoving(true)}>
+        <button type="button" aria-label={t('files.metadata.move')} title={t('files.metadata.move')} className="rounded border border-slate-300 dark:border-slate-700 p-1.5 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800" onClick={() => setMoving(true)}>
           <FiMove className="h-4 w-4" aria-hidden />
         </button>
-        <button type="button" aria-label="Permissions…" title="Permissions…" className="rounded border border-slate-300 dark:border-slate-700 p-1.5 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800" onClick={() => setPermissionsOpen(true)}>
+        <button type="button" aria-label={t('files.metadata.permissions')} title={t('files.metadata.permissions')} className="rounded border border-slate-300 dark:border-slate-700 p-1.5 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800" onClick={() => setPermissionsOpen(true)}>
           <FiLock className="h-4 w-4" aria-hidden />
         </button>
-        <button type="button" aria-label="Edit metadata…" title="Edit metadata…" className="rounded border border-slate-300 dark:border-slate-700 p-1.5 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800" onClick={() => setMetadataOpen(true)}>
+        <button type="button" aria-label={t('files.metadata.editMetadata')} title={t('files.metadata.editMetadata')} className="rounded border border-slate-300 dark:border-slate-700 p-1.5 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800" onClick={() => setMetadataOpen(true)}>
           <FiTag className="h-4 w-4" aria-hidden />
         </button>
         {!confirming && (
-          <button type="button" aria-label="Delete" title="Delete" className="rounded border border-red-300 dark:border-red-800 p-1.5 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/50" onClick={() => setConfirming(true)}>
+          <button type="button" aria-label={t('files.metadata.delete')} title={t('files.metadata.delete')} className="rounded border border-red-300 dark:border-red-800 p-1.5 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/50" onClick={() => setConfirming(true)}>
             <FiTrash2 className="h-4 w-4" aria-hidden />
           </button>
         )}
@@ -85,8 +87,8 @@ export function MetadataPanel({
 
       {confirming && (
         <ConfirmDialog
-          message={`Delete ${objectKey}?`}
-          confirmLabel="Delete"
+          message={t('files.metadata.deleteConfirm', { key: objectKey })}
+          confirmLabel={t('files.metadata.delete')}
           onCancel={() => setConfirming(false)}
           onConfirm={async () => {
             setConfirming(false);
@@ -98,15 +100,15 @@ export function MetadataPanel({
 
       {renaming && (
         <NameDialog
-          title={`Rename ${baseName(objectKey)}`}
+          title={t('files.renameTitle', { name: baseName(objectKey) })}
           initialValue={baseName(objectKey)}
-          confirmLabel="Rename"
+          confirmLabel={t('files.rename')}
           onCancel={() => setRenaming(false)}
           onConfirm={async (name) => {
             setRenaming(false);
             try {
               await transfer.moveObject.mutateAsync({ sourceKey: objectKey, destKey: `${parentPrefix(objectKey)}${name}` });
-              show('Renamed');
+              show(t('files.renamed'));
               onClose();
             } catch (e) {
               show((e as Error).message, 'error');
@@ -145,14 +147,14 @@ export function MetadataPanel({
 
       {confirmingPublic && (
         <ConfirmDialog
-          message="Make this object publicly readable by anyone?"
-          confirmLabel="Make public"
+          message={t('files.metadata.makePublicConfirm')}
+          confirmLabel={t('files.metadata.makePublic')}
           onCancel={() => setConfirmingPublic(false)}
           onConfirm={async () => {
             setConfirmingPublic(false);
             try {
               await setVisibility.mutateAsync('public');
-              show('Made public');
+              show(t('files.metadata.madePublic'));
             } catch (e) {
               show((e as Error).message, 'error');
             }
@@ -161,10 +163,10 @@ export function MetadataPanel({
       )}
 
       <div className="flex-1 overflow-auto p-3 text-sm">
-        <Row label="Key" value={objectKey} />
+        <Row label={t('files.metadata.key')} value={objectKey} />
 
         <div className="flex flex-col border-b border-slate-100 dark:border-slate-800 py-1.5">
-          <span className="text-xs uppercase tracking-wide text-slate-400 dark:text-slate-500">Visibility</span>
+          <span className="text-xs uppercase tracking-wide text-slate-400 dark:text-slate-500">{t('files.metadata.visibility')}</span>
           <span>
             {visibility.isSuccess ? (
               <span
@@ -175,7 +177,7 @@ export function MetadataPanel({
                 {visibility.data}
               </span>
             ) : visibility.isError ? (
-              <span className="text-xs text-slate-400 dark:text-slate-500">unavailable</span>
+              <span className="text-xs text-slate-400 dark:text-slate-500">{t('files.metadata.unavailable')}</span>
             ) : (
               '…'
             )}
@@ -192,13 +194,13 @@ export function MetadataPanel({
                 }
                 try {
                   await setVisibility.mutateAsync('private');
-                  show('Made private');
+                  show(t('files.metadata.madePrivate'));
                 } catch (e) {
                   show((e as Error).message, 'error');
                 }
               }}
             >
-              {visibility.data === 'public' ? 'Make private' : 'Make public'}
+              {visibility.data === 'public' ? t('files.metadata.makePrivate') : t('files.metadata.makePublic')}
             </button>
           )}
         </div>
@@ -207,16 +209,16 @@ export function MetadataPanel({
           <RetentionSection accountId={accountId ?? ''} bucket={bucket ?? ''} objectKey={objectKey} />
         )}
 
-        {metadata.isLoading && <p className="py-2 text-slate-500 dark:text-slate-400">Loading…</p>}
+        {metadata.isLoading && <p className="py-2 text-slate-500 dark:text-slate-400">{t('common.loading')}</p>}
         {metadata.isError && <p className="py-2 text-red-600 dark:text-red-400">{(metadata.error as Error).message}</p>}
 
         {metadata.isSuccess && (
           <>
-            <Row label="Size" value={formatBytes(metadata.data.size)} />
-            <Row label="Content type" value={metadata.data.contentType ?? '—'} />
-            <Row label="Last modified" value={formatTimestamp(metadata.data.lastModified)} />
-            <Row label="Storage class" value={metadata.data.storageClass ?? '—'} />
-            <Row label="ETag" value={metadata.data.etag ?? '—'} />
+            <Row label={t('files.metadata.size')} value={formatBytes(metadata.data.size)} />
+            <Row label={t('files.metadata.contentType')} value={metadata.data.contentType ?? '—'} />
+            <Row label={t('files.metadata.lastModified')} value={formatTimestamp(metadata.data.lastModified)} />
+            <Row label={t('files.metadata.storageClass')} value={metadata.data.storageClass ?? '—'} />
+            <Row label={t('files.metadata.etag')} value={metadata.data.etag ?? '—'} />
             {Object.entries(metadata.data.metadata).map(([k, v]) => (
               <Row key={k} label={k} value={v} />
             ))}

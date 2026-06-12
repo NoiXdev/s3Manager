@@ -1,4 +1,5 @@
 import { useState, type ReactNode } from 'react';
+import { useTranslation } from 'react-i18next';
 
 export function DropZone({
   onDropFiles,
@@ -7,6 +8,7 @@ export function DropZone({
   onDropFiles: (files: File[]) => void;
   children: ReactNode;
 }) {
+  const { t } = useTranslation();
   const [dragging, setDragging] = useState(false);
 
   return (
@@ -28,7 +30,7 @@ export function DropZone({
       {children}
       {dragging && (
         <div className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center border-2 border-dashed border-slate-400 dark:border-slate-500 bg-slate-100/80 dark:bg-slate-800/80 text-slate-600 dark:text-slate-400">
-          Drop files to upload
+          {t('files.dropToUpload')}
         </div>
       )}
     </div>

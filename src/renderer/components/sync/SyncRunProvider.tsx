@@ -1,4 +1,5 @@
 import { createContext, useCallback, useContext, useEffect, useState, type ReactNode } from 'react';
+import { useTranslation } from 'react-i18next';
 import { unwrap } from '../../lib/result';
 import { useToast } from '../ui/ToastProvider';
 import type { SyncProgress, SyncResult } from '../../../main/s3/sync';
@@ -20,6 +21,7 @@ interface SyncRunContextValue {
 const SyncRunContext = createContext<SyncRunContextValue | null>(null);
 
 export function SyncRunProvider({ children }: { children: ReactNode }) {
+  const { t } = useTranslation();
   const { show } = useToast();
   const [running, setRunning] = useState(false);
   const [progress, setProgress] = useState<SyncProgress | null>(null);
@@ -38,7 +40,7 @@ export function SyncRunProvider({ children }: { children: ReactNode }) {
       try {
         const r = await runFn();
         setResult(r);
-        show(r.canceled ? 'Sync canceled' : `Synced ${r.copied} object(s)`);
+        show(r.canceled ? t('sync.toast.canceled') : t('sync.toast.synced', { count: r.copied }));
         return r;
       } catch (e) {
         show((e as Error).message, 'error');
@@ -48,7 +50,7 @@ export function SyncRunProvider({ children }: { children: ReactNode }) {
         setProgress(null);
       }
     },
-    [show],
+    [show, t],
   );
 
   const runBucket = useCallback(

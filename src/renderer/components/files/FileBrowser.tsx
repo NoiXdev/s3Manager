@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { FiEdit3, FiMove, FiTrash2 } from 'react-icons/fi';
 import { useObjects } from '../../hooks/useObjects';
 import { formatBytes, formatTimestamp } from '../../lib/format';
@@ -30,6 +31,7 @@ export function FileBrowser({
   onNavigate: (prefix: string) => void;
   onSelectFile: (key: string) => void;
 }) {
+  const { t } = useTranslation();
   const { query, folders, files } = useObjects(accountId, bucket, prefix);
   const uploads = useUploads(accountId, bucket);
   const actions = useObjectActions(accountId ?? '', bucket ?? '');
@@ -42,7 +44,7 @@ export function FileBrowser({
   const [itemToMove, setItemToMove] = useState<MoveItem | null>(null);
 
   if (bucket === null) {
-    return <div className="flex h-full items-center justify-center text-slate-400 dark:text-slate-500">Select a bucket</div>;
+    return <div className="flex h-full items-center justify-center text-slate-400 dark:text-slate-500">{t('files.selectBucket')}</div>;
   }
 
   const isEmpty = query.isSuccess && folders.length === 0 && files.length === 0;
@@ -57,21 +59,21 @@ export function FileBrowser({
             className="rounded border border-slate-300 dark:border-slate-700 px-2 py-1 text-xs hover:bg-slate-50 dark:hover:bg-slate-800"
             onClick={() => setUploadLinkOpen(true)}
           >
-            Upload link…
+            {t('files.uploadLinkButton')}
           </button>
           <button
             type="button"
             className="rounded border border-slate-300 dark:border-slate-700 px-2 py-1 text-xs hover:bg-slate-50 dark:hover:bg-slate-800"
             onClick={() => setNewFolderOpen(true)}
           >
-            New folder
+            {t('files.newFolder')}
           </button>
         </div>
       </div>
 
-      {query.isLoading && <p className="p-3 text-slate-500 dark:text-slate-400">Loading…</p>}
+      {query.isLoading && <p className="p-3 text-slate-500 dark:text-slate-400">{t('common.loading')}</p>}
       {query.isError && <p className="p-3 text-red-600 dark:text-red-400">{(query.error as Error).message}</p>}
-      {isEmpty && <p className="p-3 text-slate-500 dark:text-slate-400">This folder is empty</p>}
+      {isEmpty && <p className="p-3 text-slate-500 dark:text-slate-400">{t('files.folderEmpty')}</p>}
 
       <DropZone onDropFiles={(droppedFiles) => void uploads.upload(droppedFiles, prefix)}>
         <div className="h-full overflow-auto">
@@ -88,7 +90,7 @@ export function FileBrowser({
                   <td className="px-3 py-1.5">
                     <button
                       type="button"
-                      aria-label={`Rename folder ${folder.name}`}
+                      aria-label={t('files.renameFolderAria', { name: folder.name })}
                       className="rounded px-1 text-slate-400 dark:text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-700 dark:hover:text-slate-200"
                       onClick={(e) => {
                         e.stopPropagation();
@@ -99,7 +101,7 @@ export function FileBrowser({
                     </button>
                     <button
                       type="button"
-                      aria-label={`Move folder ${folder.name}`}
+                      aria-label={t('files.moveFolderAria', { name: folder.name })}
                       className="rounded px-1 text-slate-400 dark:text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-700 dark:hover:text-slate-200"
                       onClick={(e) => {
                         e.stopPropagation();
@@ -110,7 +112,7 @@ export function FileBrowser({
                     </button>
                     <button
                       type="button"
-                      aria-label={`Delete folder ${folder.name}`}
+                      aria-label={t('files.deleteFolderAria', { name: folder.name })}
                       className="rounded px-1 text-slate-400 dark:text-slate-500 hover:bg-red-50 dark:hover:bg-red-950/50 hover:text-red-600 dark:hover:text-red-400"
                       onClick={(e) => {
                         e.stopPropagation();
@@ -145,7 +147,7 @@ export function FileBrowser({
               onClick={() => query.fetchNextPage()}
               className="m-3 rounded border border-slate-300 dark:border-slate-700 px-3 py-1 text-sm hover:bg-slate-50 dark:hover:bg-slate-800"
             >
-              {query.isFetchingNextPage ? 'Loading…' : 'Load more'}
+              {query.isFetchingNextPage ? t('common.loading') : t('files.loadMore')}
             </button>
           )}
         </div>
@@ -155,8 +157,8 @@ export function FileBrowser({
 
       {folderToDelete && (
         <ConfirmDialog
-          message={`Delete folder ${folderToDelete.name} and all its contents?`}
-          confirmLabel="Delete"
+          message={t('files.deleteFolderConfirm', { name: folderToDelete.name })}
+          confirmLabel={t('files.delete')}
           onCancel={() => setFolderToDelete(null)}
           onConfirm={async () => {
             const target = folderToDelete;
@@ -168,15 +170,15 @@ export function FileBrowser({
 
       {newFolderOpen && (
         <NameDialog
-          title="New folder"
+          title={t('files.newFolder')}
           initialValue=""
-          confirmLabel="Create"
+          confirmLabel={t('files.create')}
           onCancel={() => setNewFolderOpen(false)}
           onConfirm={async (name) => {
             setNewFolderOpen(false);
             try {
               await transfer.createFolder.mutateAsync({ prefix, name });
-              show('Folder created');
+              show(t('files.folderCreated'));
             } catch (e) {
               show((e as Error).message, 'error');
             }
@@ -186,16 +188,16 @@ export function FileBrowser({
 
       {folderToRename && (
         <NameDialog
-          title={`Rename ${folderToRename.name}`}
+          title={t('files.renameTitle', { name: folderToRename.name })}
           initialValue={folderToRename.name}
-          confirmLabel="Rename"
+          confirmLabel={t('files.rename')}
           onCancel={() => setFolderToRename(null)}
           onConfirm={async (name) => {
             const target = folderToRename;
             setFolderToRename(null);
             try {
               await transfer.moveFolder.mutateAsync({ sourcePrefix: target.prefix, destPrefix: `${parentPrefix(target.prefix)}${name}/` });
-              show('Renamed');
+              show(t('files.renamed'));
             } catch (e) {
               show((e as Error).message, 'error');
             }
