@@ -32,7 +32,7 @@ export function AccountSelect({
         items={items}
         value={selectedId}
         onSelect={onSelect}
-        placeholder={t('accounts.select')}
+        placeholder={accounts.isLoading ? t('common.loading') : t('accounts.select')}
         ariaLabel={t('accounts.ariaAccount')}
         loading={accounts.isLoading}
         footerAction={{ label: t('accounts.quickAdd'), onClick: () => setAdding(true) }}

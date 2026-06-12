@@ -33,9 +33,9 @@ describe('AccountSelect', () => {
     expect(onSelect).toHaveBeenCalledWith('acc-1');
   });
 
-  it('shows the placeholder on the trigger when nothing is selected', () => {
+  it('shows the placeholder on the trigger when nothing is selected', async () => {
     wrap(<AccountSelect selectedId={null} onSelect={() => {}} />);
-    expect(screen.getByLabelText('Account')).toHaveTextContent('Select account');
+    await waitFor(() => expect(screen.getByLabelText('Account')).toHaveTextContent('Select account'));
   });
 
   it('filters accounts by search text', async () => {
