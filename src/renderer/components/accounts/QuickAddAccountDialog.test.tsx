@@ -53,4 +53,22 @@ describe('QuickAddAccountDialog', () => {
       (window.s3 as unknown as { accounts: { create: ReturnType<typeof vi.fn> } }).accounts.create,
     ).not.toHaveBeenCalled();
   });
+
+  it('shows an error and stays open when creation fails', async () => {
+    (window as unknown as { s3: unknown }).s3 = {
+      accounts: { create: vi.fn().mockResolvedValue({ ok: false, error: { code: 'Unknown', message: 'create failed' } }) },
+    };
+    const onClose = vi.fn();
+    const onCreated = vi.fn();
+    wrap(<QuickAddAccountDialog onClose={onClose} onCreated={onCreated} />);
+    await userEvent.type(screen.getByLabelText('Label'), 'New acc');
+    await userEvent.type(screen.getByLabelText('Region'), 'eu-central-1');
+    await userEvent.type(screen.getByLabelText('Access key ID'), 'AK');
+    await userEvent.type(screen.getByLabelText('Secret access key'), 'sek');
+    await userEvent.click(screen.getByRole('button', { name: 'Add account' }));
+    expect(await screen.findByText(/create failed/)).toBeInTheDocument();
+    expect(screen.getByRole('dialog')).toBeInTheDocument();
+    expect(onClose).not.toHaveBeenCalled();
+    expect(onCreated).not.toHaveBeenCalled();
+  });
 });

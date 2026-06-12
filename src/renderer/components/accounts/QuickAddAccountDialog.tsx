@@ -4,7 +4,6 @@ import { useCreateAccount } from '../../hooks/useAccounts';
 import { useToast } from '../ui/ToastProvider';
 import { AccountForm } from './AccountForm';
 import type { Account } from '../../../main/storage/accountsRepo';
-import type { CreateAccountInput } from '../../../main/ipc/channels';
 
 export function QuickAddAccountDialog({
   onClose,
@@ -29,8 +28,9 @@ export function QuickAddAccountDialog({
         <AccountForm
           onCancel={onClose}
           onSubmit={async (input) => {
+            if ('id' in input) return; // create mode never emits the update shape
             try {
-              const account = await create.mutateAsync(input as CreateAccountInput);
+              const account = await create.mutateAsync(input);
               onCreated(account);
               onClose();
             } catch (e) {
