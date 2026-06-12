@@ -1,6 +1,9 @@
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAccounts } from '../../hooks/useAccounts';
 import { UI_PROVIDERS } from '../../lib/providers';
+import { Combobox } from '../ui/Combobox';
+import { QuickAddAccountDialog } from './QuickAddAccountDialog';
 import type { ProviderId } from '../../../main/s3/providers';
 
 function providerLabel(provider: ProviderId): string {
@@ -16,23 +19,30 @@ export function AccountSelect({
 }) {
   const { t } = useTranslation();
   const accounts = useAccounts();
-  const list = accounts.data ?? [];
+  const [adding, setAdding] = useState(false);
+
+  const items = (accounts.data ?? []).map((a) => ({
+    value: a.id,
+    label: t('accounts.optionLabel', { label: a.label, provider: providerLabel(a.provider) }),
+  }));
 
   return (
-    <select
-      aria-label={t('accounts.ariaAccount')}
-      className="w-full rounded border border-slate-300 px-2 py-1 text-sm dark:border-slate-700"
-      value={selectedId ?? ''}
-      onChange={(e) => {
-        if (e.target.value) onSelect(e.target.value);
-      }}
-    >
-      <option value="">{accounts.isLoading ? t('common.loading') : t('accounts.select')}</option>
-      {list.map((a) => (
-        <option key={a.id} value={a.id}>
-          {t('accounts.optionLabel', { label: a.label, provider: providerLabel(a.provider) })}
-        </option>
-      ))}
-    </select>
+    <>
+      <Combobox
+        items={items}
+        value={selectedId}
+        onSelect={onSelect}
+        placeholder={t('accounts.select')}
+        ariaLabel={t('accounts.ariaAccount')}
+        loading={accounts.isLoading}
+        footerAction={{ label: t('accounts.quickAdd'), onClick: () => setAdding(true) }}
+      />
+      {adding && (
+        <QuickAddAccountDialog
+          onClose={() => setAdding(false)}
+          onCreated={(account) => onSelect(account.id)}
+        />
+      )}
+    </>
   );
 }
