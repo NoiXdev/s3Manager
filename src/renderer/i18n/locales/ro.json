@@ -6,6 +6,11 @@
     "loading": "Se încarcă…",
     "settingsSaved": "Setări salvate"
   },
+  "combobox": {
+    "searchPlaceholder": "Caută…",
+    "searchAria": "Caută în opțiuni",
+    "noMatches": "Niciun rezultat"
+  },
   "nav": {
     "files": "Fișiere",
     "objectLock": "Object Lock",
@@ -67,7 +72,9 @@
     "add": "Adaugă cont",
     "select": "Selectează contul",
     "ariaAccount": "Cont",
-    "optionLabel": "{{label}} ({{provider}})"
+    "optionLabel": "{{label}} ({{provider}})",
+    "quickAdd": "+ Adaugă cont",
+    "quickAddTitle": "Adaugă cont"
   },
   "connections": {
     "title": "Conexiuni",
@@ -90,7 +97,8 @@
     "enableVersioning": "Activează versionarea",
     "createHelp": "Bucketul este creat în regiunea acestui cont. Object Lock poate fi activat doar la creare și necesită versionare.",
     "create": "Creează bucket",
-    "created": "Bucket creat"
+    "created": "Bucket creat",
+    "quickCreate": "+ Creează bucket"
   },
   "files": {
     "selectBucket": "Selectează un bucket",

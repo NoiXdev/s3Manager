@@ -6,6 +6,11 @@
     "loading": "Laden…",
     "settingsSaved": "Instellingen opgeslagen"
   },
+  "combobox": {
+    "searchPlaceholder": "Zoeken…",
+    "searchAria": "Opties doorzoeken",
+    "noMatches": "Geen resultaten"
+  },
   "nav": {
     "files": "Bestanden",
     "objectLock": "Object Lock",
@@ -65,7 +70,9 @@
     "add": "Account toevoegen",
     "select": "Account selecteren",
     "ariaAccount": "Account",
-    "optionLabel": "{{label}} ({{provider}})"
+    "optionLabel": "{{label}} ({{provider}})",
+    "quickAdd": "+ Account toevoegen",
+    "quickAddTitle": "Account toevoegen"
   },
   "connections": {
     "title": "Verbindingen",
@@ -88,7 +95,8 @@
     "enableVersioning": "Versiebeheer inschakelen",
     "createHelp": "De bucket wordt aangemaakt in de regio van dit account. Object Lock kan alleen bij het aanmaken worden ingeschakeld en vereist versiebeheer.",
     "create": "Bucket aanmaken",
-    "created": "Bucket aangemaakt"
+    "created": "Bucket aangemaakt",
+    "quickCreate": "+ Bucket aanmaken"
   },
   "files": {
     "selectBucket": "Selecteer een bucket",

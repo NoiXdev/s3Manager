@@ -6,6 +6,11 @@
     "loading": "Ładowanie…",
     "settingsSaved": "Ustawienia zapisane"
   },
+  "combobox": {
+    "searchPlaceholder": "Szukaj…",
+    "searchAria": "Przeszukaj opcje",
+    "noMatches": "Brak wyników"
+  },
   "nav": {
     "files": "Pliki",
     "objectLock": "Object Lock",
@@ -69,7 +74,9 @@
     "add": "Dodaj konto",
     "select": "Wybierz konto",
     "ariaAccount": "Konto",
-    "optionLabel": "{{label}} ({{provider}})"
+    "optionLabel": "{{label}} ({{provider}})",
+    "quickAdd": "+ Dodaj konto",
+    "quickAddTitle": "Dodaj konto"
   },
   "connections": {
     "title": "Połączenia",
@@ -92,7 +99,8 @@
     "enableVersioning": "Włącz wersjonowanie",
     "createHelp": "Bucket jest tworzony w regionie tego konta. Object Lock można włączyć tylko podczas tworzenia i wymaga wersjonowania.",
     "create": "Utwórz bucket",
-    "created": "Bucket utworzony"
+    "created": "Bucket utworzony",
+    "quickCreate": "+ Utwórz bucket"
   },
   "files": {
     "selectBucket": "Wybierz bucket",
