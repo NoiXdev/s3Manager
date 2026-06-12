@@ -28,7 +28,9 @@ export function EndpointPicker({
       <Combobox
         items={(accounts.data ?? []).map((a) => ({ value: a.id, label: a.label }))}
         value={value.accountId}
-        onSelect={(accountId) => onChange({ accountId, bucket: null, prefix: '' })}
+        onSelect={(accountId) => {
+          if (accountId !== value.accountId) onChange({ accountId, bucket: null, prefix: '' });
+        }}
         placeholder={t('sync.endpoint.selectAccount')}
         ariaLabel={t('sync.endpoint.accountAria', { label })}
         loading={accounts.isLoading}
@@ -36,7 +38,9 @@ export function EndpointPicker({
       <Combobox
         items={(buckets.data ?? []).map((b) => ({ value: b, label: b }))}
         value={value.bucket}
-        onSelect={(bucket) => onChange({ ...value, bucket, prefix: '' })}
+        onSelect={(bucket) => {
+          if (bucket !== value.bucket) onChange({ ...value, bucket, prefix: '' });
+        }}
         placeholder={t('sync.endpoint.selectBucket')}
         ariaLabel={t('sync.endpoint.bucketAria', { label })}
         disabled={value.accountId === null}

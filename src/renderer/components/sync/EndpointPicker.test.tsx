@@ -48,4 +48,12 @@ describe('EndpointPicker', () => {
     await userEvent.click(screen.getByLabelText('Source account'));
     expect(screen.queryByRole('button', { name: '+ Add account' })).not.toBeInTheDocument();
   });
+
+  it('re-selecting the current account does not reset the endpoint', async () => {
+    const onChange = vi.fn();
+    wrap(<EndpointPicker label="Source" value={{ accountId: 'acc-1', bucket: 'bucket-a', prefix: 'keep/' }} onChange={onChange} />);
+    await userEvent.click(screen.getByLabelText('Source account'));
+    await userEvent.click(await screen.findByRole('option', { name: 'AWS' }));
+    expect(onChange).not.toHaveBeenCalled();
+  });
 });
