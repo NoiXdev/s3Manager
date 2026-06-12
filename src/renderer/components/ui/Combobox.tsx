@@ -44,6 +44,9 @@ export function Combobox({
   const selected = items.find((i) => i.value === value) ?? null;
   const filtered = items.filter((i) => i.label.toLowerCase().includes(query.trim().toLowerCase()));
 
+  // Fix 2: Clamp active index against the current filtered list
+  const active = filtered.length === 0 ? -1 : Math.min(activeIndex, filtered.length - 1);
+
   const close = () => {
     setOpen(false);
     setQuery('');
@@ -60,45 +63,60 @@ export function Combobox({
     if (open) inputRef.current?.focus();
   }, [open]);
 
+  // Fix 5: Deduplicate close logic — call close() in the outside-mousedown handler
   useEffect(() => {
     if (!open) return;
-    const onPointerDown = (e: MouseEvent) => {
+    const onMouseDown = (e: MouseEvent) => {
       if (rootRef.current !== null && !rootRef.current.contains(e.target as Node)) {
-        setOpen(false);
-        setQuery('');
-        setActiveIndex(0);
+        close();
       }
     };
-    document.addEventListener('mousedown', onPointerDown);
-    return () => document.removeEventListener('mousedown', onPointerDown);
+    document.addEventListener('mousedown', onMouseDown);
+    return () => document.removeEventListener('mousedown', onMouseDown);
   }, [open]);
+
+  // Fix 4: Keep the active option scrolled into view
+  useEffect(() => {
+    if (!open || active < 0) return;
+    document.getElementById(`${listboxId}-opt-${active}`)?.scrollIntoView?.({ block: 'nearest' });
+  }, [open, active, listboxId]);
 
   const onInputKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'ArrowDown') {
       e.preventDefault();
-      setActiveIndex((i) => Math.min(i + 1, filtered.length - 1));
+      // Fix 2: Clamp ArrowDown against filtered list
+      setActiveIndex(filtered.length === 0 ? 0 : Math.min(active + 1, filtered.length - 1));
     } else if (e.key === 'ArrowUp') {
       e.preventDefault();
-      setActiveIndex((i) => Math.max(i - 1, 0));
+      // Fix 2: Clamp ArrowUp against filtered list
+      setActiveIndex(Math.max(active - 1, 0));
     } else if (e.key === 'Enter') {
       e.preventDefault();
-      const item = filtered[activeIndex];
-      if (item !== undefined) choose(item.value);
+      // Fix 2: Only select if active >= 0
+      if (active >= 0) {
+        const item = filtered[active];
+        if (item !== undefined) choose(item.value);
+      }
     } else if (e.key === 'Escape') {
       e.preventDefault();
       close();
       triggerRef.current?.focus();
+    } else if (e.key === 'Tab') {
+      // Fix 3: Close on Tab without preventing default (allows normal focus movement)
+      close();
     }
   };
 
   return (
     <div ref={rootRef} className="relative">
+      {/* Fix 1: APG "select-only combobox" trigger pattern */}
       <button
         ref={triggerRef}
         type="button"
+        role="combobox"
         aria-label={ariaLabel}
-        aria-haspopup="listbox"
         aria-expanded={open}
+        aria-controls={listboxId}
         disabled={disabled}
         className="flex w-full items-center justify-between gap-1 rounded border border-slate-300 bg-white px-2 py-1 text-left text-sm disabled:bg-slate-100 disabled:text-slate-400 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100 dark:disabled:bg-slate-800 dark:disabled:text-slate-500"
         onClick={() => (open ? close() : setOpen(true))}
@@ -111,14 +129,13 @@ export function Combobox({
 
       {open && (
         <div className="absolute left-0 right-0 top-full z-20 mt-1 rounded border border-slate-200 bg-white text-sm shadow-lg dark:border-slate-700 dark:bg-slate-900">
+          {/* Fix 1: type="search" (implicit searchbox role), remove combobox/expanded/autocomplete attrs */}
           <input
             ref={inputRef}
-            role="combobox"
+            type="search"
             aria-label={t('combobox.searchAria')}
-            aria-expanded={open}
             aria-controls={listboxId}
-            aria-autocomplete="list"
-            aria-activedescendant={filtered.length > 0 ? `${listboxId}-opt-${activeIndex}` : undefined}
+            aria-activedescendant={!loading && active >= 0 ? `${listboxId}-opt-${active}` : undefined}
             placeholder={t('combobox.searchPlaceholder')}
             className="w-full border-b border-slate-200 bg-transparent px-2 py-1.5 outline-none dark:border-slate-700 dark:text-slate-100"
             value={query}
@@ -140,7 +157,7 @@ export function Combobox({
                   id={`${listboxId}-opt-${i}`}
                   role="option"
                   aria-selected={item.value === value}
-                  className={`cursor-pointer px-2 py-1 ${i === activeIndex ? 'bg-slate-100 dark:bg-slate-800' : ''}`}
+                  className={`cursor-pointer px-2 py-1 ${i === active ? 'bg-slate-100 dark:bg-slate-800' : ''}`}
                   onClick={() => choose(item.value)}
                   onMouseEnter={() => setActiveIndex(i)}
                 >

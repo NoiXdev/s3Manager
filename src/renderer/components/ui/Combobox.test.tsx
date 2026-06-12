@@ -43,7 +43,7 @@ describe('Combobox', () => {
   it('filters items by search text, case-insensitive', async () => {
     renderBox();
     await userEvent.click(screen.getByLabelText('Account'));
-    await userEvent.type(screen.getByRole('combobox'), 'hetz');
+    await userEvent.type(screen.getByRole('searchbox'), 'hetz');
     expect(screen.getAllByRole('option')).toHaveLength(1);
     expect(screen.getByRole('option', { name: 'Hetzner backup (Hetzner)' })).toBeInTheDocument();
   });
@@ -51,7 +51,7 @@ describe('Combobox', () => {
   it('shows a no-matches hint when the search has no results', async () => {
     renderBox();
     await userEvent.click(screen.getByLabelText('Account'));
-    await userEvent.type(screen.getByRole('combobox'), 'zzz');
+    await userEvent.type(screen.getByRole('searchbox'), 'zzz');
     expect(screen.queryAllByRole('option')).toHaveLength(0);
     expect(screen.getByText('No matches')).toBeInTheDocument();
   });
@@ -87,7 +87,7 @@ describe('Combobox', () => {
     const onAdd = vi.fn();
     renderBox({ footerAction: { label: '+ Add account', onClick: onAdd } });
     await userEvent.click(screen.getByLabelText('Account'));
-    await userEvent.type(screen.getByRole('combobox'), 'zzz');
+    await userEvent.type(screen.getByRole('searchbox'), 'zzz');
     await userEvent.click(screen.getByRole('button', { name: '+ Add account' }));
     expect(onAdd).toHaveBeenCalled();
     expect(screen.queryByRole('listbox')).not.toBeInTheDocument();
@@ -102,5 +102,46 @@ describe('Combobox', () => {
     renderBox({ items: [], loading: true });
     await userEvent.click(screen.getByLabelText('Account'));
     expect(screen.getByText('Loading…')).toBeInTheDocument();
+  });
+
+  it('closes on outside mousedown', async () => {
+    renderBox();
+    await userEvent.click(screen.getByLabelText('Account'));
+    expect(screen.getByRole('listbox')).toBeInTheDocument();
+    await userEvent.click(document.body);
+    expect(screen.queryByRole('listbox')).not.toBeInTheDocument();
+  });
+
+  it('closes on Tab without selecting', async () => {
+    const onSelect = vi.fn();
+    renderBox({ onSelect });
+    await userEvent.click(screen.getByLabelText('Account'));
+    await userEvent.keyboard('{Tab}');
+    expect(onSelect).not.toHaveBeenCalled();
+    expect(screen.queryByRole('listbox')).not.toBeInTheDocument();
+  });
+
+  it('keyboard on an empty result list does not crash or select', async () => {
+    const onSelect = vi.fn();
+    renderBox({ onSelect });
+    await userEvent.click(screen.getByLabelText('Account'));
+    await userEvent.type(screen.getByRole('searchbox'), 'zzz');
+    await userEvent.keyboard('{ArrowDown}{Enter}');
+    expect(onSelect).not.toHaveBeenCalled();
+    expect(screen.getByRole('listbox')).toBeInTheDocument();
+  });
+
+  it('shows the loading row even when stale items exist', async () => {
+    renderBox({ loading: true });
+    await userEvent.click(screen.getByLabelText('Account'));
+    expect(screen.getByText('Loading…')).toBeInTheDocument();
+    expect(screen.queryAllByRole('option')).toHaveLength(0);
+  });
+
+  it('returns focus to the trigger after selecting', async () => {
+    renderBox({ onSelect: () => {} });
+    await userEvent.click(screen.getByLabelText('Account'));
+    await userEvent.click(screen.getByRole('option', { name: 'AWS prod (Amazon S3)' }));
+    expect(screen.getByLabelText('Account')).toHaveFocus();
   });
 });
