@@ -144,4 +144,13 @@ describe('Combobox', () => {
     await userEvent.click(screen.getByRole('option', { name: 'AWS prod (Amazon S3)' }));
     expect(screen.getByLabelText('Account')).toHaveFocus();
   });
+
+  it('re-selecting the current value closes without firing onSelect', async () => {
+    const onSelect = vi.fn();
+    renderBox({ value: 'a1', onSelect });
+    await userEvent.click(screen.getByLabelText('Account'));
+    await userEvent.click(screen.getByRole('option', { name: 'AWS prod (Amazon S3)' }));
+    expect(onSelect).not.toHaveBeenCalled();
+    expect(screen.queryByRole('listbox')).not.toBeInTheDocument();
+  });
 });

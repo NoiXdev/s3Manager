@@ -56,7 +56,7 @@ export function Combobox({
   const choose = (v: string) => {
     close();
     triggerRef.current?.focus();
-    onSelect(v);
+    if (v !== value) onSelect(v);
   };
 
   useEffect(() => {
