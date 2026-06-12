@@ -54,5 +54,6 @@ describe('BucketSelect', () => {
     await userEvent.type(screen.getByLabelText('Bucket name'), 'new-bucket');
     await userEvent.click(screen.getByRole('button', { name: 'Create bucket' }));
     await waitFor(() => expect(onSelect).toHaveBeenCalledWith('new-bucket'));
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
   });
 });
