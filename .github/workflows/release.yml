@@ -24,6 +24,12 @@ jobs:
           fetch-depth: 0
           # Check out the branch (not the detached tag) so we can commit CHANGELOG.md back.
           ref: develop
+          # Push back to develop with a PAT, not the default GITHUB_TOKEN: the
+          # `protect-develop` ruleset blocks direct pushes, and the GitHub Actions
+          # bot cannot be a bypass actor on a user-owned repo. A PAT owned by an
+          # admin is attributed to that admin, whom the ruleset's admin bypass
+          # already covers. RELEASE_TOKEN: fine-grained PAT, Contents: read/write.
+          token: ${{ secrets.RELEASE_TOKEN }}
 
       - uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6
         with:
