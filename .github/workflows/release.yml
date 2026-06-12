@@ -22,14 +22,10 @@ jobs:
         with:
           # Full history + tags are required for conventional-changelog.
           fetch-depth: 0
-          # Check out the branch (not the detached tag) so we can commit CHANGELOG.md back.
-          ref: develop
-          # Push back to develop with a PAT, not the default GITHUB_TOKEN: the
-          # `protect-develop` ruleset blocks direct pushes, and the GitHub Actions
-          # bot cannot be a bypass actor on a user-owned repo. A PAT owned by an
-          # admin is attributed to that admin, whom the ruleset's admin bypass
-          # already covers. RELEASE_TOKEN: fine-grained PAT, Contents: read/write.
-          token: ${{ secrets.RELEASE_TOKEN }}
+          # Releases land on main: it is only lightly protected (no PR / status-check
+          # rules), so the default GITHUB_TOKEN can push the CHANGELOG commit directly
+          # — no PAT or bypass actor needed. The strict PR gate lives on develop.
+          ref: main
 
       - uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6
         with:
@@ -47,7 +43,7 @@ jobs:
         # Slice out just the newest version section for the GitHub Release body.
         run: awk '/^#{1,3} \[?v?[0-9]+\.[0-9]+/{c++} c==1' CHANGELOG.md > RELEASE_NOTES.md
 
-      - name: Commit CHANGELOG.md back to develop
+      - name: Commit CHANGELOG.md back to main
         run: |
           git config user.name 'github-actions[bot]'
           git config user.email 'github-actions[bot]@users.noreply.github.com'
@@ -56,7 +52,7 @@ jobs:
           else
             git add CHANGELOG.md
             git commit -m "docs: update CHANGELOG for ${{ github.event.inputs.tag || github.ref_name }} [skip ci]"
-            git push origin HEAD:develop
+            git push origin HEAD:main
           fi
 
       - name: Assemble release body
