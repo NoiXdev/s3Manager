@@ -12,5 +12,19 @@
     "plugin:import/electron",
     "plugin:import/typescript"
   ],
-  "parser": "@typescript-eslint/parser"
+  "parser": "@typescript-eslint/parser",
+  "overrides": [
+    {
+      "files": ["**/*.test.ts", "**/*.test.tsx", "vitest.setup.ts"],
+      "rules": {
+        "@typescript-eslint/no-empty-function": "off"
+      }
+    },
+    {
+      "files": ["*.config.ts", "*.config.mts", "*.config.cts"],
+      "rules": {
+        "import/no-unresolved": "off"
+      }
+    }
+  ]
 }
