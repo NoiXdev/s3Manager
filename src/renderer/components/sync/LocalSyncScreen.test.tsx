@@ -29,12 +29,16 @@ function baseS3(over: Record<string, unknown> = {}) {
   };
 }
 
+async function pick(triggerLabel: string, optionName: string) {
+  await userEvent.click(screen.getByLabelText(triggerLabel));
+  await userEvent.click(await screen.findByRole('option', { name: optionName }));
+}
+
 async function chooseFolderAndBucket() {
   await userEvent.click(screen.getByRole('button', { name: 'Choose folder…' }));
   await screen.findByText('/data');
-  await screen.findByRole('option', { name: 'AWS' });
-  await userEvent.selectOptions(screen.getByLabelText('Bucket account'), 'a1');
-  await userEvent.selectOptions(await screen.findByLabelText('Bucket bucket'), 'assets');
+  await pick('Bucket account', 'AWS');
+  await pick('Bucket bucket', 'assets');
 }
 
 beforeEach(() => {
