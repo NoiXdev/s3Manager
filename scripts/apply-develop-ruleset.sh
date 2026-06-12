@@ -12,13 +12,9 @@ REPO="NoiXdev/s3Manager"
 DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 JSON="$DIR/develop-ruleset.json"
 
-# --- GitHub Actions bypass (manual, one-time) -------------------------------
-# The release workflow pushes CHANGELOG.md directly to develop, which the
-# `pull_request` rule blocks. The GitHub Actions bot cannot be added as a
-# bypass actor via the API on a user-owned (non-org) repo, so add it once in
-# the UI after running this script:
-#   Settings -> Rules -> Rulesets -> protect-develop -> Bypass list
-#     -> Add bypass -> GitHub Actions -> mode "Always" -> Save
+# develop is the strict integration branch: PRs + a passing `Lint & Test`
+# check are required. Nothing auto-pushes here — releases land on `main`
+# (see scripts/apply-main-ruleset.sh), so no bypass actor is needed.
 echo "Applying ruleset to $REPO from $JSON ..."
 
 # Create the ruleset (fails if one named 'protect-develop' already exists).
