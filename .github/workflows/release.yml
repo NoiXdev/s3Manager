@@ -18,14 +18,14 @@ jobs:
     name: Generate changelog
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
         with:
           # Full history + tags are required for conventional-changelog.
           fetch-depth: 0
           # Check out the branch (not the detached tag) so we can commit CHANGELOG.md back.
           ref: develop
 
-      - uses: actions/setup-node@v6
+      - uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6
         with:
           node-version: 22
           cache: npm
@@ -57,7 +57,7 @@ jobs:
         run: cp RELEASE_NOTES.md release_body.md
 
       - name: Create / update GitHub Release
-        uses: softprops/action-gh-release@v3
+        uses: softprops/action-gh-release@b4309332981a82ec1c5618f44dd2e27cc8bfbfda # v3
         with:
           tag_name: ${{ github.event.inputs.tag || github.ref_name }}
           body_path: release_body.md
@@ -85,11 +85,11 @@ jobs:
     runs-on: ${{ matrix.os }}
 
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
 
-      - uses: actions/setup-node@v6
+      - uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6
         with:
-          node-version: 20
+          node-version: 22
           cache: npm
 
       - name: Install Linux build dependencies
@@ -103,7 +103,7 @@ jobs:
 
       - name: Import signing certificate (macOS)
         if: matrix.os == 'macos-latest'
-        uses: apple-actions/import-codesign-certs@v7
+        uses: apple-actions/import-codesign-certs@5142e029c445c10ffc7149d172e540235a065466 # v7
         with:
           p12-file-base64: ${{ secrets.MACOS_CERTIFICATE }}
           p12-password: ${{ secrets.MACOS_CERTIFICATE_PASSWORD }}
@@ -132,7 +132,7 @@ jobs:
         run: rm -f "$RUNNER_TEMP/apple_api_key.p8"
 
       - name: Upload to GitHub Release
-        uses: softprops/action-gh-release@v3
+        uses: softprops/action-gh-release@b4309332981a82ec1c5618f44dd2e27cc8bfbfda # v3
         with:
           tag_name: ${{ github.event.inputs.tag || github.ref_name }}
           fail_on_unmatched_files: true
