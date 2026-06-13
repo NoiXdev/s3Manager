@@ -1,9 +1,3 @@
-## [1.1.0](https://github.com/NoiXdev/s3Manager/compare/v1.2.0...v1.1.0) (2026-06-13)
-
-### Bug Fixes
-
-* **release:** use ESM changelog preset for conventional-changelog v5/v9 ([d687027](https://github.com/NoiXdev/s3Manager/commit/d6870279a4ed0355b2826ff91772890a9bc7d00f))
-
 ## [1.2.0](https://github.com/NoiXdev/s3Manager/compare/v1.1.0...v1.2.0) (2026-06-13)
 
 ### Features
