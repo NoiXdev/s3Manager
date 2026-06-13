@@ -65,7 +65,7 @@ describe('registerIpc', () => {
 
   it('shell:openExternal rejects non-http schemes', async () => {
     const { handlers, deps } = buildHarness();
-    const res = await handlers.get(CH.openExternal)!('file:///etc/passwd');
+    const res = (await handlers.get(CH.openExternal)!('file:///etc/passwd')) as { ok: boolean };
     expect(res.ok).toBe(false);
     expect(deps.openExternal).not.toHaveBeenCalled();
   });
@@ -232,6 +232,7 @@ describe('registerIpc', () => {
       saveDialog: vi.fn().mockResolvedValue(null),
       selectDirectory: vi.fn().mockResolvedValue('/picked/dir'),
       appVersion: '1.2.3',
+      openExternal: vi.fn().mockResolvedValue(undefined),
     };
     registerIpc(ipcMain, deps);
     const res = (await handlers.get(CH.accountsCreate)!({
