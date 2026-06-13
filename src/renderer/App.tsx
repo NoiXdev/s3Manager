@@ -4,6 +4,7 @@ import { useSettings } from './hooks/useSettings';
 import { useTheme } from './hooks/useTheme';
 import { useLanguage } from './hooks/useLanguage';
 import { SectionNav, type Section } from './components/SectionNav';
+import { AppLogo } from './components/AppLogo';
 import { AccountSelect } from './components/accounts/AccountSelect';
 import { BucketSelect } from './components/buckets/BucketSelect';
 import { ConnectionsScreen } from './components/connections/ConnectionsScreen';
@@ -71,7 +72,10 @@ export function App() {
       <SyncRunProvider>
       <div className="flex h-full text-sm text-slate-800 dark:bg-slate-900 dark:text-slate-100">
         <aside className="flex w-48 shrink-0 flex-col border-r border-slate-200 bg-slate-50 p-3 dark:border-slate-700 dark:bg-slate-900">
-          <h1 className="px-2 pb-3 text-base font-semibold">{t('app.title')}</h1>
+          <div className="flex items-center gap-2 px-2 pb-3">
+            <AppLogo className="h-7 w-7 shrink-0" />
+            <h1 className="text-base font-semibold">{t('app.title')}</h1>
+          </div>
 
           {showSelectors && (
             <div className="flex flex-col gap-2 px-2 pb-3">
@@ -79,19 +83,6 @@ export function App() {
               <BucketSelect accountId={accountId} selectedBucket={bucket} onSelect={selectBucket} />
             </div>
           )}
-
-          <button
-            type="button"
-            onClick={() => setSection('connections')}
-            aria-current={section === 'connections' ? 'page' : undefined}
-            className={`mb-3 rounded px-2 py-1.5 text-left ${
-              section === 'connections'
-                ? 'bg-slate-200 font-medium dark:bg-slate-700'
-                : 'hover:bg-slate-100 dark:hover:bg-slate-800'
-            }`}
-          >
-            {t('app.manageConnections')}
-          </button>
 
           <SectionNav active={section} onSelect={goToSection} />
           <SyncStatus onOpen={() => goToSection('sync')} />

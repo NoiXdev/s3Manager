@@ -60,10 +60,10 @@ describe('App — Files browsing', () => {
     expect(await screen.findByLabelText('Default link expiry')).toBeInTheDocument();
   });
 
-  it('opens the Connections screen from the Manage connections button', async () => {
+  it('opens the Accounts screen from the Accounts nav item', async () => {
     renderApp();
-    await userEvent.click(screen.getByRole('button', { name: 'Manage connections' }));
-    expect(await screen.findByRole('heading', { name: 'Connections' })).toBeInTheDocument();
+    await userEvent.click(screen.getByRole('button', { name: 'Accounts' }));
+    expect(await screen.findByRole('heading', { name: 'Accounts' })).toBeInTheDocument();
   });
 });
 
@@ -103,7 +103,7 @@ describe('App — Connections removal', () => {
       .mockResolvedValue({ ok: true, data: true });
     renderApp();
     await pick('Account', 'AWS prod (Amazon S3)');
-    await userEvent.click(screen.getByRole('button', { name: 'Manage connections' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Accounts' }));
     await userEvent.click(await screen.findByRole('button', { name: 'Remove AWS prod' }));
     await userEvent.click(screen.getByRole('button', { name: 'Files' }));
     expect(screen.getByLabelText('Account')).toHaveTextContent('Select account');
