@@ -64,7 +64,7 @@
     "eslint": "^8.57.1",
     "eslint-plugin-import": "^2.32.0",
     "jsdom": "^29.1.1",
-    "license-checker-rseidelsohn": "^4.4.2",
+    "license-checker-rseidelsohn": "^5.0.1",
     "tailwindcss": "^4.3.0",
     "typescript": "^5.9.3",
     "vite": "^8.0.16",
