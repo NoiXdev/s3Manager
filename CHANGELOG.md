@@ -1,3 +1,19 @@
+## [1.2.1](https://github.com/NoiXdev/s3Manager/compare/v1.2.0...v1.2.1) (2026-06-13)
+
+### Bug Fixes
+
+* **build:** alias tslib to ESM build to fix __extends crash in packaged app ([700d4e8](https://github.com/NoiXdev/s3Manager/commit/700d4e8a7b5dce184675fd9bbab29a46e1da3949))
+* **release:** sync package version to 1.2.0 to match release tag ([9843da2](https://github.com/NoiXdev/s3Manager/commit/9843da241cc9feb32ceb43070652f73869dc5d2f))
+* **release:** use ESM changelog preset for conventional-changelog v5/v9 ([d687027](https://github.com/NoiXdev/s3Manager/commit/d6870279a4ed0355b2826ff91772890a9bc7d00f))
+
+### Documentation
+
+* update CHANGELOG for v1.2.0 [skip ci] ([f8581a7](https://github.com/NoiXdev/s3Manager/commit/f8581a7cf7c3c1ee6084e603e0add1a3e793ae39))
+
+### CI/CD
+
+* **release:** derive package version from release tag ([f4a1cda](https://github.com/NoiXdev/s3Manager/commit/f4a1cdae965096bea7bc6f6a3f2475e417322bf7))
+
 ## [1.2.0](https://github.com/NoiXdev/s3Manager/compare/v1.1.0...v1.2.0) (2026-06-13)
 
 ### Features
