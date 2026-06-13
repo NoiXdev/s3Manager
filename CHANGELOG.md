@@ -1,5 +1,51 @@
-## [1.1.0](https://github.com/NoiXdev/s3Manager/compare/v1.0.0...v1.1.0) (2026-06-12)
+## [1.1.0](https://github.com/NoiXdev/s3Manager/compare/v1.2.0...v1.1.0) (2026-06-13)
 
+### Bug Fixes
+
+* **release:** use ESM changelog preset for conventional-changelog v5/v9 ([d687027](https://github.com/NoiXdev/s3Manager/commit/d6870279a4ed0355b2826ff91772890a9bc7d00f))
+
+## [1.2.0](https://github.com/NoiXdev/s3Manager/compare/v1.1.0...v1.2.0) (2026-06-13)
+
+### Features
+
+* **accounts:** add quick-add account dialog ([0ffd3ce](https://github.com/NoiXdev/s3Manager/commit/0ffd3ce4e220b48ad9f5efac6c418d1b13290e6d))
+* **accounts:** searchable account selector with quick-add ([c3022fc](https://github.com/NoiXdev/s3Manager/commit/c3022fc438c9856d3265067eaec7724070041db3))
+* **app:** logo in sidebar header, Accounts nav replaces button ([d602004](https://github.com/NoiXdev/s3Manager/commit/d602004f5fd1868fd6a5b064b4ccd500b7a3deab))
+* **buckets:** searchable bucket selector with create action ([838ee98](https://github.com/NoiXdev/s3Manager/commit/838ee981636b12c7846741887355095df5ac5acc))
+* **nav:** add menu icons and reorder with Accounts item ([e3b53e0](https://github.com/NoiXdev/s3Manager/commit/e3b53e0542c9cd6a5b2a3db9b9f76ba72cdc85bf))
+* **sync:** searchable endpoint pickers ([1f4a14d](https://github.com/NoiXdev/s3Manager/commit/1f4a14d2b8cd0383540a9837d33d6267c13c53e3))
+* **ui:** add inline AppLogo brand icon ([5a653da](https://github.com/NoiXdev/s3Manager/commit/5a653daa989ed9b5aea908fb18630edd77f1670f))
+* **ui:** add searchable Combobox component ([dddd987](https://github.com/NoiXdev/s3Manager/commit/dddd9876852619d45c48f525967efffbabbc2656))
+
+### Bug Fixes
+
+* **accounts:** narrow form input and test quick-add error path ([ef6432e](https://github.com/NoiXdev/s3Manager/commit/ef6432ebe4669bf2e031d41c63afcc607bc0d9cf))
+* **accounts:** show loading placeholder in account selector ([d1a2e3b](https://github.com/NoiXdev/s3Manager/commit/d1a2e3b3b83084f6f2f7ac80a7343ecc590a7422))
+* **ipc:** fix type errors in register tests ([e2d9290](https://github.com/NoiXdev/s3Manager/commit/e2d9290ef8f0c0c5d0259d948d11d596de3d0519))
+* **release:** commit generated CHANGELOG.md (stage before diff check) ([38586bb](https://github.com/NoiXdev/s3Manager/commit/38586bbc1deded036cc0be63277e7f0d6d086886))
+* **sync:** keep endpoint state when re-selecting the current value ([8f4bc4a](https://github.com/NoiXdev/s3Manager/commit/8f4bc4a26c0bc78664bee1de8708482c9544b827))
+* **ui:** do not re-fire onSelect when choosing the current value ([fce0103](https://github.com/NoiXdev/s3Manager/commit/fce0103a1058516ce62917d1cc0970cbf1cae01d))
+* **ui:** harden Combobox a11y and active-index handling ([1e39148](https://github.com/NoiXdev/s3Manager/commit/1e3914898337c8a370fb55bc2522b96949f73356))
+* **ui:** keep sidebar selectors mounted, disabled off-section ([27a4bcc](https://github.com/NoiXdev/s3Manager/commit/27a4bcc583f3e06afae435e8f07b0d30e7a8a5ff))
+
+### Testing
+
+* **app:** adapt selector interactions to searchable combobox ([7626885](https://github.com/NoiXdev/s3Manager/commit/7626885d0f96206eb36692884ee031692435171b))
+* **buckets:** assert create dialog closes after creation ([5943f70](https://github.com/NoiXdev/s3Manager/commit/5943f708b22901be278b1512ca1275d985e9a4c5))
+
+### Build System
+
+* **deps-dev:** bump conventional-changelog-cli from 4.1.0 to 5.0.0 ([#9](https://github.com/NoiXdev/s3Manager/issues/9)) ([00fcc29](https://github.com/NoiXdev/s3Manager/commit/00fcc29b485da79e0ac2999a59a66fe6a6f436ac))
+* **deps-dev:** bump conventional-changelog-conventionalcommits ([#6](https://github.com/NoiXdev/s3Manager/issues/6)) ([02ed5db](https://github.com/NoiXdev/s3Manager/commit/02ed5db395703d3e96e5547cb314eda2e016f34c))
+* **deps-dev:** bump license-checker-rseidelsohn from 4.4.2 to 5.0.1 ([#5](https://github.com/NoiXdev/s3Manager/issues/5)) ([4ee39de](https://github.com/NoiXdev/s3Manager/commit/4ee39de01ee04abf976fda83dcfdacd8201e1c03))
+* **deps:** bump esbuild, vite and @vitejs/plugin-react ([#18](https://github.com/NoiXdev/s3Manager/issues/18)) ([071f2e0](https://github.com/NoiXdev/s3Manager/commit/071f2e02967e8da46244e2f47078e678db284319))
+* **deps:** bump the minor-and-patch group across 1 directory with 5 updates ([#19](https://github.com/NoiXdev/s3Manager/issues/19)) ([53c9268](https://github.com/NoiXdev/s3Manager/commit/53c926834e7519ce306236785b79f0439954b7b0))
+
+### CI/CD
+
+* add typecheck gate ([4a515b5](https://github.com/NoiXdev/s3Manager/commit/4a515b504b11cea0660f8ae01c0806c760e82a94))
+
+## [1.1.0](https://github.com/NoiXdev/s3Manager/compare/v1.0.0...v1.1.0) (2026-06-12)
 
 ### Features
 
@@ -195,7 +241,6 @@
 * wire settings + app info IPC channels ([626b859](https://github.com/NoiXdev/s3Manager/commit/626b8592db653c81fd9efba529b4cefc83bc1284))
 * wire sync:plan/run/cancel IPC channels + progress event ([1f60b2d](https://github.com/NoiXdev/s3Manager/commit/1f60b2d0e86044d926fb54a6b524c8dfe5df6700))
 
-
 ### Bug Fixes
 
 * bundle node-sqlite3-wasm into packaged app ([a92f555](https://github.com/NoiXdev/s3Manager/commit/a92f55541369382d2a44f0ddd4ff09148bb917f8))
@@ -214,7 +259,6 @@
 * **ui:** clear stale sync result when endpoints change ([0c7f42c](https://github.com/NoiXdev/s3Manager/commit/0c7f42cd8523448d1fa158d25e75e4bde9db2721))
 * **ui:** reject consecutive-dot and IP-form bucket names in client validation ([a5feb01](https://github.com/NoiXdev/s3Manager/commit/a5feb014f16bcd48497038ee56e1a8dab1e13042))
 
-
 ### Refactor
 
 * AddAccountForm -> AccountForm with edit mode ([69aa8ce](https://github.com/NoiXdev/s3Manager/commit/69aa8ce6426ef340ce622352070824e75e8e1b7b))
@@ -227,7 +271,6 @@
 * **ui:** SyncScreen reads run state from SyncRunProvider ([6c0d393](https://github.com/NoiXdev/s3Manager/commit/6c0d393b255af885066ff5bf3c3dfe3c7e96f522))
 * **ui:** trim useSync/useLocalSync to the preview plan mutation ([899bcb8](https://github.com/NoiXdev/s3Manager/commit/899bcb807a30270b48ea560027bea64fe717cd39))
 * **ui:** use EditableMetadata as the metadata mutation arg type ([61d8d69](https://github.com/NoiXdev/s3Manager/commit/61d8d6984d6c8e82301eab77165f3332759e8caa))
-
 
 ### Documentation
 
@@ -289,7 +332,6 @@
 * refine sidebar-selectors spec (sync nuance, controlled editors) ([3e25853](https://github.com/NoiXdev/s3Manager/commit/3e2585305860beea451fa897fc9b0a95f57a8d2e))
 * remove supoerpowers ([c1f73f2](https://github.com/NoiXdev/s3Manager/commit/c1f73f26b3fd746a68fde5801b3b94a93fb8c91c))
 
-
 ### Testing
 
 * add error-path test and clarify metadata clear-contract ([b408d8b](https://github.com/NoiXdev/s3Manager/commit/b408d8b44547dda9079ec700cf2477f3b50bca0f))
@@ -308,7 +350,6 @@
 * **ui:** cover Object Lock inline query-error state ([34c0327](https://github.com/NoiXdev/s3Manager/commit/34c03276bed50b535e17d56e219bd913eec819e2))
 * **ui:** cover useObjects pagination/dedup; add MetadataPanel visibility error state ([5ba13da](https://github.com/NoiXdev/s3Manager/commit/5ba13da204518b09fe9ce51dd8b8ace37193f0c7))
 
-
 ### Build System
 
 * add @electron-forge/maker-dmg dependency ([e5ae749](https://github.com/NoiXdev/s3Manager/commit/e5ae749e8e998b44756d572f05daaafe08acfb92))
@@ -318,7 +359,6 @@
 * drop unused @electron-forge/maker-zip dependency ([d5d9ad8](https://github.com/NoiXdev/s3Manager/commit/d5d9ad854abfda9e3cae5bd9c6f4e47e40666426))
 * sign/notarize macOS app and build DMG via Electron Forge ([59811b2](https://github.com/NoiXdev/s3Manager/commit/59811b2bc3d1b79a273f1418b33a439e1942eda6))
 
-
 ### CI/CD
 
 * bump import-codesign-certs to v7 and clean up notarization key ([de7dd7e](https://github.com/NoiXdev/s3Manager/commit/de7dd7e25b86f0dde85a7fac913fb26339d9ef0e))
@@ -326,4 +366,3 @@
 * **release:** push CHANGELOG to develop via RELEASE_TOKEN PAT ([9377fe0](https://github.com/NoiXdev/s3Manager/commit/9377fe0a668594458cecba03b06e8e5f4508dc3e))
 * sign and notarize the macOS build in release workflow ([ae58a5a](https://github.com/NoiXdev/s3Manager/commit/ae58a5a216370cc66a30f73ba6231d70b95417f4))
 * surface signing/notarization progress to avoid premature cancels ([51c5743](https://github.com/NoiXdev/s3Manager/commit/51c5743d5e454cf55aa316afcf22d746ca85ecf8))
-
