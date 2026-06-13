@@ -17,11 +17,11 @@
     "cors": "CORS",
     "sync": "Synchronizacja",
     "dashboard": "Pulpit",
-    "settings": "Ustawienia"
+    "settings": "Ustawienia",
+    "accounts": "Konta"
   },
   "app": {
     "title": "S3 Manager",
-    "manageConnections": "Zarządzaj połączeniami",
     "comingSoon": "Wkrótce",
     "copyright": "© {{year}} S3 Manager"
   },
@@ -79,7 +79,7 @@
     "quickAddTitle": "Dodaj konto"
   },
   "connections": {
-    "title": "Połączenia",
+    "title": "Konta",
     "addAccount": "+ Dodaj konto",
     "emptyTitle": "Brak kont",
     "emptyHelp": "Dodaj konto Amazon S3 lub Hetzner, aby rozpocząć.",

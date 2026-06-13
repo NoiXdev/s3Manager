@@ -17,11 +17,11 @@
     "cors": "CORS",
     "sync": "Sync",
     "dashboard": "Tablou de bord",
-    "settings": "Setări"
+    "settings": "Setări",
+    "accounts": "Conturi"
   },
   "app": {
     "title": "S3 Manager",
-    "manageConnections": "Gestionează conexiunile",
     "comingSoon": "În curând",
     "copyright": "© {{year}} S3 Manager"
   },
@@ -77,7 +77,7 @@
     "quickAddTitle": "Adaugă cont"
   },
   "connections": {
-    "title": "Conexiuni",
+    "title": "Conturi",
     "addAccount": "+ Adaugă cont",
     "emptyTitle": "Niciun cont încă",
     "emptyHelp": "Adaugă un cont Amazon S3 sau Hetzner pentru a începe.",
