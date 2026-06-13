@@ -6,17 +6,22 @@
     "loading": "Laden…",
     "settingsSaved": "Instellingen opgeslagen"
   },
+  "combobox": {
+    "searchPlaceholder": "Zoeken…",
+    "searchAria": "Opties doorzoeken",
+    "noMatches": "Geen resultaten"
+  },
   "nav": {
     "files": "Bestanden",
     "objectLock": "Object Lock",
     "cors": "CORS",
     "sync": "Sync",
     "dashboard": "Dashboard",
-    "settings": "Instellingen"
+    "settings": "Instellingen",
+    "accounts": "Accounts"
   },
   "app": {
     "title": "S3 Manager",
-    "manageConnections": "Verbindingen beheren",
     "comingSoon": "Binnenkort beschikbaar",
     "copyright": "© {{year}} S3 Manager"
   },
@@ -65,10 +70,12 @@
     "add": "Account toevoegen",
     "select": "Account selecteren",
     "ariaAccount": "Account",
-    "optionLabel": "{{label}} ({{provider}})"
+    "optionLabel": "{{label}} ({{provider}})",
+    "quickAdd": "+ Account toevoegen",
+    "quickAddTitle": "Account toevoegen"
   },
   "connections": {
-    "title": "Verbindingen",
+    "title": "Accounts",
     "addAccount": "+ Account toevoegen",
     "emptyTitle": "Nog geen accounts",
     "emptyHelp": "Voeg een Amazon S3- of Hetzner-account toe om te beginnen.",
@@ -79,7 +86,6 @@
     "ariaBucket": "Bucket",
     "selectAccountFirst": "Selecteer eerst een account",
     "selectBucket": "Bucket selecteren",
-    "createAria": "Bucket aanmaken",
     "createTitle": "Bucket aanmaken",
     "name": "Bucketnaam",
     "nameAria": "Bucketnaam",
@@ -88,7 +94,8 @@
     "enableVersioning": "Versiebeheer inschakelen",
     "createHelp": "De bucket wordt aangemaakt in de regio van dit account. Object Lock kan alleen bij het aanmaken worden ingeschakeld en vereist versiebeheer.",
     "create": "Bucket aanmaken",
-    "created": "Bucket aangemaakt"
+    "created": "Bucket aangemaakt",
+    "quickCreate": "+ Bucket aanmaken"
   },
   "files": {
     "selectBucket": "Selecteer een bucket",

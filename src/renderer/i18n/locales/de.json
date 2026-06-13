@@ -6,17 +6,22 @@
     "loading": "Wird geladen…",
     "settingsSaved": "Einstellungen gespeichert"
   },
+  "combobox": {
+    "searchPlaceholder": "Suchen…",
+    "searchAria": "Optionen durchsuchen",
+    "noMatches": "Keine Treffer"
+  },
   "nav": {
     "files": "Dateien",
     "objectLock": "Object Lock",
     "cors": "CORS",
     "sync": "Sync",
     "dashboard": "Dashboard",
-    "settings": "Einstellungen"
+    "settings": "Einstellungen",
+    "accounts": "Konten"
   },
   "app": {
     "title": "S3 Manager",
-    "manageConnections": "Verbindungen verwalten",
     "comingSoon": "Demnächst verfügbar",
     "copyright": "© {{year}} S3 Manager"
   },
@@ -65,10 +70,12 @@
     "add": "Konto hinzufügen",
     "select": "Konto auswählen",
     "ariaAccount": "Konto",
-    "optionLabel": "{{label}} ({{provider}})"
+    "optionLabel": "{{label}} ({{provider}})",
+    "quickAdd": "+ Konto hinzufügen",
+    "quickAddTitle": "Konto hinzufügen"
   },
   "connections": {
-    "title": "Verbindungen",
+    "title": "Konten",
     "addAccount": "+ Konto hinzufügen",
     "emptyTitle": "Noch keine Konten",
     "emptyHelp": "Fügen Sie ein Amazon S3- oder Hetzner-Konto hinzu, um zu beginnen.",
@@ -79,7 +86,6 @@
     "ariaBucket": "Bucket",
     "selectAccountFirst": "Zuerst Konto auswählen",
     "selectBucket": "Bucket auswählen",
-    "createAria": "Bucket erstellen",
     "createTitle": "Bucket erstellen",
     "name": "Bucket-Name",
     "nameAria": "Bucket-Name",
@@ -88,7 +94,8 @@
     "enableVersioning": "Versionierung aktivieren",
     "createHelp": "Der Bucket wird in der Region dieses Kontos erstellt. Object Lock kann nur bei der Erstellung aktiviert werden und erfordert Versionierung.",
     "create": "Bucket erstellen",
-    "created": "Bucket erstellt"
+    "created": "Bucket erstellt",
+    "quickCreate": "+ Bucket erstellen"
   },
   "files": {
     "selectBucket": "Bucket auswählen",

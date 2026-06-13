@@ -28,12 +28,16 @@ function baseS3(over: Record<string, unknown> = {}) {
   };
 }
 
+async function pick(triggerLabel: string, optionName: string) {
+  await userEvent.click(screen.getByLabelText(triggerLabel));
+  await userEvent.click(await screen.findByRole('option', { name: optionName }));
+}
+
 async function pickBothEndpoints() {
-  await screen.findAllByRole('option', { name: 'AWS' });
-  await userEvent.selectOptions(screen.getByLabelText('Source account'), 'a1');
-  await userEvent.selectOptions(await screen.findByLabelText('Source bucket'), 'src');
-  await userEvent.selectOptions(screen.getByLabelText('Destination account'), 'a2');
-  await userEvent.selectOptions(await screen.findByLabelText('Destination bucket'), 'dst');
+  await pick('Source account', 'AWS');
+  await pick('Source bucket', 'src');
+  await pick('Destination account', 'Hetzner');
+  await pick('Destination bucket', 'dst');
 }
 
 beforeEach(() => {
@@ -78,23 +82,21 @@ describe('SyncScreen', () => {
 
   it('refuses identical source and destination endpoints', async () => {
     wrap(<SyncScreen initialAccountId={null} initialBucket={null} />);
-    await screen.findAllByRole('option', { name: 'AWS' });
-    await userEvent.selectOptions(screen.getByLabelText('Source account'), 'a1');
-    await userEvent.selectOptions(await screen.findByLabelText('Source bucket'), 'src');
-    await userEvent.selectOptions(screen.getByLabelText('Destination account'), 'a1');
-    await userEvent.selectOptions(await screen.findByLabelText('Destination bucket'), 'src');
+    await pick('Source account', 'AWS');
+    await pick('Source bucket', 'src');
+    await pick('Destination account', 'AWS');
+    await pick('Destination bucket', 'src');
     expect(screen.getByText(/Source and destination are the same/)).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Preview' })).toBeDisabled();
   });
 
   it('refuses same-bucket overlapping prefixes (destination inside source)', async () => {
     wrap(<SyncScreen initialAccountId={null} initialBucket={null} />);
-    await screen.findAllByRole('option', { name: 'AWS' });
-    await userEvent.selectOptions(screen.getByLabelText('Source account'), 'a1');
-    await userEvent.selectOptions(await screen.findByLabelText('Source bucket'), 'src');
+    await pick('Source account', 'AWS');
+    await pick('Source bucket', 'src');
     await userEvent.type(screen.getByLabelText('Source prefix'), 'a/');
-    await userEvent.selectOptions(screen.getByLabelText('Destination account'), 'a1');
-    await userEvent.selectOptions(await screen.findByLabelText('Destination bucket'), 'src');
+    await pick('Destination account', 'AWS');
+    await pick('Destination bucket', 'src');
     await userEvent.type(screen.getByLabelText('Destination prefix'), 'a/sub/');
     expect(screen.getByText(/Destination overlaps the source prefix/)).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Preview' })).toBeDisabled();

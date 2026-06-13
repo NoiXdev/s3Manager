@@ -6,17 +6,22 @@
     "loading": "Se încarcă…",
     "settingsSaved": "Setări salvate"
   },
+  "combobox": {
+    "searchPlaceholder": "Caută…",
+    "searchAria": "Caută în opțiuni",
+    "noMatches": "Niciun rezultat"
+  },
   "nav": {
     "files": "Fișiere",
     "objectLock": "Object Lock",
     "cors": "CORS",
     "sync": "Sync",
     "dashboard": "Tablou de bord",
-    "settings": "Setări"
+    "settings": "Setări",
+    "accounts": "Conturi"
   },
   "app": {
     "title": "S3 Manager",
-    "manageConnections": "Gestionează conexiunile",
     "comingSoon": "În curând",
     "copyright": "© {{year}} S3 Manager"
   },
@@ -67,10 +72,12 @@
     "add": "Adaugă cont",
     "select": "Selectează contul",
     "ariaAccount": "Cont",
-    "optionLabel": "{{label}} ({{provider}})"
+    "optionLabel": "{{label}} ({{provider}})",
+    "quickAdd": "+ Adaugă cont",
+    "quickAddTitle": "Adaugă cont"
   },
   "connections": {
-    "title": "Conexiuni",
+    "title": "Conturi",
     "addAccount": "+ Adaugă cont",
     "emptyTitle": "Niciun cont încă",
     "emptyHelp": "Adaugă un cont Amazon S3 sau Hetzner pentru a începe.",
@@ -81,7 +88,6 @@
     "ariaBucket": "Bucket",
     "selectAccountFirst": "Selectează mai întâi contul",
     "selectBucket": "Selectează bucket",
-    "createAria": "Creează bucket",
     "createTitle": "Creează bucket",
     "name": "Nume bucket",
     "nameAria": "Nume bucket",
@@ -90,7 +96,8 @@
     "enableVersioning": "Activează versionarea",
     "createHelp": "Bucketul este creat în regiunea acestui cont. Object Lock poate fi activat doar la creare și necesită versionare.",
     "create": "Creează bucket",
-    "created": "Bucket creat"
+    "created": "Bucket creat",
+    "quickCreate": "+ Creează bucket"
   },
   "files": {
     "selectBucket": "Selectează un bucket",

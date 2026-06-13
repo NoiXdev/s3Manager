@@ -47,10 +47,13 @@ jobs:
         run: |
           git config user.name 'github-actions[bot]'
           git config user.email 'github-actions[bot]@users.noreply.github.com'
-          if git diff --quiet -- CHANGELOG.md; then
+          # Stage first, then check the staged diff: `git diff --quiet` ignores
+          # untracked files, so a freshly generated CHANGELOG.md (not yet tracked)
+          # would be silently skipped. `git add` + `--cached` detects new files too.
+          git add CHANGELOG.md
+          if git diff --cached --quiet -- CHANGELOG.md; then
             echo 'CHANGELOG.md unchanged — nothing to commit.'
           else
-            git add CHANGELOG.md
             git commit -m "docs: update CHANGELOG for ${{ github.event.inputs.tag || github.ref_name }} [skip ci]"
             git push origin HEAD:main
           fi

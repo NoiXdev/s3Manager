@@ -23,9 +23,17 @@ describe('EndpointPicker', () => {
   it('selecting an account emits a reset endpoint with that account', async () => {
     const onChange = vi.fn();
     wrap(<EndpointPicker label="Source" value={empty} onChange={onChange} />);
-    await screen.findByRole('option', { name: 'AWS' });
-    await userEvent.selectOptions(screen.getByLabelText('Source account'), 'acc-1');
+    await userEvent.click(screen.getByLabelText('Source account'));
+    await userEvent.click(await screen.findByRole('option', { name: 'AWS' }));
     expect(onChange).toHaveBeenCalledWith({ accountId: 'acc-1', bucket: null, prefix: '' });
+  });
+
+  it('selecting a bucket keeps the account and resets the prefix', async () => {
+    const onChange = vi.fn();
+    wrap(<EndpointPicker label="Source" value={{ accountId: 'acc-1', bucket: null, prefix: 'old/' }} onChange={onChange} />);
+    await userEvent.click(screen.getByLabelText('Source bucket'));
+    await userEvent.click(await screen.findByRole('option', { name: 'bucket-b' }));
+    expect(onChange).toHaveBeenCalledWith({ accountId: 'acc-1', bucket: 'bucket-b', prefix: '' });
   });
 
   it('editing the prefix emits the updated value', async () => {
@@ -33,5 +41,19 @@ describe('EndpointPicker', () => {
     wrap(<EndpointPicker label="Destination" value={{ accountId: 'acc-1', bucket: 'bucket-a', prefix: '' }} onChange={onChange} />);
     await userEvent.type(screen.getByLabelText('Destination prefix'), 'x');
     expect(onChange).toHaveBeenLastCalledWith({ accountId: 'acc-1', bucket: 'bucket-a', prefix: 'x' });
+  });
+
+  it('offers no quick-create footer actions', async () => {
+    wrap(<EndpointPicker label="Source" value={empty} onChange={() => {}} />);
+    await userEvent.click(screen.getByLabelText('Source account'));
+    expect(screen.queryByRole('button', { name: '+ Add account' })).not.toBeInTheDocument();
+  });
+
+  it('re-selecting the current account does not reset the endpoint', async () => {
+    const onChange = vi.fn();
+    wrap(<EndpointPicker label="Source" value={{ accountId: 'acc-1', bucket: 'bucket-a', prefix: 'keep/' }} onChange={onChange} />);
+    await userEvent.click(screen.getByLabelText('Source account'));
+    await userEvent.click(await screen.findByRole('option', { name: 'AWS' }));
+    expect(onChange).not.toHaveBeenCalled();
   });
 });

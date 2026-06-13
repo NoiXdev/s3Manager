@@ -6,17 +6,22 @@
     "loading": "Loading…",
     "settingsSaved": "Settings saved"
   },
+  "combobox": {
+    "searchPlaceholder": "Search…",
+    "searchAria": "Search options",
+    "noMatches": "No matches"
+  },
   "nav": {
     "files": "Files",
     "objectLock": "Object Lock",
     "cors": "CORS",
     "sync": "Sync",
     "dashboard": "Dashboard",
-    "settings": "Settings"
+    "settings": "Settings",
+    "accounts": "Accounts"
   },
   "app": {
     "title": "S3 Manager",
-    "manageConnections": "Manage connections",
     "comingSoon": "Coming soon",
     "copyright": "© {{year}} S3 Manager"
   },
@@ -65,10 +70,12 @@
     "add": "Add account",
     "select": "Select account",
     "ariaAccount": "Account",
-    "optionLabel": "{{label}} ({{provider}})"
+    "optionLabel": "{{label}} ({{provider}})",
+    "quickAdd": "+ Add account",
+    "quickAddTitle": "Add account"
   },
   "connections": {
-    "title": "Connections",
+    "title": "Accounts",
     "addAccount": "+ Add account",
     "emptyTitle": "No accounts yet",
     "emptyHelp": "Add an Amazon S3 or Hetzner account to get started.",
@@ -79,7 +86,6 @@
     "ariaBucket": "Bucket",
     "selectAccountFirst": "Select account first",
     "selectBucket": "Select bucket",
-    "createAria": "Create bucket",
     "createTitle": "Create bucket",
     "name": "Bucket name",
     "nameAria": "Bucket name",
@@ -88,7 +94,8 @@
     "enableVersioning": "Enable versioning",
     "createHelp": "The bucket is created in this account's region. Object Lock can only be enabled at creation and requires versioning.",
     "create": "Create bucket",
-    "created": "Bucket created"
+    "created": "Bucket created",
+    "quickCreate": "+ Create bucket"
   },
   "files": {
     "selectBucket": "Select a bucket",

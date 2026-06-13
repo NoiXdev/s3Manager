@@ -38,13 +38,16 @@ function renderApp() {
   );
 }
 
+async function pick(triggerLabel: string, optionName: string) {
+  await userEvent.click(screen.getByLabelText(triggerLabel));
+  await userEvent.click(await screen.findByRole('option', { name: optionName }));
+}
+
 describe('App — Files browsing', () => {
   it('drills from account to bucket to object and opens the metadata panel', async () => {
     renderApp();
-    await screen.findByRole('option', { name: 'AWS prod (Amazon S3)' });
-    await userEvent.selectOptions(screen.getByLabelText('Account'), 'a');
-    await screen.findByRole('option', { name: 'assets' });
-    await userEvent.selectOptions(screen.getByLabelText('Bucket'), 'assets');
+    await pick('Account', 'AWS prod (Amazon S3)');
+    await pick('Bucket', 'assets');
     await userEvent.click(await screen.findByText('logo.png'));
     expect(await screen.findByText('Details')).toBeInTheDocument();
     expect(await screen.findByText('private')).toBeInTheDocument();
@@ -57,20 +60,25 @@ describe('App — Files browsing', () => {
     expect(await screen.findByLabelText('Default link expiry')).toBeInTheDocument();
   });
 
-  it('opens the Connections screen from the Manage connections button', async () => {
+  it('opens the Accounts screen from the Accounts nav item', async () => {
     renderApp();
-    await userEvent.click(screen.getByRole('button', { name: 'Manage connections' }));
-    expect(await screen.findByRole('heading', { name: 'Connections' })).toBeInTheDocument();
+    await userEvent.click(screen.getByRole('button', { name: 'Accounts' }));
+    expect(await screen.findByRole('heading', { name: 'Accounts' })).toBeInTheDocument();
+  });
+
+  it('keeps the sidebar selectors visible but disabled outside selector sections', async () => {
+    renderApp();
+    await userEvent.click(screen.getByRole('button', { name: 'Settings' }));
+    expect(screen.getByLabelText('Account')).toBeDisabled();
+    expect(screen.getByLabelText('Bucket')).toBeDisabled();
   });
 });
 
 describe('App — operations feedback', () => {
   it('shows a toast after copying a presigned URL from the metadata panel', async () => {
     renderApp();
-    await screen.findByRole('option', { name: 'AWS prod (Amazon S3)' });
-    await userEvent.selectOptions(screen.getByLabelText('Account'), 'a');
-    await screen.findByRole('option', { name: 'assets' });
-    await userEvent.selectOptions(screen.getByLabelText('Bucket'), 'assets');
+    await pick('Account', 'AWS prod (Amazon S3)');
+    await pick('Bucket', 'assets');
     await userEvent.click(await screen.findByText('logo.png'));
     await userEvent.click(await screen.findByRole('button', { name: 'Copy URL' }));
     expect(await screen.findByText('Signed URL copied')).toBeInTheDocument();
@@ -101,12 +109,11 @@ describe('App — Connections removal', () => {
       .fn()
       .mockResolvedValue({ ok: true, data: true });
     renderApp();
-    await screen.findByRole('option', { name: 'AWS prod (Amazon S3)' });
-    await userEvent.selectOptions(screen.getByLabelText('Account'), 'a');
-    await userEvent.click(screen.getByRole('button', { name: 'Manage connections' }));
+    await pick('Account', 'AWS prod (Amazon S3)');
+    await userEvent.click(screen.getByRole('button', { name: 'Accounts' }));
     await userEvent.click(await screen.findByRole('button', { name: 'Remove AWS prod' }));
     await userEvent.click(screen.getByRole('button', { name: 'Files' }));
-    expect((screen.getByLabelText('Account') as HTMLSelectElement).value).toBe('');
+    expect(screen.getByLabelText('Account')).toHaveTextContent('Select account');
   });
 });
 
@@ -140,8 +147,8 @@ describe('App — Sync', () => {
     await userEvent.click(screen.getByRole('button', { name: 'Local ↔ Bucket' }));
     await userEvent.click(screen.getByRole('button', { name: 'Choose folder…' }));
     await screen.findByText('/data');
-    await userEvent.selectOptions(screen.getByLabelText('Bucket account'), 'a');
-    await userEvent.selectOptions(await screen.findByLabelText('Bucket bucket'), 'assets');
+    await pick('Bucket account', 'AWS prod');
+    await pick('Bucket bucket', 'assets');
     await userEvent.click(screen.getByRole('button', { name: 'Preview' }));
     await userEvent.click(await screen.findByRole('button', { name: 'Run sync' }));
     expect(await screen.findByText('Listing both sides…')).toBeInTheDocument();
@@ -166,8 +173,8 @@ describe('App — Sync', () => {
     await userEvent.click(screen.getByRole('button', { name: 'Local ↔ Bucket' }));
     await userEvent.click(screen.getByRole('button', { name: 'Choose folder…' }));
     await screen.findByText('/data');
-    await userEvent.selectOptions(screen.getByLabelText('Bucket account'), 'a');
-    await userEvent.selectOptions(await screen.findByLabelText('Bucket bucket'), 'assets');
+    await pick('Bucket account', 'AWS prod');
+    await pick('Bucket bucket', 'assets');
     await userEvent.click(screen.getByRole('button', { name: 'Preview' }));
     await userEvent.click(await screen.findByRole('button', { name: 'Run sync' }));
 
