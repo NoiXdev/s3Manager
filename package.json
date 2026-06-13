@@ -61,7 +61,7 @@
     "conventional-changelog-cli": "^4.1.0",
     "conventional-changelog-conventionalcommits": "^7.0.2",
     "electron": "42.4.0",
-    "eslint": "^8.57.1",
+    "eslint": "^10.5.0",
     "eslint-plugin-import": "^2.32.0",
     "jsdom": "^29.1.1",
     "license-checker-rseidelsohn": "^4.4.2",
