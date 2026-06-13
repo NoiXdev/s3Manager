@@ -25,7 +25,7 @@
     "generate:icons": "bash scripts/generate-icons.sh",
     "generate:licenses": "node scripts/generate-licenses.mjs",
     "prepackage": "npm run generate:licenses",
-    "changelog": "conventional-changelog -n ./.github/changelog-preset.cjs -i CHANGELOG.md -s -r 0"
+    "changelog": "conventional-changelog -n ./.github/changelog-preset.mjs -i CHANGELOG.md -s -r 0"
   },
   "keywords": [],
   "author": {
