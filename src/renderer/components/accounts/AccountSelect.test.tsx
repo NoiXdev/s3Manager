@@ -38,6 +38,11 @@ describe('AccountSelect', () => {
     await waitFor(() => expect(screen.getByLabelText('Account')).toHaveTextContent('Select account'));
   });
 
+  it('is disabled when the disabled prop is set', () => {
+    wrap(<AccountSelect selectedId={null} onSelect={() => {}} disabled />);
+    expect(screen.getByLabelText('Account')).toBeDisabled();
+  });
+
   it('filters accounts by search text', async () => {
     wrap(<AccountSelect selectedId={null} onSelect={() => {}} />);
     await userEvent.click(screen.getByLabelText('Account'));

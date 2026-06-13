@@ -65,7 +65,7 @@ export function App() {
     setSection('files');
   };
 
-  const showSelectors = SELECTOR_SECTIONS.includes(section);
+  const selectorsActive = SELECTOR_SECTIONS.includes(section);
 
   return (
     <ToastProvider>
@@ -77,12 +77,17 @@ export function App() {
             <h1 className="text-base font-semibold">{t('app.title')}</h1>
           </div>
 
-          {showSelectors && (
-            <div className="flex flex-col gap-2 px-2 pb-3">
-              <AccountSelect selectedId={accountId} onSelect={selectAccount} />
-              <BucketSelect accountId={accountId} selectedBucket={bucket} onSelect={selectBucket} />
-            </div>
-          )}
+          {/* Always rendered so navigating never shifts the menu; disabled on
+              sections that don't use a single sidebar account/bucket. */}
+          <div className="flex flex-col gap-2 px-2 pb-3">
+            <AccountSelect selectedId={accountId} onSelect={selectAccount} disabled={!selectorsActive} />
+            <BucketSelect
+              accountId={accountId}
+              selectedBucket={bucket}
+              onSelect={selectBucket}
+              disabled={!selectorsActive}
+            />
+          </div>
 
           <SectionNav active={section} onSelect={goToSection} />
           <SyncStatus onOpen={() => goToSection('sync')} />

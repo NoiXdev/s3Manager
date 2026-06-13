@@ -36,6 +36,11 @@ describe('BucketSelect', () => {
     expect(screen.getByLabelText('Bucket')).toHaveTextContent('Select account first');
   });
 
+  it('is disabled by the disabled prop even when an account is selected', () => {
+    wrap(<BucketSelect accountId="acc-1" selectedBucket={null} onSelect={() => {}} disabled />);
+    expect(screen.getByLabelText('Bucket')).toBeDisabled();
+  });
+
   it('opens the create-bucket dialog from the footer action', async () => {
     wrap(<BucketSelect accountId="acc-1" selectedBucket={null} onSelect={() => {}} />);
     await userEvent.click(screen.getByLabelText('Bucket'));

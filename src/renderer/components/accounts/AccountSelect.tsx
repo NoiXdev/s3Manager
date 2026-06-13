@@ -13,9 +13,11 @@ function providerLabel(provider: ProviderId): string {
 export function AccountSelect({
   selectedId,
   onSelect,
+  disabled = false,
 }: {
   selectedId: string | null;
   onSelect: (id: string) => void;
+  disabled?: boolean;
 }) {
   const { t } = useTranslation();
   const accounts = useAccounts();
@@ -34,6 +36,7 @@ export function AccountSelect({
         onSelect={onSelect}
         placeholder={accounts.isLoading ? t('common.loading') : t('accounts.select')}
         ariaLabel={t('accounts.ariaAccount')}
+        disabled={disabled}
         loading={accounts.isLoading}
         footerAction={{ label: t('accounts.quickAdd'), onClick: () => setAdding(true) }}
       />

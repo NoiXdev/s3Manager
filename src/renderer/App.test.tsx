@@ -65,6 +65,13 @@ describe('App — Files browsing', () => {
     await userEvent.click(screen.getByRole('button', { name: 'Accounts' }));
     expect(await screen.findByRole('heading', { name: 'Accounts' })).toBeInTheDocument();
   });
+
+  it('keeps the sidebar selectors visible but disabled outside selector sections', async () => {
+    renderApp();
+    await userEvent.click(screen.getByRole('button', { name: 'Settings' }));
+    expect(screen.getByLabelText('Account')).toBeDisabled();
+    expect(screen.getByLabelText('Bucket')).toBeDisabled();
+  });
 });
 
 describe('App — operations feedback', () => {

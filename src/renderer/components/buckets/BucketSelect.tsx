@@ -8,10 +8,12 @@ export function BucketSelect({
   accountId,
   selectedBucket,
   onSelect,
+  disabled = false,
 }: {
   accountId: string | null;
   selectedBucket: string | null;
   onSelect: (bucket: string) => void;
+  disabled?: boolean;
 }) {
   const { t } = useTranslation();
   const buckets = useBuckets(accountId);
@@ -32,7 +34,7 @@ export function BucketSelect({
         onSelect={onSelect}
         placeholder={placeholder}
         ariaLabel={t('buckets.ariaBucket')}
-        disabled={accountId === null}
+        disabled={disabled || accountId === null}
         loading={buckets.isLoading && accountId !== null}
         footerAction={
           accountId !== null
