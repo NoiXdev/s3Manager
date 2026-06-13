@@ -36,25 +36,39 @@ jobs:
         # --ignore-scripts skips the Electron binary download we don't need here.
         run: npm ci --ignore-scripts
 
+      - name: Sync package version to release tag
+        # conventional-changelog labels commits-since-the-last-tag with the
+        # package.json version. If package.json lags the tag, the newest section
+        # is mislabeled with a reversed compare link. Derive the version from the
+        # tag (strip the leading "v") and write it back so the labels match.
+        # --allow-same-version makes this a no-op when they already agree.
+        run: |
+          TAG='${{ github.event.inputs.tag || github.ref_name }}'
+          npm version "${TAG#v}" --no-git-tag-version --allow-same-version
+
       - name: Generate full CHANGELOG.md
-        run: npm run changelog
+        run: |
+          npm run changelog
+          # conventional-changelog can prepend a blank line; drop any leading
+          # blank lines so the file always starts at the first version heading.
+          sed -i '/./,$!d' CHANGELOG.md
 
       - name: Extract latest release notes
         # Slice out just the newest version section for the GitHub Release body.
         run: awk '/^#{1,3} \[?v?[0-9]+\.[0-9]+/{c++} c==1' CHANGELOG.md > RELEASE_NOTES.md
 
-      - name: Commit CHANGELOG.md back to main
+      - name: Commit version + CHANGELOG back to main
         run: |
           git config user.name 'github-actions[bot]'
           git config user.email 'github-actions[bot]@users.noreply.github.com'
           # Stage first, then check the staged diff: `git diff --quiet` ignores
           # untracked files, so a freshly generated CHANGELOG.md (not yet tracked)
           # would be silently skipped. `git add` + `--cached` detects new files too.
-          git add CHANGELOG.md
-          if git diff --cached --quiet -- CHANGELOG.md; then
-            echo 'CHANGELOG.md unchanged — nothing to commit.'
+          git add package.json CHANGELOG.md
+          if git diff --cached --quiet; then
+            echo 'Version and CHANGELOG.md unchanged — nothing to commit.'
           else
-            git commit -m "docs: update CHANGELOG for ${{ github.event.inputs.tag || github.ref_name }} [skip ci]"
+            git commit -m "chore(release): ${{ github.event.inputs.tag || github.ref_name }} [skip ci]"
             git push origin HEAD:main
           fi
 
@@ -105,6 +119,16 @@ jobs:
 
       - name: Install dependencies
         run: npm ci
+
+      - name: Sync package version to release tag
+        # This job builds from the tagged commit, whose package.json may predate
+        # the version bump the changelog job pushes to main. Set it here too so
+        # the distributables are stamped with the release version (not committed
+        # — the changelog job owns the persisted bump).
+        shell: bash
+        run: |
+          TAG='${{ github.event.inputs.tag || github.ref_name }}'
+          npm version "${TAG#v}" --no-git-tag-version --allow-same-version
 
       - name: Import signing certificate (macOS)
         if: matrix.os == 'macos-latest'
