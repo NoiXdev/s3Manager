@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { FiX } from 'react-icons/fi';
 import { useCreateBucket } from '../../hooks/useCreateBucket';
 import { useToast } from '../ui/ToastProvider';
+import { Modal } from '../ui/Modal';
 
 export function isValidBucketName(name: string): boolean {
   if (!/^[a-z0-9][a-z0-9.-]{1,61}[a-z0-9]$/.test(name)) return false;
@@ -42,8 +43,7 @@ export function CreateBucketDialog({
   };
 
   return (
-    <div className="fixed inset-0 z-10 flex items-center justify-center bg-black/30" role="dialog" aria-modal="true">
-      <div className="w-96 rounded bg-white p-4 shadow-lg dark:bg-slate-900">
+    <Modal onDismiss={onClose} className="w-96 rounded bg-white p-4 shadow-lg dark:bg-slate-900">
         <div className="flex items-center justify-between pb-2">
           <p className="text-sm font-medium text-slate-800 dark:text-slate-100">{t('buckets.createTitle')}</p>
           <button type="button" aria-label={t('common.close')} className="rounded px-2 hover:bg-slate-100 dark:hover:bg-slate-800" onClick={onClose}>
@@ -96,7 +96,6 @@ export function CreateBucketDialog({
             {t('buckets.create')}
           </button>
         </div>
-      </div>
-    </div>
+    </Modal>
   );
 }
