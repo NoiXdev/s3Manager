@@ -17,6 +17,7 @@ const api = {
     test: (input: ApiMap[typeof CH.accountsTest]['args'][0]) => invoke(CH.accountsTest, input),
     export: (a: ApiMap[typeof CH.accountsExport]['args'][0]) => invoke(CH.accountsExport, a),
     import: (a: ApiMap[typeof CH.accountsImport]['args'][0]) => invoke(CH.accountsImport, a),
+    importPreview: (a: ApiMap[typeof CH.accountsImportPreview]['args'][0]) => invoke(CH.accountsImportPreview, a),
   },
   encryptionAvailable: () => invoke(CH.encryptionAvailable),
   listBuckets: (accountId: string) => invoke(CH.listBuckets, accountId),
