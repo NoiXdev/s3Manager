@@ -34,7 +34,7 @@ import { planSync, runSync, type Endpoint } from '../s3/sync';
 import { planLocalSync, runLocalSync } from '../s3/localSync';
 import type { LocalSyncArgs } from '../s3/localSync';
 import type { DefaultRetention } from '../s3/objectLock';
-import type { AccountsRepo } from '../storage/accountsRepo';
+import type { AccountsRepo, Account } from '../storage/accountsRepo';
 import type { SecretsStore, Crypto } from '../storage/secrets';
 import type { SettingsRepo } from '../storage/settingsRepo';
 import type { DB } from '../storage/db';
@@ -246,7 +246,7 @@ export function registerIpc(ipcMain: IpcMainLike, deps: RegisterDeps): void {
     const mode = a.onDuplicate ?? 'copy';
     const existing = deps.accounts.list();
     const result = deps.db.transaction(() => {
-      const out: import('../storage/accountsRepo').Account[] = [];
+      const out: Account[] = [];
       for (const { acc, params } of resolved) {
         const dup = existing.find((e) => e.label === acc.label);
         const fields = {
