@@ -349,7 +349,10 @@
     "imported": "{{count}} conturi importate",
     "importAccounts": "Importă",
     "exportAll": "Exportă tot",
-    "exportAria": "Exportă {{label}}"
+    "exportAria": "Exportă {{label}}",
+    "previewCount": "{{count}} conturi vor fi importate",
+    "encryptedHint": "Criptat — introdu parola pentru previzualizare",
+    "checking": "Se verifică…"
   },
   "dashboard": {
     "title": "Tablou de bord",

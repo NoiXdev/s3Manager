@@ -347,7 +347,10 @@
     "imported": "{{count}} accounts geïmporteerd",
     "importAccounts": "Importeren",
     "exportAll": "Alles exporteren",
-    "exportAria": "{{label}} exporteren"
+    "exportAria": "{{label}} exporteren",
+    "previewCount": "{{count}} accounts worden geïmporteerd",
+    "encryptedHint": "Versleuteld — voer het wachtwoord in voor een voorbeeld",
+    "checking": "Controleren…"
   },
   "dashboard": {
     "title": "Dashboard",
