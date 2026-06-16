@@ -23,7 +23,7 @@ const fakeCrypto: Crypto = {
   decryptString: (b) => b.toString('utf8'),
 };
 
-function buildHarness() {
+function buildHarness(overrides: Record<string, unknown> = {}) {
   const handlers = new Map<string, (...a: unknown[]) => unknown>();
   const progressEvents: { channel: string; payload: unknown }[] = [];
   const ipcMain: IpcMainLike = {
@@ -43,6 +43,7 @@ function buildHarness() {
     selectDirectory: vi.fn().mockResolvedValue('/picked/dir'),
     appVersion: '1.2.3',
     openExternal: vi.fn().mockResolvedValue(undefined),
+    ...overrides,
   };
   registerIpc(ipcMain, deps);
   return { handlers, deps, progressEvents };
@@ -495,6 +496,22 @@ describe('settings & app info handlers', () => {
     };
     expect(res.ok).toBe(true);
     expect(res.data).toEqual({ version: '1.2.3', encryptionAvailable: true, accountCount: 0 });
+  });
+
+  it('app:checkForUpdate reports a newer release as available', async () => {
+    const fetchImpl = vi.fn().mockResolvedValue({
+      status: 200,
+      ok: true,
+      json: async () => ({ tag_name: 'v9.9.9', html_url: 'https://example/release' }),
+    });
+    const { handlers } = buildHarness({ fetchImpl });
+    const res = (await handlers.get(CH.checkForUpdate)!()) as {
+      ok: boolean;
+      data: { updateAvailable: boolean; latestVersion: string };
+    };
+    expect(res.ok).toBe(true);
+    expect(res.data.updateAvailable).toBe(true);
+    expect(res.data.latestVersion).toBe('9.9.9');
   });
 });
 

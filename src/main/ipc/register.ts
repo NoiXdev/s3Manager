@@ -27,6 +27,7 @@ import type { ObjectAcl } from '../s3/objectAcl';
 import { getEditableMetadata, updateObjectMetadata } from '../s3/objectMetadata';
 import { createFolder, moveObject, moveFolder } from '../s3/transfer';
 import { createBucket } from '../s3/buckets';
+import { checkForUpdate } from '../update/checkForUpdate';
 import { planSync, runSync, type Endpoint } from '../s3/sync';
 import { planLocalSync, runLocalSync } from '../s3/localSync';
 import type { LocalSyncArgs } from '../s3/localSync';
@@ -56,6 +57,8 @@ export interface RegisterDeps {
   appVersion: string;
   /** Opens a URL in the user's default browser (Electron shell.openExternal), injected by main.ts. */
   openExternal: (url: string) => Promise<void>;
+  /** Fetch implementation for the update check; defaults to globalThis.fetch. Injectable for tests. */
+  fetchImpl?: typeof fetch;
   /** Applies the chosen theme to native chrome (nativeTheme.themeSource), injected by main.ts. Optional so tests/headless can omit it. */
   applyTheme?: (theme: AppSettings['theme']) => void;
 }
@@ -386,5 +389,8 @@ export function registerIpc(ipcMain: IpcMainLike, deps: RegisterDeps): void {
       encryptionAvailable: deps.crypto.isEncryptionAvailable(),
       accountCount: deps.accounts.list().length,
     }),
+  );
+  h(CH.checkForUpdate, () =>
+    checkForUpdate({ fetchImpl: deps.fetchImpl ?? globalThis.fetch, currentVersion: deps.appVersion }),
   );
 }
