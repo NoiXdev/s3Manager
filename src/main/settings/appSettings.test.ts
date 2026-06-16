@@ -8,13 +8,13 @@ function fakeRepo() {
 
 describe('readSettings', () => {
   it('returns the default expiry when unset', () => {
-    expect(readSettings(fakeRepo())).toEqual({ presignExpirySeconds: 3600, theme: 'system', language: 'system' });
+    expect(readSettings(fakeRepo())).toEqual({ presignExpirySeconds: 3600, theme: 'system', language: 'system', autoCheckUpdates: true, lastUpdateCheckAt: null });
   });
 
   it('returns a valid stored value', () => {
     const repo = fakeRepo();
     repo.set('presignExpirySeconds', '86400');
-    expect(readSettings(repo)).toEqual({ presignExpirySeconds: 86400, theme: 'system', language: 'system' });
+    expect(readSettings(repo)).toEqual({ presignExpirySeconds: 86400, theme: 'system', language: 'system', autoCheckUpdates: true, lastUpdateCheckAt: null });
   });
 
   it('falls back to the default for a non-numeric or out-of-range stored value', () => {
@@ -30,8 +30,8 @@ describe('writeSettings', () => {
   it('persists a value and returns the merged settings', () => {
     const repo = fakeRepo();
     const out = writeSettings(repo, { presignExpirySeconds: 86400 });
-    expect(out).toEqual({ presignExpirySeconds: 86400, theme: 'system', language: 'system' });
-    expect(readSettings(repo)).toEqual({ presignExpirySeconds: 86400, theme: 'system', language: 'system' });
+    expect(out).toEqual({ presignExpirySeconds: 86400, theme: 'system', language: 'system', autoCheckUpdates: true, lastUpdateCheckAt: null });
+    expect(readSettings(repo)).toEqual({ presignExpirySeconds: 86400, theme: 'system', language: 'system', autoCheckUpdates: true, lastUpdateCheckAt: null });
   });
 
   it('clamps to the [1, 604800] range', () => {
@@ -86,5 +86,31 @@ describe('language', () => {
     const repo = fakeRepo();
     expect(writeSettings(repo, { language: 'fr' }).language).toBe('fr');
     expect(writeSettings(repo, { language: 'bogus' as never }).language).toBe('fr');
+  });
+});
+
+describe('update-check settings', () => {
+  function fresh() {
+    const m = new Map<string, string>();
+    return { get: (k: string) => m.get(k), set: (k: string, v: string) => { m.set(k, v); } };
+  }
+
+  it('defaults autoCheckUpdates to true and lastUpdateCheckAt to null', () => {
+    const s = readSettings(fresh());
+    expect(s.autoCheckUpdates).toBe(true);
+    expect(s.lastUpdateCheckAt).toBeNull();
+  });
+
+  it('persists autoCheckUpdates=false', () => {
+    const repo = fresh();
+    expect(writeSettings(repo, { autoCheckUpdates: false }).autoCheckUpdates).toBe(false);
+    expect(readSettings(repo).autoCheckUpdates).toBe(false);
+  });
+
+  it('persists a numeric lastUpdateCheckAt and ignores invalid values', () => {
+    const repo = fresh();
+    expect(writeSettings(repo, { lastUpdateCheckAt: 1700000000000 }).lastUpdateCheckAt).toBe(1700000000000);
+    repo.set('lastUpdateCheckAt', 'nonsense');
+    expect(readSettings(repo).lastUpdateCheckAt).toBeNull();
   });
 });

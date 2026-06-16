@@ -7,6 +7,8 @@ export interface AppSettings {
   presignExpirySeconds: number;
   theme: ThemePreference;
   language: LanguagePreference;
+  autoCheckUpdates: boolean;
+  lastUpdateCheckAt: number | null;
 }
 export interface AppInfo {
   version: string;
@@ -35,7 +37,12 @@ export function readSettings(repo: SettingsRepo): AppSettings {
   const theme: ThemePreference = isTheme(storedTheme) ? storedTheme : 'system';
   const storedLanguage = repo.get('language');
   const language: LanguagePreference = isLanguage(storedLanguage) ? storedLanguage : 'system';
-  return { presignExpirySeconds, theme, language };
+  const storedAuto = repo.get('autoCheckUpdates');
+  const autoCheckUpdates = storedAuto === undefined ? true : storedAuto === 'true';
+  const storedLast = repo.get('lastUpdateCheckAt');
+  const lastN = storedLast !== undefined ? Number(storedLast) : NaN;
+  const lastUpdateCheckAt = Number.isFinite(lastN) && lastN >= 0 ? lastN : null;
+  return { presignExpirySeconds, theme, language, autoCheckUpdates, lastUpdateCheckAt };
 }
 
 export function writeSettings(repo: SettingsRepo, patch: Partial<AppSettings>): AppSettings {
@@ -48,6 +55,17 @@ export function writeSettings(repo: SettingsRepo, patch: Partial<AppSettings>): 
   }
   if (patch.language !== undefined && isLanguage(patch.language)) {
     repo.set('language', patch.language);
+  }
+  if (patch.autoCheckUpdates !== undefined) {
+    repo.set('autoCheckUpdates', String(Boolean(patch.autoCheckUpdates)));
+  }
+  if (
+    patch.lastUpdateCheckAt !== undefined &&
+    patch.lastUpdateCheckAt !== null &&
+    Number.isFinite(patch.lastUpdateCheckAt) &&
+    patch.lastUpdateCheckAt >= 0
+  ) {
+    repo.set('lastUpdateCheckAt', String(Math.round(patch.lastUpdateCheckAt)));
   }
   return readSettings(repo);
 }
