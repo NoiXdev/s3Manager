@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { FiX } from 'react-icons/fi';
 import { useExportAccounts } from '../../hooks/useAccountTransfer';
 import { useToast } from '../ui/ToastProvider';
+import { Modal } from '../ui/Modal';
 
 export function ExportAccountsDialog({ accountIds, onClose }: { accountIds: string[]; onClose: () => void }) {
   const { t } = useTranslation();
@@ -34,8 +35,7 @@ export function ExportAccountsDialog({ accountIds, onClose }: { accountIds: stri
   const field = 'mt-1 w-full rounded border border-slate-300 px-2 py-1 text-sm dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100';
 
   return (
-    <div className="fixed inset-0 z-10 flex items-center justify-center bg-black/30" role="dialog" aria-modal="true">
-      <div className="w-[28rem] max-w-[90vw] rounded bg-white p-4 shadow-lg dark:bg-slate-900">
+    <Modal onDismiss={onClose} className="w-[28rem] max-w-[90vw] rounded bg-white p-4 shadow-lg dark:bg-slate-900">
         <div className="flex items-center justify-between pb-2">
           <p className="text-sm font-medium text-slate-800 dark:text-slate-100">{t('transfer.exportTitle')}</p>
           <button type="button" aria-label={t('common.close')} className="rounded px-2 hover:bg-slate-100 dark:hover:bg-slate-800" onClick={onClose}>
@@ -81,7 +81,6 @@ export function ExportAccountsDialog({ accountIds, onClose }: { accountIds: stri
             </div>
           </>
         )}
-      </div>
-    </div>
+    </Modal>
   );
 }

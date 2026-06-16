@@ -6,6 +6,7 @@ import { useToast } from '../ui/ToastProvider';
 import { humanErrorMessage, errorCode } from '../../lib/result';
 import { UI_PROVIDERS } from '../../lib/providers';
 import type { ImportPreview } from '../../../main/accounts/accountTransfer';
+import { Modal } from '../ui/Modal';
 
 // TransferError codes → their localized message keys.
 const CODE_KEYS: Record<string, string> = {
@@ -90,8 +91,7 @@ export function ImportAccountsDialog({ onClose, onImported }: { onClose: () => v
   const field = 'mt-1 w-full rounded border border-slate-300 px-2 py-1 text-sm dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100';
 
   return (
-    <div className="fixed inset-0 z-10 flex items-center justify-center bg-black/30" role="dialog" aria-modal="true">
-      <div className="w-[28rem] max-w-[90vw] rounded bg-white p-4 shadow-lg dark:bg-slate-900">
+    <Modal onDismiss={onClose} className="w-[28rem] max-w-[90vw] rounded bg-white p-4 shadow-lg dark:bg-slate-900">
         <div className="flex items-center justify-between pb-2">
           <p className="text-sm font-medium text-slate-800 dark:text-slate-100">{t('transfer.importTitle')}</p>
           <button type="button" aria-label={t('common.close')} className="rounded px-2 hover:bg-slate-100 dark:hover:bg-slate-800" onClick={onClose}>
@@ -152,7 +152,6 @@ export function ImportAccountsDialog({ onClose, onImported }: { onClose: () => v
             {t('transfer.import')}
           </button>
         </div>
-      </div>
-    </div>
+    </Modal>
   );
 }

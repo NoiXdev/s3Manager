@@ -20,4 +20,11 @@ describe('ConfirmDialog', () => {
     await userEvent.click(screen.getByRole('button', { name: 'Cancel' }));
     expect(onCancel).toHaveBeenCalled();
   });
+
+  it('cancels on Escape', async () => {
+    const onCancel = vi.fn();
+    render(<ConfirmDialog message="Sure?" confirmLabel="Yes" onConfirm={() => {}} onCancel={onCancel} />);
+    await userEvent.keyboard('{Escape}');
+    expect(onCancel).toHaveBeenCalledTimes(1);
+  });
 });
