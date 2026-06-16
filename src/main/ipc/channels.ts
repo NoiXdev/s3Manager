@@ -9,6 +9,7 @@ import type { ObjectRetention, LegalHoldStatus } from '../s3/objectRetention';
 import type { Endpoint, SyncPlan, SyncResult } from '../s3/sync';
 import type { LocalSyncArgs } from '../s3/localSync';
 import type { AppSettings, AppInfo } from '../settings/appSettings';
+import type { UpdateInfo } from '../update/checkForUpdate';
 import type { ObjectAcl } from '../s3/objectAcl';
 import type { EditableMetadata } from '../s3/objectMetadata';
 
@@ -53,6 +54,7 @@ export const CH = {
   setSettings: 'settings:set',
   getAppInfo: 'app:getInfo',
   openExternal: 'shell:openExternal',
+  checkForUpdate: 'app:checkForUpdate',
   getObjectAcl: 's3:getObjectAcl',
   putObjectAcl: 's3:putObjectAcl',
   getEditableMetadata: 's3:getEditableMetadata',
@@ -137,6 +139,7 @@ export interface ApiMap {
   [CH.setSettings]: { args: [Partial<AppSettings>]; res: Result<AppSettings> };
   [CH.getAppInfo]: { args: []; res: Result<AppInfo> };
   [CH.openExternal]: { args: [string]; res: Result<true> };
+  [CH.checkForUpdate]: { args: []; res: Result<UpdateInfo> };
   [CH.getObjectAcl]: { args: [{ accountId: string; bucket: string; key: string }]; res: Result<ObjectAcl> };
   [CH.putObjectAcl]: { args: [{ accountId: string; bucket: string; key: string; acl: ObjectAcl }]; res: Result<true> };
   [CH.getEditableMetadata]: { args: [{ accountId: string; bucket: string; key: string }]; res: Result<EditableMetadata> };
