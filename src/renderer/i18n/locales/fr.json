@@ -347,7 +347,10 @@
     "imported": "{{count}} comptes importés",
     "importAccounts": "Importer",
     "exportAll": "Tout exporter",
-    "exportAria": "Exporter {{label}}"
+    "exportAria": "Exporter {{label}}",
+    "previewCount": "{{count}} comptes seront importés",
+    "encryptedHint": "Chiffré — saisissez le mot de passe pour prévisualiser",
+    "checking": "Vérification…"
   },
   "dashboard": {
     "title": "Tableau de bord",

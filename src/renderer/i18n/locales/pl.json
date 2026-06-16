@@ -351,7 +351,10 @@
     "imported": "Zaimportowano {{count}} kont",
     "importAccounts": "Importuj",
     "exportAll": "Eksportuj wszystkie",
-    "exportAria": "Eksportuj {{label}}"
+    "exportAria": "Eksportuj {{label}}",
+    "previewCount": "Zostanie zaimportowanych {{count}} kont",
+    "encryptedHint": "Zaszyfrowane — wprowadź hasło, aby wyświetlić podgląd",
+    "checking": "Sprawdzanie…"
   },
   "dashboard": {
     "title": "Pulpit",
