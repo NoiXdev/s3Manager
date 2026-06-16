@@ -264,6 +264,44 @@ describe('registerIpc', () => {
     expect(deps.accounts.list()).toHaveLength(0);
   });
 
+  it('accounts:importPreview returns label+provider (no secret) for a plain export', async () => {
+    const { exportAccounts } = await import('../accounts/accountTransfer');
+    const blob = exportAccounts([
+      { label: 'AWS', provider: 'amazon-s3', region: 'eu-central-1', accessKeyId: 'AK', secretAccessKey: 'SECRET' },
+    ]);
+    const { handlers } = buildHarness();
+    const res = (await handlers.get(CH.accountsImportPreview)!({ blob })) as {
+      ok: boolean;
+      data: { encrypted: boolean; accounts: { label: string; provider: string; secretAccessKey?: string }[] | null };
+    };
+    expect(res.ok).toBe(true);
+    expect(res.data.encrypted).toBe(false);
+    expect(res.data.accounts).toEqual([{ label: 'AWS', provider: 'amazon-s3' }]);
+    expect(res.data.accounts![0]).not.toHaveProperty('secretAccessKey');
+  });
+
+  it('accounts:importPreview reports encrypted without a password and previews with one', async () => {
+    const { exportAccounts } = await import('../accounts/accountTransfer');
+    const blob = exportAccounts([
+      { label: 'Enc', provider: 'amazon-s3', region: 'us-east-1', accessKeyId: 'K', secretAccessKey: 'S' },
+    ], 'pw');
+    const { handlers } = buildHarness();
+    const locked = (await handlers.get(CH.accountsImportPreview)!({ blob })) as { ok: boolean; data: { encrypted: boolean; accounts: unknown } };
+    expect(locked).toEqual({ ok: true, data: { encrypted: true, accounts: null } });
+    const opened = (await handlers.get(CH.accountsImportPreview)!({ blob, password: 'pw' })) as { ok: boolean; data: { encrypted: boolean; accounts: { label: string }[] } };
+    expect(opened.ok).toBe(true);
+    expect(opened.data.accounts).toEqual([{ label: 'Enc', provider: 'amazon-s3' }]);
+  });
+
+  it('accounts:importPreview errors on a wrong password', async () => {
+    const { exportAccounts } = await import('../accounts/accountTransfer');
+    const blob = exportAccounts([{ label: 'Enc', provider: 'amazon-s3', region: 'us-east-1', accessKeyId: 'K', secretAccessKey: 'S' }], 'pw');
+    const { handlers } = buildHarness();
+    const res = (await handlers.get(CH.accountsImportPreview)!({ blob, password: 'WRONG' })) as { ok: boolean; error: { code: string } };
+    expect(res.ok).toBe(false);
+    expect(res.error.code).toBe('IncorrectPassword');
+  });
+
   it('accounts:create rejects an unknown provider and persists nothing', async () => {
     const { handlers, deps } = buildHarness();
     const res = (await handlers.get(CH.accountsCreate)!({

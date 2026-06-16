@@ -12,6 +12,7 @@ import type { AppSettings, AppInfo } from '../settings/appSettings';
 import type { UpdateInfo } from '../update/checkForUpdate';
 import type { ObjectAcl } from '../s3/objectAcl';
 import type { EditableMetadata } from '../s3/objectMetadata';
+import type { ImportPreview } from '../accounts/accountTransfer';
 
 export const CH = {
   accountsList: 'accounts:list',
@@ -21,6 +22,7 @@ export const CH = {
   accountsTest: 'accounts:test',
   accountsExport: 'accounts:export',
   accountsImport: 'accounts:import',
+  accountsImportPreview: 'accounts:importPreview',
   encryptionAvailable: 'secrets:available',
   listBuckets: 's3:listBuckets',
   createBucket: 's3:createBucket',
@@ -110,6 +112,7 @@ export interface ApiMap {
   [CH.accountsTest]: { args: [TestAccountInput]; res: Result<true> };
   [CH.accountsExport]: { args: [{ accountIds: string[]; password?: string }]; res: Result<string> };
   [CH.accountsImport]: { args: [{ blob: string; password?: string }]; res: Result<Account[]> };
+  [CH.accountsImportPreview]: { args: [{ blob: string; password?: string }]; res: Result<ImportPreview> };
   [CH.encryptionAvailable]: { args: []; res: Result<boolean> };
   [CH.listBuckets]: { args: [string]; res: Result<string[]> };
   [CH.createBucket]: { args: [{ accountId: string; bucket: string; objectLock: boolean; versioning: boolean }]; res: Result<true> };

@@ -27,8 +27,8 @@ import type { ObjectAcl } from '../s3/objectAcl';
 import { getEditableMetadata, updateObjectMetadata } from '../s3/objectMetadata';
 import { createFolder, moveObject, moveFolder } from '../s3/transfer';
 import { createBucket } from '../s3/buckets';
-import { exportAccounts, importAccounts, TransferError } from '../accounts/accountTransfer';
-import type { ExportAccount } from '../accounts/accountTransfer';
+import { exportAccounts, importAccounts, TransferError, peekEnvelope } from '../accounts/accountTransfer';
+import type { ExportAccount, ImportPreview } from '../accounts/accountTransfer';
 import { checkForUpdate } from '../update/checkForUpdate';
 import { planSync, runSync, type Endpoint } from '../s3/sync';
 import { planLocalSync, runLocalSync } from '../s3/localSync';
@@ -258,6 +258,27 @@ export function registerIpc(ipcMain: IpcMainLike, deps: RegisterDeps): void {
       });
     })();
     return ok(created);
+  });
+
+  h(CH.accountsImportPreview, (a: { blob: string; password?: string }): Result<ImportPreview> => {
+    let encrypted: boolean;
+    try {
+      encrypted = peekEnvelope(a.blob).encrypted;
+    } catch (e) {
+      if (e instanceof TransferError) return err(e.code, e.message);
+      throw e;
+    }
+    if (encrypted && !a.password) {
+      return ok({ encrypted: true, accounts: null });
+    }
+    let parsed: ExportAccount[];
+    try {
+      parsed = importAccounts(a.blob, a.password);
+    } catch (e) {
+      if (e instanceof TransferError) return err(e.code, e.message);
+      throw e;
+    }
+    return ok({ encrypted, accounts: parsed.map((acc) => ({ label: acc.label, provider: acc.provider })) });
   });
 
   h(CH.listBuckets, (accountId: string) => listBuckets(clientFor(accountId)));
