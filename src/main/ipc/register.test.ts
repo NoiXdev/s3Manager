@@ -71,6 +71,7 @@ describe('registerIpc', () => {
     const openTextFile = vi.fn().mockResolvedValue('file-contents');
     const { handlers } = buildHarness({ openTextFile });
     const res = (await handlers.get(CH.openTextFile)!()) as { ok: boolean; data: string | null };
+    expect(openTextFile).toHaveBeenCalledTimes(1);
     expect(res).toEqual({ ok: true, data: 'file-contents' });
   });
 
