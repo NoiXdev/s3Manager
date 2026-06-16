@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { FiX } from 'react-icons/fi';
 import { useImportAccounts, useImportPreview } from '../../hooks/useAccountTransfer';
+import { useAccounts } from '../../hooks/useAccounts';
 import { useToast } from '../ui/ToastProvider';
 import { humanErrorMessage, errorCode } from '../../lib/result';
 import { UI_PROVIDERS } from '../../lib/providers';
@@ -31,6 +32,8 @@ export function ImportAccountsDialog({ onClose, onImported }: { onClose: () => v
   const [checking, setChecking] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const reqId = useRef(0);
+  const existingAccounts = useAccounts();
+  const [duplicateMode, setDuplicateMode] = useState<'skip' | 'copy' | 'replace'>('skip');
 
   // Background, debounced preview whenever the blob or password changes.
   useEffect(() => {
@@ -77,7 +80,11 @@ export function ImportAccountsDialog({ onClose, onImported }: { onClose: () => v
   const onImport = async () => {
     setError(null);
     try {
-      const created = await importAccounts.mutateAsync({ blob, password: password || undefined });
+      const created = await importAccounts.mutateAsync({
+        blob,
+        password: password || undefined,
+        onDuplicate: collisions.length > 0 ? duplicateMode : 'copy',
+      });
       show(t('transfer.imported', { count: created.length }));
       onImported();
       onClose();
@@ -88,6 +95,8 @@ export function ImportAccountsDialog({ onClose, onImported }: { onClose: () => v
   };
 
   const accounts = preview?.accounts ?? null;
+  const existingLabels = new Set((existingAccounts.data ?? []).map((a) => a.label));
+  const collisions = accounts?.filter((a) => existingLabels.has(a.label)) ?? [];
   const field = 'mt-1 w-full rounded border border-slate-300 px-2 py-1 text-sm dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100';
 
   return (
@@ -130,12 +139,36 @@ export function ImportAccountsDialog({ onClose, onImported }: { onClose: () => v
               <p className="text-slate-700 dark:text-slate-200">{t('transfer.previewCount', { count: accounts.length })}</p>
               <ul className="mt-1 max-h-32 overflow-auto text-slate-600 dark:text-slate-300">
                 {accounts.map((a, i) => (
-                  <li key={i}>{a.label} ({providerLabel(a.provider)})</li>
+                  <li key={i}>
+                    {a.label} ({providerLabel(a.provider)})
+                    {existingLabels.has(a.label) && (
+                      <span className="ml-1 text-amber-600 dark:text-amber-400">— {t('transfer.nameExists')}</span>
+                    )}
+                  </li>
                 ))}
               </ul>
             </div>
           )}
         </div>
+
+        {collisions.length > 0 && (
+          <div className="mt-2">
+            <p className="text-xs text-amber-600 dark:text-amber-400">{t('transfer.duplicateWarning', { count: collisions.length })}</p>
+            <label className="mt-1 block text-sm">
+              {t('transfer.duplicateMode')}
+              <select
+                aria-label={t('transfer.duplicateMode')}
+                className="mt-1 block w-full rounded border border-slate-300 px-2 py-1 text-sm dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
+                value={duplicateMode}
+                onChange={(e) => setDuplicateMode(e.target.value as 'skip' | 'copy' | 'replace')}
+              >
+                <option value="skip">{t('transfer.duplicateSkip')}</option>
+                <option value="copy">{t('transfer.duplicateCopy')}</option>
+                <option value="replace">{t('transfer.duplicateReplace')}</option>
+              </select>
+            </label>
+          </div>
+        )}
 
         {error !== null && <p className="mt-2 text-xs text-red-600 dark:text-red-400">{error}</p>}
 

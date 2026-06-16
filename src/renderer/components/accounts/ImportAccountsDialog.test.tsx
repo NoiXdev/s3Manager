@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import type { ReactNode } from 'react';
@@ -20,6 +20,7 @@ function setS3(over: Record<string, unknown> = {}) {
     accounts: {
       import: vi.fn().mockResolvedValue({ ok: true, data: [{ id: 'n1' }] }),
       importPreview: vi.fn().mockResolvedValue({ ok: true, data: { encrypted: false, accounts: [{ label: 'AWS prod', provider: 'amazon-s3' }] } }),
+      list: vi.fn().mockResolvedValue({ ok: true, data: [] }),
       ...over,
     },
     openTextFile: vi.fn().mockResolvedValue({ ok: true, data: 'FILE-BLOB' }),
@@ -45,7 +46,7 @@ describe('ImportAccountsDialog', () => {
     await screen.findByText('AWS prod (Amazon S3)');
     await userEvent.click(screen.getByRole('button', { name: 'Import' }));
     await screen.findByText('AWS prod (Amazon S3)');
-    expect(window.s3.accounts.import).toHaveBeenCalledWith({ blob: 'BLOB', password: undefined });
+    expect(window.s3.accounts.import).toHaveBeenCalledWith({ blob: 'BLOB', password: undefined, onDuplicate: 'copy' });
     expect(onImported).toHaveBeenCalled();
     expect(onClose).toHaveBeenCalled();
   });
@@ -87,5 +88,28 @@ describe('ImportAccountsDialog', () => {
     wrap(<ImportAccountsDialog onClose={() => {}} onImported={() => {}} />);
     await userEvent.click(screen.getByRole('button', { name: 'Load file' }));
     expect(await screen.findByDisplayValue('FILE-BLOB')).toBeInTheDocument();
+  });
+
+  it('warns about a name collision and imports with the chosen mode', async () => {
+    setS3({
+      list: vi.fn().mockResolvedValue({ ok: true, data: [{ id: 'x', label: 'AWS prod', provider: 'amazon-s3', region: 'r', accessKeyId: 'K', createdAt: 1 }] }),
+    });
+    const onImported = vi.fn();
+    wrap(<ImportAccountsDialog onClose={() => {}} onImported={onImported} />);
+    await userEvent.type(screen.getByLabelText('Import data'), 'BLOB');
+    expect(await screen.findByText('1 names already exist')).toBeInTheDocument();
+    await userEvent.selectOptions(screen.getByLabelText('Existing names'), 'replace');
+    await userEvent.click(screen.getByRole('button', { name: 'Import' }));
+    await waitFor(() => expect(window.s3.accounts.import).toHaveBeenCalledWith({ blob: 'BLOB', password: undefined, onDuplicate: 'replace' }));
+    expect(onImported).toHaveBeenCalled();
+  });
+
+  it('imports with copy mode when there is no collision', async () => {
+    wrap(<ImportAccountsDialog onClose={() => {}} onImported={() => {}} />);
+    await userEvent.type(screen.getByLabelText('Import data'), 'BLOB');
+    await screen.findByText('AWS prod (Amazon S3)');
+    expect(screen.queryByLabelText('Existing names')).not.toBeInTheDocument();
+    await userEvent.click(screen.getByRole('button', { name: 'Import' }));
+    await waitFor(() => expect(window.s3.accounts.import).toHaveBeenCalledWith({ blob: 'BLOB', password: undefined, onDuplicate: 'copy' }));
   });
 });

@@ -350,7 +350,13 @@
     "exportAria": "{{label}} exportieren",
     "previewCount": "{{count}} Konten werden importiert",
     "encryptedHint": "Verschlüsselt — Passwort zur Vorschau eingeben",
-    "checking": "Wird geprüft…"
+    "checking": "Wird geprüft…",
+    "duplicateWarning": "{{count}} Namen existieren bereits",
+    "duplicateMode": "Vorhandene Namen",
+    "duplicateSkip": "Überspringen",
+    "duplicateCopy": "Als Kopie importieren",
+    "duplicateReplace": "Vorhandene ersetzen",
+    "nameExists": "Name existiert"
   },
   "dashboard": {
     "title": "Dashboard",

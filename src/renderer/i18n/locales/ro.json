@@ -352,7 +352,13 @@
     "exportAria": "Exportă {{label}}",
     "previewCount": "{{count}} conturi vor fi importate",
     "encryptedHint": "Criptat — introdu parola pentru previzualizare",
-    "checking": "Se verifică…"
+    "checking": "Se verifică…",
+    "duplicateWarning": "{{count}} nume există deja",
+    "duplicateMode": "Nume existente",
+    "duplicateSkip": "Omite",
+    "duplicateCopy": "Importă drept copii",
+    "duplicateReplace": "Înlocuiește existentele",
+    "nameExists": "numele există"
   },
   "dashboard": {
     "title": "Tablou de bord",
