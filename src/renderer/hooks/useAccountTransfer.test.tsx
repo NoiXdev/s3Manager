@@ -2,7 +2,7 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { renderHook, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import type { ReactNode } from 'react';
-import { useExportAccounts, useImportAccounts } from './useAccountTransfer';
+import { useExportAccounts, useImportAccounts, useImportPreview } from './useAccountTransfer';
 
 function wrapper() {
   const client = new QueryClient({ defaultOptions: { mutations: { retry: false } } });
@@ -16,6 +16,7 @@ beforeEach(() => {
     accounts: {
       export: vi.fn().mockResolvedValue({ ok: true, data: 'BLOB' }),
       import: vi.fn().mockResolvedValue({ ok: true, data: [{ id: 'n1' }] }),
+      importPreview: vi.fn().mockResolvedValue({ ok: true, data: { encrypted: false, accounts: [{ label: 'AWS', provider: 'amazon-s3' }] } }),
     },
   };
 });
@@ -35,5 +36,13 @@ describe('useImportAccounts', () => {
     const { result } = renderHook(() => useImportAccounts(), { wrapper: wrapper() });
     result.current.mutate({ blob: 'BLOB' });
     await waitFor(() => expect(result.current.data).toEqual([{ id: 'n1' }]));
+  });
+});
+
+describe('useImportPreview', () => {
+  it('returns the preview payload', async () => {
+    const { result } = renderHook(() => useImportPreview(), { wrapper: wrapper() });
+    result.current.mutate({ blob: 'BLOB' });
+    await waitFor(() => expect(result.current.data).toEqual({ encrypted: false, accounts: [{ label: 'AWS', provider: 'amazon-s3' }] }));
   });
 });

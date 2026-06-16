@@ -17,3 +17,10 @@ export function useImportAccounts() {
     onSuccess: () => qc.invalidateQueries({ queryKey: accountsKey }),
   });
 }
+
+export function useImportPreview() {
+  return useMutation({
+    mutationFn: async (input: { blob: string; password?: string }) =>
+      unwrap(await window.s3.accounts.importPreview(input)),
+  });
+}
