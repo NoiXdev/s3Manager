@@ -354,7 +354,13 @@
     "exportAria": "Eksportuj {{label}}",
     "previewCount": "Zostanie zaimportowanych {{count}} kont",
     "encryptedHint": "Zaszyfrowane — wprowadź hasło, aby wyświetlić podgląd",
-    "checking": "Sprawdzanie…"
+    "checking": "Sprawdzanie…",
+    "duplicateWarning": "{{count}} nazw już istnieje",
+    "duplicateMode": "Istniejące nazwy",
+    "duplicateSkip": "Pomiń",
+    "duplicateCopy": "Importuj jako kopie",
+    "duplicateReplace": "Zastąp istniejące",
+    "nameExists": "nazwa istnieje"
   },
   "dashboard": {
     "title": "Pulpit",

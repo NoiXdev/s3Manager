@@ -350,7 +350,13 @@
     "exportAria": "{{label}} exporteren",
     "previewCount": "{{count}} accounts worden geïmporteerd",
     "encryptedHint": "Versleuteld — voer het wachtwoord in voor een voorbeeld",
-    "checking": "Controleren…"
+    "checking": "Controleren…",
+    "duplicateWarning": "{{count}} namen bestaan al",
+    "duplicateMode": "Bestaande namen",
+    "duplicateSkip": "Overslaan",
+    "duplicateCopy": "Als kopie importeren",
+    "duplicateReplace": "Bestaande vervangen",
+    "nameExists": "naam bestaat"
   },
   "dashboard": {
     "title": "Dashboard",

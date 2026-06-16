@@ -350,7 +350,13 @@
     "exportAria": "Exporter {{label}}",
     "previewCount": "{{count}} comptes seront importés",
     "encryptedHint": "Chiffré — saisissez le mot de passe pour prévisualiser",
-    "checking": "Vérification…"
+    "checking": "Vérification…",
+    "duplicateWarning": "{{count}} noms existent déjà",
+    "duplicateMode": "Noms existants",
+    "duplicateSkip": "Ignorer",
+    "duplicateCopy": "Importer comme copies",
+    "duplicateReplace": "Remplacer l'existant",
+    "nameExists": "nom existant"
   },
   "dashboard": {
     "title": "Tableau de bord",
