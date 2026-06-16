@@ -128,6 +128,26 @@ describe('App — Dashboard', () => {
   });
 });
 
+describe('App — update check', () => {
+  it('shows a toast when a due startup check finds an update', async () => {
+    const s3 = window.s3 as unknown as Record<string, ReturnType<typeof vi.fn>>;
+    s3.getSettings = vi.fn().mockResolvedValue({ ok: true, data: { presignExpirySeconds: 3600, theme: 'system', autoCheckUpdates: true, lastUpdateCheckAt: null } });
+    s3.setSettings = vi.fn().mockResolvedValue({ ok: true, data: {} });
+    s3.checkForUpdate = vi.fn().mockResolvedValue({ ok: true, data: { currentVersion: '1.0.0', latestVersion: '2.0.0', updateAvailable: true, releaseUrl: 'https://example/r' } });
+    renderApp();
+    expect(await screen.findByText('Update available: 2.0.0')).toBeInTheDocument();
+  });
+
+  it('does not auto-check when the last check was recent', async () => {
+    const s3 = window.s3 as unknown as Record<string, ReturnType<typeof vi.fn>>;
+    s3.getSettings = vi.fn().mockResolvedValue({ ok: true, data: { presignExpirySeconds: 3600, theme: 'system', autoCheckUpdates: true, lastUpdateCheckAt: Date.now() } });
+    s3.checkForUpdate = vi.fn();
+    renderApp();
+    await screen.findByRole('button', { name: 'Files' });
+    expect(s3.checkForUpdate).not.toHaveBeenCalled();
+  });
+});
+
 describe('App — Sync', () => {
   it('shows the Sync screen when the Sync nav item is clicked', async () => {
     renderApp();

@@ -18,6 +18,7 @@ import { SyncSection } from './components/sync/SyncSection';
 import { SyncRunProvider } from './components/sync/SyncRunProvider';
 import { SyncStatus } from './components/sync/SyncStatus';
 import { SettingsScreen } from './components/settings/SettingsScreen';
+import { StartupUpdateCheck } from './components/StartupUpdateCheck';
 
 // Sections whose work targets the single account/bucket chosen in the sidebar.
 const SELECTOR_SECTIONS: Section[] = ['files', 'cors', 'objectLock'];
@@ -69,6 +70,7 @@ export function App() {
 
   return (
     <ToastProvider>
+      <StartupUpdateCheck />
       <SyncRunProvider>
       <div className="flex h-full text-sm text-slate-800 dark:bg-slate-900 dark:text-slate-100">
         <aside className="flex w-48 shrink-0 flex-col border-r border-slate-200 bg-slate-50 p-3 dark:border-slate-700 dark:bg-slate-900">
