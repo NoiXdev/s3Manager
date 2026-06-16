@@ -12,6 +12,7 @@ export interface UpdateInfo {
 }
 
 /** Parse "v1.2.3" / "1.2.3-beta.1" into [1,2,3]; ignores a leading v and any -prerelease suffix. */
+// Pre-release suffixes are dropped: this app does not ship pre-releases, so 1.2.3-beta == 1.2.3 for comparison.
 function parseVersion(v: string): number[] {
   const core = v.replace(/^v/i, '').split('-')[0];
   return core.split('.').map((p) => Number.parseInt(p, 10) || 0);
@@ -59,5 +60,10 @@ export async function checkForUpdate({
   const tag = body.tag_name ?? '';
   const latestVersion = tag.replace(/^v/i, '') || null;
   const updateAvailable = tag !== '' && compareVersions(tag, currentVersion) > 0;
-  return ok({ currentVersion, latestVersion, updateAvailable, releaseUrl: body.html_url ?? RELEASES_PAGE });
+  return ok({
+    currentVersion,
+    latestVersion,
+    updateAvailable,
+    releaseUrl: updateAvailable ? (body.html_url ?? RELEASES_PAGE) : RELEASES_PAGE,
+  });
 }
