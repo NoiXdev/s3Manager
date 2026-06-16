@@ -302,6 +302,45 @@ describe('registerIpc', () => {
     expect(res.error.code).toBe('IncorrectPassword');
   });
 
+  it('accounts:import skips a same-named account when onDuplicate=skip', async () => {
+    const { exportAccounts } = await import('../accounts/accountTransfer');
+    const { handlers, deps } = buildHarness();
+    await handlers.get(CH.accountsCreate)!({ label: 'AWS', provider: 'amazon-s3', region: 'eu-central-1', accessKeyId: 'OLD', secretAccessKey: 'OLDS' });
+    const blob = exportAccounts([
+      { label: 'AWS', provider: 'amazon-s3', region: 'us-east-1', accessKeyId: 'NEW', secretAccessKey: 'NEWS' },
+      { label: 'Fresh', provider: 'amazon-s3', region: 'us-east-1', accessKeyId: 'FK', secretAccessKey: 'FS' },
+    ]);
+    const res = (await handlers.get(CH.accountsImport)!({ blob, onDuplicate: 'skip' })) as { ok: boolean; data: { label: string }[] };
+    expect(res.ok).toBe(true);
+    expect(res.data.map((a) => a.label)).toEqual(['Fresh']);
+    expect(deps.accounts.list().filter((a) => a.label === 'AWS')).toHaveLength(1);
+    expect(deps.accounts.list().find((a) => a.label === 'AWS')!.accessKeyId).toBe('OLD');
+  });
+
+  it('accounts:import creates a copy when onDuplicate=copy (default)', async () => {
+    const { exportAccounts } = await import('../accounts/accountTransfer');
+    const { handlers, deps } = buildHarness();
+    await handlers.get(CH.accountsCreate)!({ label: 'AWS', provider: 'amazon-s3', region: 'eu-central-1', accessKeyId: 'OLD', secretAccessKey: 'OLDS' });
+    const blob = exportAccounts([{ label: 'AWS', provider: 'amazon-s3', region: 'us-east-1', accessKeyId: 'NEW', secretAccessKey: 'NEWS' }]);
+    const res = (await handlers.get(CH.accountsImport)!({ blob })) as { ok: boolean };
+    expect(res.ok).toBe(true);
+    expect(deps.accounts.list().filter((a) => a.label === 'AWS')).toHaveLength(2);
+  });
+
+  it('accounts:import overwrites the existing account when onDuplicate=replace', async () => {
+    const { exportAccounts } = await import('../accounts/accountTransfer');
+    const { handlers, deps } = buildHarness();
+    const created = (await handlers.get(CH.accountsCreate)!({ label: 'AWS', provider: 'amazon-s3', region: 'eu-central-1', accessKeyId: 'OLD', secretAccessKey: 'OLDS' })) as { data: { id: string } };
+    const blob = exportAccounts([{ label: 'AWS', provider: 'amazon-s3', region: 'us-east-1', accessKeyId: 'NEW', secretAccessKey: 'NEWS' }]);
+    const res = (await handlers.get(CH.accountsImport)!({ blob, onDuplicate: 'replace' })) as { ok: boolean; data: { id: string }[] };
+    expect(res.ok).toBe(true);
+    const list = deps.accounts.list().filter((a) => a.label === 'AWS');
+    expect(list).toHaveLength(1);
+    expect(list[0].id).toBe(created.data.id);
+    expect(list[0].accessKeyId).toBe('NEW');
+    expect(deps.secrets.get(created.data.id)).toBe('NEWS');
+  });
+
   it('accounts:create rejects an unknown provider and persists nothing', async () => {
     const { handlers, deps } = buildHarness();
     const res = (await handlers.get(CH.accountsCreate)!({

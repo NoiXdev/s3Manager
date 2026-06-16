@@ -226,7 +226,7 @@ export function registerIpc(ipcMain: IpcMainLike, deps: RegisterDeps): void {
     return ok(exportAccounts(accounts, a.password));
   });
 
-  h(CH.accountsImport, (a: { blob: string; password?: string }) => {
+  h(CH.accountsImport, (a: { blob: string; password?: string; onDuplicate?: 'skip' | 'copy' | 'replace' }) => {
     let parsed: ExportAccount[];
     try {
       parsed = importAccounts(a.blob, a.password);
@@ -243,21 +243,36 @@ export function registerIpc(ipcMain: IpcMainLike, deps: RegisterDeps): void {
       if (!params.ok) return params;
       resolved.push({ acc, params: params.data });
     }
-    const created = deps.db.transaction(() => {
-      return resolved.map(({ acc, params }) => {
-        const a2 = deps.accounts.create({
+    const mode = a.onDuplicate ?? 'copy';
+    const existing = deps.accounts.list();
+    const result = deps.db.transaction(() => {
+      const out: import('../storage/accountsRepo').Account[] = [];
+      for (const { acc, params } of resolved) {
+        const dup = existing.find((e) => e.label === acc.label);
+        const fields = {
           label: acc.label,
           provider: acc.provider,
           endpoint: params.endpoint,
           region: acc.region,
           accessKeyId: acc.accessKeyId,
           forcePathStyle: params.forcePathStyle,
-        });
-        deps.secrets.set(a2.id, acc.secretAccessKey);
-        return a2;
-      });
+        };
+        if (dup && mode === 'skip') {
+          continue;
+        }
+        if (dup && mode === 'replace') {
+          const updated = deps.accounts.update(dup.id, fields);
+          deps.secrets.set(dup.id, acc.secretAccessKey);
+          out.push(updated);
+        } else {
+          const a2 = deps.accounts.create(fields);
+          deps.secrets.set(a2.id, acc.secretAccessKey);
+          out.push(a2);
+        }
+      }
+      return out;
     })();
-    return ok(created);
+    return ok(result);
   });
 
   h(CH.accountsImportPreview, (a: { blob: string; password?: string }): Result<ImportPreview> => {

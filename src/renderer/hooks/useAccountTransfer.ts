@@ -12,7 +12,7 @@ export function useExportAccounts() {
 export function useImportAccounts() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: async (input: { blob: string; password?: string }) =>
+    mutationFn: async (input: { blob: string; password?: string; onDuplicate?: 'skip' | 'copy' | 'replace' }) =>
       unwrap(await window.s3.accounts.import(input)),
     onSuccess: () => qc.invalidateQueries({ queryKey: accountsKey }),
   });
