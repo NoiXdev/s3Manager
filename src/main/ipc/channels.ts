@@ -19,6 +19,8 @@ export const CH = {
   accountsUpdate: 'accounts:update',
   accountsRemove: 'accounts:remove',
   accountsTest: 'accounts:test',
+  accountsExport: 'accounts:export',
+  accountsImport: 'accounts:import',
   encryptionAvailable: 'secrets:available',
   listBuckets: 's3:listBuckets',
   createBucket: 's3:createBucket',
@@ -106,6 +108,8 @@ export interface ApiMap {
   [CH.accountsUpdate]: { args: [UpdateAccountInput]; res: Result<Account> };
   [CH.accountsRemove]: { args: [string]; res: Result<true> };
   [CH.accountsTest]: { args: [TestAccountInput]; res: Result<true> };
+  [CH.accountsExport]: { args: [{ accountIds: string[]; password?: string }]; res: Result<string> };
+  [CH.accountsImport]: { args: [{ blob: string; password?: string }]; res: Result<Account[]> };
   [CH.encryptionAvailable]: { args: []; res: Result<boolean> };
   [CH.listBuckets]: { args: [string]; res: Result<string[]> };
   [CH.createBucket]: { args: [{ accountId: string; bucket: string; objectLock: boolean; versioning: boolean }]; res: Result<true> };

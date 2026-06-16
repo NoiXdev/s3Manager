@@ -27,6 +27,8 @@ import type { ObjectAcl } from '../s3/objectAcl';
 import { getEditableMetadata, updateObjectMetadata } from '../s3/objectMetadata';
 import { createFolder, moveObject, moveFolder } from '../s3/transfer';
 import { createBucket } from '../s3/buckets';
+import { exportAccounts, importAccounts, TransferError } from '../accounts/accountTransfer';
+import type { ExportAccount } from '../accounts/accountTransfer';
 import { checkForUpdate } from '../update/checkForUpdate';
 import { planSync, runSync, type Endpoint } from '../s3/sync';
 import { planLocalSync, runLocalSync } from '../s3/localSync';
@@ -199,6 +201,63 @@ export function registerIpc(ipcMain: IpcMainLike, deps: RegisterDeps): void {
     });
     const r = await listBuckets(client);
     return r.ok ? ok(true as const) : err(r.error.code, r.error.message);
+  });
+
+  h(CH.accountsExport, (a: { accountIds: string[]; password?: string }) => {
+    const accounts: ExportAccount[] = [];
+    for (const id of a.accountIds) {
+      const acc = deps.accounts.get(id);
+      if (!acc) continue;
+      const secret = deps.secrets.get(id);
+      if (secret === undefined) {
+        return err('SecretUnavailable', `Cannot read the secret for account "${acc.label}".`);
+      }
+      accounts.push({
+        label: acc.label,
+        provider: acc.provider,
+        region: acc.region,
+        accessKeyId: acc.accessKeyId,
+        secretAccessKey: secret,
+        endpoint: acc.endpoint,
+        forcePathStyle: acc.forcePathStyle,
+      });
+    }
+    if (accounts.length === 0) return err('NothingToExport', 'No accounts to export.');
+    return ok(exportAccounts(accounts, a.password));
+  });
+
+  h(CH.accountsImport, (a: { blob: string; password?: string }) => {
+    let parsed: ExportAccount[];
+    try {
+      parsed = importAccounts(a.blob, a.password);
+    } catch (e) {
+      if (e instanceof TransferError) return err(e.code, e.message);
+      throw e;
+    }
+    const resolved: { acc: ExportAccount; params: ConnParams }[] = [];
+    for (const acc of parsed) {
+      if (!isKnownProvider(acc.provider)) {
+        return err('InvalidProvider', `Unknown provider: ${acc.provider}`);
+      }
+      const params = resolveConnParams(acc);
+      if (!params.ok) return params;
+      resolved.push({ acc, params: params.data });
+    }
+    const created = deps.db.transaction(() => {
+      return resolved.map(({ acc, params }) => {
+        const a2 = deps.accounts.create({
+          label: acc.label,
+          provider: acc.provider,
+          endpoint: params.endpoint,
+          region: acc.region,
+          accessKeyId: acc.accessKeyId,
+          forcePathStyle: params.forcePathStyle,
+        });
+        deps.secrets.set(a2.id, acc.secretAccessKey);
+        return a2;
+      });
+    })();
+    return ok(created);
   });
 
   h(CH.listBuckets, (accountId: string) => listBuckets(clientFor(accountId)));
