@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { unwrap, humanErrorMessage } from './result';
+import { unwrap, humanErrorMessage, errorCode } from './result';
 
 describe('unwrap', () => {
   it('returns data for an ok Result', () => {
@@ -28,5 +28,15 @@ describe('humanErrorMessage', () => {
 
   it('handles non-Error values', () => {
     expect(humanErrorMessage('boom')).toBe('boom');
+  });
+});
+
+describe('errorCode', () => {
+  it('returns the leading code prefix', () => {
+    expect(errorCode(new Error('IncorrectPassword: Incorrect password.'))).toBe('IncorrectPassword');
+  });
+
+  it('returns null when there is no prefix', () => {
+    expect(errorCode(new Error('plain message'))).toBeNull();
   });
 });
