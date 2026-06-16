@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { Modal } from '../ui/Modal';
 
 export function NameDialog({
   title,
@@ -20,9 +21,8 @@ export function NameDialog({
   const valid = trimmed !== '' && !trimmed.includes('/');
 
   return (
-    <div className="fixed inset-0 z-10 flex items-center justify-center bg-black/30" role="dialog" aria-modal="true">
+    <Modal onDismiss={onCancel} className="w-80 rounded bg-white p-4 shadow-lg dark:bg-slate-900">
       <form
-        className="w-80 rounded bg-white p-4 shadow-lg dark:bg-slate-900"
         onSubmit={(e) => {
           e.preventDefault();
           if (valid) onConfirm(trimmed);
@@ -51,6 +51,6 @@ export function NameDialog({
           </button>
         </div>
       </form>
-    </div>
+    </Modal>
   );
 }
