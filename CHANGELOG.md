@@ -1,3 +1,24 @@
+## [1.3.0](https://github.com/NoiXdev/s3Manager/compare/v1.2.1...v1.3.0) (2026-06-16)
+
+### Features
+
+* **ipc:** expose app:checkForUpdate channel ([aee2779](https://github.com/NoiXdev/s3Manager/commit/aee27793a831cf49621afd53f0f6433d810b83dd))
+* **settings:** add autoCheckUpdates and lastUpdateCheckAt ([185b73e](https://github.com/NoiXdev/s3Manager/commit/185b73e85ff63b65d7411c9df0d593dd2aca4720))
+* **settings:** check-for-updates UI with download link and auto-check toggle ([bf0a737](https://github.com/NoiXdev/s3Manager/commit/bf0a7371c72b3556a081d00e7fe77bdded803bde))
+* **update:** add daily auto-check throttle helper ([848cd0f](https://github.com/NoiXdev/s3Manager/commit/848cd0ff57efdcc62a14a647cabed32fd7a960ee))
+* **update:** add GitHub release version-check module ([3748758](https://github.com/NoiXdev/s3Manager/commit/3748758cf18a1d875974dcf395e85869b8602b8c))
+* **update:** add useUpdateCheck hook ([714290e](https://github.com/NoiXdev/s3Manager/commit/714290ee15c478ebaf2b68f944b51d7abb1bbe24))
+* **update:** daily startup update check with toast ([8d81841](https://github.com/NoiXdev/s3Manager/commit/8d818412edb67523402f0b952d43aa726ea4575d))
+
+### Documentation
+
+* **update:** add update-check design spec and implementation plan ([8536127](https://github.com/NoiXdev/s3Manager/commit/8536127ae4142692a91a3c390c8e9a511f941fe5))
+
+### Testing
+
+* **ipc:** update settings expectation for new update-check fields ([517667b](https://github.com/NoiXdev/s3Manager/commit/517667b396f3cdcb04bad2c040749603cf431b3f))
+* **update:** cover empty-tag and json-error paths; gate release url ([3714d0c](https://github.com/NoiXdev/s3Manager/commit/3714d0c1f1e147af200fca642f126a90b4eafe53))
+
 ## [1.2.1](https://github.com/NoiXdev/s3Manager/compare/v1.2.0...v1.2.1) (2026-06-13)
 
 ### Bug Fixes
