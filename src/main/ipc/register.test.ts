@@ -41,6 +41,8 @@ function buildHarness(overrides: Record<string, unknown> = {}) {
     db,
     saveDialog: vi.fn().mockResolvedValue(null),
     selectDirectory: vi.fn().mockResolvedValue('/picked/dir'),
+    saveTextFile: vi.fn().mockResolvedValue(false),
+    openTextFile: vi.fn().mockResolvedValue(null),
     appVersion: '1.2.3',
     openExternal: vi.fn().mockResolvedValue(undefined),
     ...overrides,
@@ -55,6 +57,21 @@ describe('registerIpc', () => {
     for (const channel of Object.values(CH)) {
       expect(handlers.has(channel)).toBe(true);
     }
+  });
+
+  it('util:saveTextFile delegates to the injected saveTextFile helper', async () => {
+    const saveTextFile = vi.fn().mockResolvedValue(true);
+    const { handlers } = buildHarness({ saveTextFile });
+    const res = (await handlers.get(CH.saveTextFile)!({ defaultName: 'x.txt', contents: 'hi' })) as { ok: boolean; data: { saved: boolean } };
+    expect(saveTextFile).toHaveBeenCalledWith('x.txt', 'hi');
+    expect(res).toEqual({ ok: true, data: { saved: true } });
+  });
+
+  it('util:openTextFile delegates to the injected openTextFile helper', async () => {
+    const openTextFile = vi.fn().mockResolvedValue('file-contents');
+    const { handlers } = buildHarness({ openTextFile });
+    const res = (await handlers.get(CH.openTextFile)!()) as { ok: boolean; data: string | null };
+    expect(res).toEqual({ ok: true, data: 'file-contents' });
   });
 
   it('shell:openExternal opens http(s) urls', async () => {
@@ -232,6 +249,8 @@ describe('registerIpc', () => {
       db,
       saveDialog: vi.fn().mockResolvedValue(null),
       selectDirectory: vi.fn().mockResolvedValue('/picked/dir'),
+      saveTextFile: vi.fn().mockResolvedValue(false),
+      openTextFile: vi.fn().mockResolvedValue(null),
       appVersion: '1.2.3',
       openExternal: vi.fn().mockResolvedValue(undefined),
     };

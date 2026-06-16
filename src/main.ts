@@ -1,5 +1,6 @@
 import { app, BrowserWindow, ipcMain, safeStorage, dialog, shell, nativeTheme } from 'electron';
 import path from 'node:path';
+import { readFile, writeFile } from 'node:fs/promises';
 import started from 'electron-squirrel-startup';
 import { openDatabase } from './main/storage/db';
 import { createAccountsRepo } from './main/storage/accountsRepo';
@@ -31,11 +32,28 @@ function initBackend() {
       : await dialog.showOpenDialog({ properties: ['openDirectory'] });
     return result.canceled || !result.filePaths[0] ? null : result.filePaths[0];
   };
+  const saveTextFile = async (defaultName: string, contents: string): Promise<boolean> => {
+    const win = BrowserWindow.getFocusedWindow();
+    const result = win
+      ? await dialog.showSaveDialog(win, { defaultPath: defaultName })
+      : await dialog.showSaveDialog({ defaultPath: defaultName });
+    if (result.canceled || !result.filePath) return false;
+    await writeFile(result.filePath, contents, 'utf8');
+    return true;
+  };
+  const openTextFile = async (): Promise<string | null> => {
+    const win = BrowserWindow.getFocusedWindow();
+    const result = win
+      ? await dialog.showOpenDialog(win, { properties: ['openFile'] })
+      : await dialog.showOpenDialog({ properties: ['openFile'] });
+    if (result.canceled || !result.filePaths[0]) return null;
+    return readFile(result.filePaths[0], 'utf8');
+  };
   const applyTheme = (theme: 'system' | 'light' | 'dark') => {
     nativeTheme.themeSource = theme;
   };
   applyTheme(readSettings(settings).theme); // honor the persisted choice at launch
-  registerIpc(ipcMain, { accounts, settings, secrets, crypto: safeStorage, db, saveDialog, selectDirectory, appVersion: app.getVersion(), openExternal: (url) => shell.openExternal(url), applyTheme });
+  registerIpc(ipcMain, { accounts, settings, secrets, crypto: safeStorage, db, saveDialog, selectDirectory, saveTextFile, openTextFile, appVersion: app.getVersion(), openExternal: (url) => shell.openExternal(url), applyTheme });
 }
 
 const createWindow = () => {

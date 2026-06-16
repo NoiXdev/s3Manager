@@ -53,6 +53,10 @@ export interface RegisterDeps {
   saveDialog: (defaultFileName: string) => Promise<string | null>;
   /** Shows a native folder picker; resolves the chosen directory, or null if cancelled. */
   selectDirectory: () => Promise<string | null>;
+  /** Saves text to a user-chosen file; resolves true if saved, false if cancelled. Injected by main.ts. */
+  saveTextFile: (defaultName: string, contents: string) => Promise<boolean>;
+  /** Opens a user-chosen text file and resolves its contents, or null if cancelled. Injected by main.ts. */
+  openTextFile: () => Promise<string | null>;
   /** The app version string (Electron app.getVersion()), injected by main.ts. */
   appVersion: string;
   /** Opens a URL in the user's default browser (Electron shell.openExternal), injected by main.ts. */
@@ -390,6 +394,14 @@ export function registerIpc(ipcMain: IpcMainLike, deps: RegisterDeps): void {
       accountCount: deps.accounts.list().length,
     }),
   );
+
+  h(CH.saveTextFile, async (a: { defaultName: string; contents: string }) => {
+    const saved = await deps.saveTextFile(a.defaultName, a.contents);
+    return ok({ saved });
+  });
+
+  h(CH.openTextFile, async () => ok(await deps.openTextFile()));
+
   h(CH.checkForUpdate, () =>
     checkForUpdate({ fetchImpl: deps.fetchImpl ?? globalThis.fetch, currentVersion: deps.appVersion }),
   );
