@@ -43,25 +43,26 @@ export function ExportAccountsDialog({ accountIds, onClose }: { accountIds: stri
           </button>
         </div>
 
-        <label className="block text-sm">
-          {t('transfer.password')}
-          <input type="password" className={field} value={password} onChange={(e) => setPassword(e.target.value)} />
-        </label>
-        {password.length === 0 && (
-          <p className="mt-2 text-xs text-amber-600 dark:text-amber-400">{t('transfer.noPasswordWarning')}</p>
-        )}
-
         {result === null ? (
-          <div className="mt-4 flex justify-end">
-            <button
-              type="button"
-              disabled={exportAccounts.isPending}
-              className="rounded bg-slate-800 px-3 py-1 text-sm text-white hover:bg-slate-700 disabled:opacity-40 dark:bg-slate-200 dark:text-slate-900"
-              onClick={onGenerate}
-            >
-              {t('transfer.generate')}
-            </button>
-          </div>
+          <>
+            <label className="block text-sm">
+              {t('transfer.password')}
+              <input type="password" className={field} value={password} onChange={(e) => setPassword(e.target.value)} />
+            </label>
+            {password.length === 0 && (
+              <p className="mt-2 text-xs text-amber-600 dark:text-amber-400">{t('transfer.noPasswordWarning')}</p>
+            )}
+            <div className="mt-4 flex justify-end">
+              <button
+                type="button"
+                disabled={exportAccounts.isPending}
+                className="rounded bg-slate-800 px-3 py-1 text-sm text-white hover:bg-slate-700 disabled:opacity-40 dark:bg-slate-200 dark:text-slate-900"
+                onClick={onGenerate}
+              >
+                {t('transfer.generate')}
+              </button>
+            </div>
+          </>
         ) : (
           <>
             <textarea
