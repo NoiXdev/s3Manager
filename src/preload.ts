@@ -56,6 +56,8 @@ const api = {
   getEditableMetadata: (a: ApiMap[typeof CH.getEditableMetadata]['args'][0]) => invoke(CH.getEditableMetadata, a),
   updateObjectMetadata: (a: ApiMap[typeof CH.updateObjectMetadata]['args'][0]) => invoke(CH.updateObjectMetadata, a),
   openExternal: (url: string) => invoke(CH.openExternal, url),
+  saveTextFile: (a: ApiMap[typeof CH.saveTextFile]['args'][0]) => invoke(CH.saveTextFile, a),
+  openTextFile: () => invoke(CH.openTextFile),
   onSyncProgress: (cb: (p: SyncProgress) => void) => {
     const listener = (_event: unknown, payload: unknown) => cb(payload as SyncProgress);
     ipcRenderer.on(SYNC_PROGRESS_CHANNEL, listener);

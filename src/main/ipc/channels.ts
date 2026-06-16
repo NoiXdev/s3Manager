@@ -54,6 +54,8 @@ export const CH = {
   setSettings: 'settings:set',
   getAppInfo: 'app:getInfo',
   openExternal: 'shell:openExternal',
+  saveTextFile: 'util:saveTextFile',
+  openTextFile: 'util:openTextFile',
   checkForUpdate: 'app:checkForUpdate',
   getObjectAcl: 's3:getObjectAcl',
   putObjectAcl: 's3:putObjectAcl',
@@ -139,6 +141,8 @@ export interface ApiMap {
   [CH.setSettings]: { args: [Partial<AppSettings>]; res: Result<AppSettings> };
   [CH.getAppInfo]: { args: []; res: Result<AppInfo> };
   [CH.openExternal]: { args: [string]; res: Result<true> };
+  [CH.saveTextFile]: { args: [{ defaultName: string; contents: string }]; res: Result<{ saved: boolean }> };
+  [CH.openTextFile]: { args: []; res: Result<string | null> };
   [CH.checkForUpdate]: { args: []; res: Result<UpdateInfo> };
   [CH.getObjectAcl]: { args: [{ accountId: string; bucket: string; key: string }]; res: Result<ObjectAcl> };
   [CH.putObjectAcl]: { args: [{ accountId: string; bucket: string; key: string; acl: ObjectAcl }]; res: Result<true> };
