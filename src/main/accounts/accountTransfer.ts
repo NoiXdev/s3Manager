@@ -104,7 +104,7 @@ export function importAccounts(blob: string, password?: string): ExportAccount[]
       throw new TransferError('IncorrectPassword', 'Incorrect password or corrupted data.');
     }
   } else {
-    payload = env.data;
+    payload = env.data as string; // parseEnvelope validated typeof env.data === 'string'
   }
 
   let parsedPayload: unknown;
