@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { useTransfer } from '../../hooks/useTransfer';
 import { useToast } from '../ui/ToastProvider';
 import { FolderPicker } from './FolderPicker';
+import { Modal } from '../ui/Modal';
 
 export type MoveItem =
   | { kind: 'file'; name: string; parent: string; key: string }
@@ -49,8 +50,7 @@ export function MoveDialog({
   };
 
   return (
-    <div className="fixed inset-0 z-10 flex items-center justify-center bg-black/30" role="dialog" aria-modal="true">
-      <div className="w-96 rounded bg-white p-4 shadow-lg dark:bg-slate-900">
+    <Modal onDismiss={onClose} className="w-96 rounded bg-white p-4 shadow-lg dark:bg-slate-900">
         <div className="flex items-center justify-between pb-2">
           <p className="text-sm font-medium text-slate-800 dark:text-slate-100">{t('transfer.moveTitle', { name: item.name })}</p>
           <button type="button" aria-label={t('common.cancel')} className="rounded px-2 hover:bg-slate-100 dark:hover:bg-slate-800" onClick={onClose}>
@@ -58,7 +58,6 @@ export function MoveDialog({
           </button>
         </div>
         <FolderPicker accountId={accountId} bucket={bucket} canPick={canPick} onPick={onPick} />
-      </div>
-    </div>
+    </Modal>
   );
 }

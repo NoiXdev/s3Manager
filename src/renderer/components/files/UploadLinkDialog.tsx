@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { FiX } from 'react-icons/fi';
 import { useToast } from '../ui/ToastProvider';
+import { Modal } from '../ui/Modal';
 
 export function UploadLinkDialog({
   accountId,
@@ -47,8 +48,7 @@ export function UploadLinkDialog({
   };
 
   return (
-    <div className="fixed inset-0 z-10 flex items-center justify-center bg-black/30" role="dialog" aria-modal="true">
-      <div className="w-[28rem] rounded bg-white p-4 shadow-lg dark:bg-slate-900">
+    <Modal onDismiss={onClose} className="w-[28rem] rounded bg-white p-4 shadow-lg dark:bg-slate-900">
         <div className="flex items-center justify-between pb-2">
           <p className="text-sm font-medium text-slate-800 dark:text-slate-100">{t('files.uploadLink.title')}</p>
           <button type="button" aria-label={t('common.close')} className="rounded px-2 hover:bg-slate-100 dark:hover:bg-slate-800" onClick={onClose}><FiX className="h-4 w-4" aria-hidden /></button>
@@ -103,7 +103,6 @@ export function UploadLinkDialog({
             </button>
           </div>
         )}
-      </div>
-    </div>
+    </Modal>
   );
 }

@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { FiX, FiTrash2 } from 'react-icons/fi';
 import { useObjectMetadataEditor } from '../../hooks/useObjectMetadataEditor';
 import { useToast } from '../ui/ToastProvider';
+import { Modal } from '../ui/Modal';
 
 interface Pair {
   key: string;
@@ -66,8 +67,7 @@ export function MetadataDialog({
   const field = 'mt-1 w-full rounded border border-slate-300 px-2 py-1 text-sm dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100';
 
   return (
-    <div className="fixed inset-0 z-10 flex items-center justify-center bg-black/30" role="dialog" aria-modal="true">
-      <div className="max-h-[80vh] w-[34rem] overflow-auto rounded bg-white p-4 shadow-lg dark:bg-slate-900">
+    <Modal onDismiss={onClose} className="max-h-[80vh] w-[34rem] overflow-auto rounded bg-white p-4 shadow-lg dark:bg-slate-900">
         <div className="flex items-center justify-between pb-2">
           <p className="text-sm font-medium text-slate-800 dark:text-slate-100">{t('files.metadataDialog.title')}</p>
           <button type="button" aria-label={t('common.close')} className="rounded px-2 hover:bg-slate-100 dark:hover:bg-slate-800" onClick={onClose}><FiX className="h-4 w-4" aria-hidden /></button>
@@ -143,7 +143,6 @@ export function MetadataDialog({
             </div>
           </>
         )}
-      </div>
-    </div>
+    </Modal>
   );
 }
