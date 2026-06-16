@@ -52,7 +52,15 @@
     "hideLicenses_other": "Hide open source licenses ({{count}})",
     "filterPackages": "Filter packages",
     "filterPackagesPlaceholder": "Filter packages…",
-    "noPackagesMatch": "No packages match."
+    "noPackagesMatch": "No packages match.",
+    "checkUpdates": "Check for updates",
+    "checkingUpdates": "Checking…",
+    "upToDate": "You're on the latest version",
+    "updateAvailable": "Version {{version}} available",
+    "updateDownload": "Download",
+    "updateCheckFailed": "Update check failed",
+    "autoCheck": "Check for updates on startup",
+    "autoCheckHelp": "At most once per day."
   },
   "accounts": {
     "label": "Label",
@@ -332,5 +340,8 @@
     "bucketCount_other": "{{count}} buckets",
     "loadingBuckets": "Loading buckets…",
     "loadError": "Couldn't load buckets"
+  },
+  "updates": {
+    "available": "Update available: {{version}}"
   }
 }
