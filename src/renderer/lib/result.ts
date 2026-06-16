@@ -16,3 +16,11 @@ export function humanErrorMessage(error: unknown): string {
   const msg = error instanceof Error ? error.message : String(error);
   return msg.includes(': ') ? msg.split(': ').slice(1).join(': ') : msg;
 }
+
+/** The leading "Code" that {@link unwrap} prepends, or null if the message has
+ *  no such prefix — lets callers map known codes to localized text. */
+export function errorCode(error: unknown): string | null {
+  const msg = error instanceof Error ? error.message : String(error);
+  const i = msg.indexOf(': ');
+  return i > 0 ? msg.slice(0, i) : null;
+}

@@ -3,7 +3,14 @@ import { useTranslation } from 'react-i18next';
 import { FiX } from 'react-icons/fi';
 import { useImportAccounts } from '../../hooks/useAccountTransfer';
 import { useToast } from '../ui/ToastProvider';
-import { humanErrorMessage } from '../../lib/result';
+import { humanErrorMessage, errorCode } from '../../lib/result';
+
+// TransferError codes from the import module → their localized message keys.
+const CODE_KEYS: Record<string, string> = {
+  PasswordRequired: 'transfer.passwordRequired',
+  IncorrectPassword: 'transfer.incorrectPassword',
+  InvalidData: 'transfer.invalidData',
+};
 
 export function ImportAccountsDialog({ onClose, onImported }: { onClose: () => void; onImported: () => void }) {
   const { t } = useTranslation();
@@ -26,7 +33,8 @@ export function ImportAccountsDialog({ onClose, onImported }: { onClose: () => v
       onImported();
       onClose();
     } catch (e) {
-      setError(humanErrorMessage(e));
+      const key = CODE_KEYS[errorCode(e) ?? ''];
+      setError(key ? t(key) : humanErrorMessage(e));
     }
   };
 
