@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { exportAccounts, importAccounts, TransferError, type ExportAccount } from './accountTransfer';
+import { exportAccounts, importAccounts, TransferError, peekEnvelope, type ExportAccount } from './accountTransfer';
 
 const acc: ExportAccount = {
   label: 'AWS prod', provider: 'amazon-s3', region: 'eu-central-1',
@@ -56,5 +56,21 @@ describe('accountTransfer errors', () => {
 
   it('exposes TransferError with a code', () => {
     expect(new TransferError('InvalidData', 'x').code).toBe('InvalidData');
+  });
+});
+
+describe('peekEnvelope', () => {
+  it('reports encrypted=false for a plain export', () => {
+    const blob = exportAccounts([acc]);
+    expect(peekEnvelope(blob)).toEqual({ encrypted: false });
+  });
+
+  it('reports encrypted=true for a password export', () => {
+    const blob = exportAccounts([acc], 'pw');
+    expect(peekEnvelope(blob)).toEqual({ encrypted: true });
+  });
+
+  it('throws InvalidData on garbage', () => {
+    expect(() => peekEnvelope('!!!nope!!!')).toThrow(expect.objectContaining({ code: 'InvalidData' }));
   });
 });

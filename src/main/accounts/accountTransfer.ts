@@ -11,6 +11,11 @@ export interface ExportAccount {
   forcePathStyle?: boolean;
 }
 
+export interface ImportPreview {
+  encrypted: boolean;
+  accounts: { label: string; provider: ProviderId }[] | null;
+}
+
 export type TransferErrorCode = 'PasswordRequired' | 'IncorrectPassword' | 'InvalidData';
 
 export class TransferError extends Error {
@@ -55,7 +60,7 @@ export function exportAccounts(accounts: ExportAccount[], password?: string): st
   return Buffer.from(JSON.stringify(envelope), 'utf8').toString('base64');
 }
 
-export function importAccounts(blob: string, password?: string): ExportAccount[] {
+function parseEnvelope(blob: string): Record<string, unknown> {
   let env: Record<string, unknown>;
   try {
     const json = Buffer.from(blob.trim(), 'base64').toString('utf8');
@@ -68,6 +73,16 @@ export function importAccounts(blob: string, password?: string): ExportAccount[]
   if (env.format !== FORMAT || env.version !== VERSION || typeof env.data !== 'string') {
     throw new TransferError('InvalidData', 'The import data is not a recognized account export.');
   }
+  return env;
+}
+
+/** Report whether an export is password-encrypted, without decrypting it. */
+export function peekEnvelope(blob: string): { encrypted: boolean } {
+  return { encrypted: parseEnvelope(blob).encrypted === true };
+}
+
+export function importAccounts(blob: string, password?: string): ExportAccount[] {
+  const env = parseEnvelope(blob);
 
   let payload: string;
   if (env.encrypted === true) {
