@@ -1,3 +1,48 @@
+## [1.4.0](https://github.com/NoiXdev/s3Manager/compare/v1.3.0...v1.4.0) (2026-06-16)
+
+### Features
+
+* **accounts:** add encrypted account export/import module ([aa2b6ff](https://github.com/NoiXdev/s3Manager/commit/aa2b6ff0958c5207c1ed6c85187447e477bd6295))
+* **accounts:** add export dialog ([3e91aa2](https://github.com/NoiXdev/s3Manager/commit/3e91aa292a11a5de595d53510cf722c3c68fb23b))
+* **accounts:** add import dialog ([56bf3ea](https://github.com/NoiXdev/s3Manager/commit/56bf3ea214b20c72b68543136ae7c8a8f19e3a2e))
+* **accounts:** add peekEnvelope and ImportPreview type ([a59576d](https://github.com/NoiXdev/s3Manager/commit/a59576d1f3c0115ec7345afb591f0ea87670eda7))
+* **accounts:** add transfer hooks and i18n keys ([9e0ab54](https://github.com/NoiXdev/s3Manager/commit/9e0ab54319db175d92efddd9ec66192887652da0))
+* **accounts:** add useImportPreview hook ([0beb02f](https://github.com/NoiXdev/s3Manager/commit/0beb02f982eb1fc6b05b904a6b00676352cb2ce4))
+* **accounts:** export/import entry points in the Accounts screen ([ee62add](https://github.com/NoiXdev/s3Manager/commit/ee62addbcd731e9c036791aeb5df6617be86fee0))
+* **accounts:** hide export password field after generating ([6b4d5df](https://github.com/NoiXdev/s3Manager/commit/6b4d5df6c27cabf98a626c9d9c221cb2557408e4))
+* **accounts:** import duplicate mode (skip/copy/replace) ([f95ff41](https://github.com/NoiXdev/s3Manager/commit/f95ff41fc556173ed651aa52c549d18b40d89423))
+* **accounts:** import preview with conditional password field ([aa145dd](https://github.com/NoiXdev/s3Manager/commit/aa145dd04df2c6358aa56d0bafadc57a58cc1ed6))
+* **accounts:** warn and choose skip/copy/replace on name collisions ([bd02c5d](https://github.com/NoiXdev/s3Manager/commit/bd02c5ddfcb2bb71fb9655451192e130b44c61d9))
+* **ipc:** add accounts export/import channels ([f531b77](https://github.com/NoiXdev/s3Manager/commit/f531b77a51186b910f75a3f4beee02a63f9f8bba))
+* **ipc:** add accounts import preview channel ([b8d8c63](https://github.com/NoiXdev/s3Manager/commit/b8d8c63a6a9f020b5d9368f7ea3eba3a75a01312))
+* **ipc:** add saveTextFile/openTextFile helpers ([36222bc](https://github.com/NoiXdev/s3Manager/commit/36222bc313414309a11b0d78be9a500d4b2f0a4c))
+* **ui:** add dismissible Modal wrapper (Esc + backdrop) ([21ab9da](https://github.com/NoiXdev/s3Manager/commit/21ab9da6e78a24a777abdfc674f64c25162777e8))
+
+### Bug Fixes
+
+* **accounts:** localize import error messages ([0596139](https://github.com/NoiXdev/s3Manager/commit/0596139eebd06f496aefcc3d8e60c5f993b4d386))
+* **accounts:** restore string narrowing lost in parseEnvelope extraction ([934b246](https://github.com/NoiXdev/s3Manager/commit/934b246cfddfd62ccd3e9c4819ce58f15a5b6c3b))
+
+### Refactor
+
+* **ipc:** use top-level Account import in import handler ([49a3715](https://github.com/NoiXdev/s3Manager/commit/49a3715acc74233447183795fad9a70c15dcfb62))
+* **ui:** adopt Modal in account/bucket/confirm dialogs ([7e6f981](https://github.com/NoiXdev/s3Manager/commit/7e6f9819c6c80b3154d669fe0878190cf8e8862e))
+* **ui:** adopt Modal in files/transfer dialogs ([acd297c](https://github.com/NoiXdev/s3Manager/commit/acd297c43e5c030dbe9e5d9a8009242f731a349a))
+* **ui:** extract humanErrorMessage helper for inline errors ([9d82139](https://github.com/NoiXdev/s3Manager/commit/9d82139db682f79b284ce3c88b0aabf763986ef2))
+
+### Documentation
+
+* **accounts:** add account-transfer design specs and plans ([e54102f](https://github.com/NoiXdev/s3Manager/commit/e54102fe8e253101e8ca0f8404fbe91ae4d29f9d))
+
+### Testing
+
+* **accounts:** cover export error toast ([c20b49b](https://github.com/NoiXdev/s3Manager/commit/c20b49b808859e261f6e38f474deb99b5652a9be))
+* **ipc:** assert openTextFile delegation ([e4c2c27](https://github.com/NoiXdev/s3Manager/commit/e4c2c278d0e5898c5930a3542333a8f41fac6096))
+
+### Build System
+
+* **deps-dev:** bump js-yaml from 4.1.1 to 4.2.0 ([572a661](https://github.com/NoiXdev/s3Manager/commit/572a66127e67e026a210b30160765b000fc12ffd))
+
 ## [1.3.0](https://github.com/NoiXdev/s3Manager/compare/v1.2.1...v1.3.0) (2026-06-16)
 
 ### Features
