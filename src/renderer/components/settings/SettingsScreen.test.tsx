@@ -75,4 +75,33 @@ describe('SettingsScreen', () => {
     await userEvent.selectOptions(select, 'de');
     await waitFor(() => expect(window.s3.setSettings).toHaveBeenCalledWith({ language: 'de' }));
   });
+
+  it('checks for updates and offers a download when one is available', async () => {
+    (window as unknown as { s3: unknown }).s3 = {
+      getSettings: vi.fn().mockResolvedValue({ ok: true, data: { presignExpirySeconds: 3600, autoCheckUpdates: true } }),
+      setSettings: vi.fn().mockResolvedValue({ ok: true, data: { presignExpirySeconds: 3600 } }),
+      getAppInfo: vi.fn().mockResolvedValue({ ok: true, data: { version: '1.0.0', encryptionAvailable: true, accountCount: 0 } }),
+      openExternal: vi.fn().mockResolvedValue({ ok: true, data: true }),
+      checkForUpdate: vi.fn().mockResolvedValue({ ok: true, data: { currentVersion: '1.0.0', latestVersion: '2.0.0', updateAvailable: true, releaseUrl: 'https://example/r' } }),
+    };
+    wrap(<SettingsScreen />);
+    await userEvent.click(await screen.findByRole('button', { name: 'Check for updates' }));
+    expect(await screen.findByText('Version 2.0.0 available')).toBeInTheDocument();
+    await userEvent.click(screen.getByRole('button', { name: 'Download' }));
+    expect(window.s3.openExternal).toHaveBeenCalledWith('https://example/r');
+  });
+
+  it('persists the auto-check toggle', async () => {
+    (window as unknown as { s3: unknown }).s3 = {
+      getSettings: vi.fn().mockResolvedValue({ ok: true, data: { presignExpirySeconds: 3600, autoCheckUpdates: true } }),
+      setSettings: vi.fn().mockResolvedValue({ ok: true, data: { presignExpirySeconds: 3600, autoCheckUpdates: false } }),
+      getAppInfo: vi.fn().mockResolvedValue({ ok: true, data: { version: '1.0.0', encryptionAvailable: true, accountCount: 0 } }),
+      openExternal: vi.fn().mockResolvedValue({ ok: true, data: true }),
+      checkForUpdate: vi.fn(),
+    };
+    wrap(<SettingsScreen />);
+    const toggle = await screen.findByLabelText('Check for updates on startup');
+    await userEvent.click(toggle);
+    await waitFor(() => expect(window.s3.setSettings).toHaveBeenCalledWith({ autoCheckUpdates: false }));
+  });
 });

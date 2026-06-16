@@ -52,7 +52,15 @@
     "hideLicenses_other": "Open-sourcelicenties verbergen ({{count}})",
     "filterPackages": "Pakketten filteren",
     "filterPackagesPlaceholder": "Pakketten filteren…",
-    "noPackagesMatch": "Geen pakketten gevonden."
+    "noPackagesMatch": "Geen pakketten gevonden.",
+    "checkUpdates": "Controleren op updates",
+    "checkingUpdates": "Controleren…",
+    "upToDate": "Je gebruikt de nieuwste versie",
+    "updateAvailable": "Versie {{version}} beschikbaar",
+    "updateDownload": "Downloaden",
+    "updateCheckFailed": "Controle op updates mislukt",
+    "autoCheck": "Bij opstarten op updates controleren",
+    "autoCheckHelp": "Hooguit één keer per dag."
   },
   "accounts": {
     "label": "Label",
@@ -332,5 +340,8 @@
     "bucketCount_other": "{{count}} buckets",
     "loadingBuckets": "Buckets laden…",
     "loadError": "Kon buckets niet laden"
+  },
+  "updates": {
+    "available": "Update beschikbaar: {{version}}"
   }
 }

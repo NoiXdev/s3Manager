@@ -56,7 +56,15 @@
     "hideLicenses_other": "Ukryj licencje open source ({{count}})",
     "filterPackages": "Filtruj pakiety",
     "filterPackagesPlaceholder": "Filtruj pakiety…",
-    "noPackagesMatch": "Brak pasujących pakietów."
+    "noPackagesMatch": "Brak pasujących pakietów.",
+    "checkUpdates": "Sprawdź aktualizacje",
+    "checkingUpdates": "Sprawdzanie…",
+    "upToDate": "Masz najnowszą wersję",
+    "updateAvailable": "Dostępna wersja {{version}}",
+    "updateDownload": "Pobierz",
+    "updateCheckFailed": "Sprawdzanie aktualizacji nie powiodło się",
+    "autoCheck": "Sprawdzaj aktualizacje przy starcie",
+    "autoCheckHelp": "Najwyżej raz dziennie."
   },
   "accounts": {
     "label": "Etykieta",
@@ -338,5 +346,8 @@
     "bucketCount_other": "{{count}} bucketów",
     "loadingBuckets": "Ładowanie bucketów…",
     "loadError": "Nie udało się załadować bucketów"
+  },
+  "updates": {
+    "available": "Dostępna aktualizacja: {{version}}"
   }
 }

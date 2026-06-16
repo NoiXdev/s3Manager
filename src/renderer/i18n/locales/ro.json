@@ -54,7 +54,15 @@
     "hideLicenses_other": "Ascunde licențele open source ({{count}})",
     "filterPackages": "Filtrează pachetele",
     "filterPackagesPlaceholder": "Filtrează pachetele…",
-    "noPackagesMatch": "Niciun pachet nu corespunde."
+    "noPackagesMatch": "Niciun pachet nu corespunde.",
+    "checkUpdates": "Caută actualizări",
+    "checkingUpdates": "Se verifică…",
+    "upToDate": "Folosești cea mai recentă versiune",
+    "updateAvailable": "Versiunea {{version}} disponibilă",
+    "updateDownload": "Descarcă",
+    "updateCheckFailed": "Verificarea actualizărilor a eșuat",
+    "autoCheck": "Caută actualizări la pornire",
+    "autoCheckHelp": "Cel mult o dată pe zi."
   },
   "accounts": {
     "label": "Etichetă",
@@ -335,5 +343,8 @@
     "bucketCount_other": "{{count}} de bucket-uri",
     "loadingBuckets": "Se încarcă bucket-urile…",
     "loadError": "Nu s-au putut încărca bucket-urile"
+  },
+  "updates": {
+    "available": "Actualizare disponibilă: {{version}}"
   }
 }

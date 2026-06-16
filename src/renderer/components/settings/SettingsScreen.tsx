@@ -1,4 +1,5 @@
 import { useSettings } from '../../hooks/useSettings';
+import { useUpdateCheck } from '../../hooks/useUpdateCheck';
 import { useToast } from '../ui/ToastProvider';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -42,6 +43,18 @@ export function SettingsScreen() {
   const theme = settings.data?.theme ?? 'system';
   const language = settings.data?.language ?? 'system';
   const [showLicenses, setShowLicenses] = useState(false);
+
+  const autoCheck = settings.data?.autoCheckUpdates ?? true;
+  const check = useUpdateCheck();
+
+  const onToggleAutoCheck = async (value: boolean) => {
+    try {
+      await save.mutateAsync({ autoCheckUpdates: value });
+      show(t('common.settingsSaved'));
+    } catch (e) {
+      show((e as Error).message, 'error');
+    }
+  };
 
   const onChangeExpiry = async (value: number) => {
     try {
@@ -133,6 +146,46 @@ export function SettingsScreen() {
         ) : (
           <p className="py-2 text-slate-500 dark:text-slate-400">{t('common.loading')}</p>
         )}
+      </div>
+
+      <div className="max-w-md pt-4">
+        <button
+          type="button"
+          onClick={() => check.mutate()}
+          disabled={check.isPending}
+          className="rounded border border-slate-300 px-3 py-1 text-sm hover:bg-slate-50 disabled:opacity-50 dark:border-slate-700 dark:hover:bg-slate-800"
+        >
+          {t('settings.checkUpdates')}
+        </button>
+        <div className="pt-2 text-sm" aria-live="polite">
+          {check.isPending && <span className="text-slate-500 dark:text-slate-400">{t('settings.checkingUpdates')}</span>}
+          {check.isError && <span className="text-red-600 dark:text-red-400">{t('settings.updateCheckFailed')}</span>}
+          {check.isSuccess && !check.data.updateAvailable && (
+            <span className="text-slate-600 dark:text-slate-300">{t('settings.upToDate')}</span>
+          )}
+          {check.isSuccess && check.data.updateAvailable && (
+            <span className="text-slate-800 dark:text-slate-100">
+              {t('settings.updateAvailable', { version: check.data.latestVersion })}{' '}
+              <button
+                type="button"
+                onClick={() => void window.s3.openExternal(check.data.releaseUrl)}
+                className="text-sky-700 hover:underline dark:text-sky-400"
+              >
+                {t('settings.updateDownload')}
+              </button>
+            </span>
+          )}
+        </div>
+        <label className="flex items-center gap-2 pt-3 text-sm">
+          <input
+            type="checkbox"
+            checked={autoCheck}
+            disabled={save.isPending}
+            onChange={(e) => void onToggleAutoCheck(e.target.checked)}
+          />
+          {t('settings.autoCheck')}
+        </label>
+        <p className="pt-1 text-xs text-slate-500 dark:text-slate-400">{t('settings.autoCheckHelp')}</p>
       </div>
 
       <div className="max-w-md pt-4">
