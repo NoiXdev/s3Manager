@@ -47,4 +47,13 @@ describe('ExportAccountsDialog', () => {
     await userEvent.type(screen.getByLabelText('Password (optional)'), 'pw');
     expect(screen.queryByText(/secret keys are not encrypted/i)).not.toBeInTheDocument();
   });
+
+  it('toasts an error when generation fails', async () => {
+    (window.s3 as unknown as { accounts: { export: ReturnType<typeof vi.fn> } }).accounts.export = vi
+      .fn()
+      .mockResolvedValue({ ok: false, error: { code: 'SecretUnavailable', message: 'Cannot read the secret.' } });
+    wrap(<ExportAccountsDialog accountIds={['a']} onClose={() => {}} />);
+    await userEvent.click(screen.getByRole('button', { name: 'Generate export' }));
+    expect(await screen.findByText(/Cannot read the secret\./)).toBeInTheDocument();
+  });
 });
