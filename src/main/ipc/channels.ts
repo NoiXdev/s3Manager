@@ -111,7 +111,7 @@ export interface ApiMap {
   [CH.accountsRemove]: { args: [string]; res: Result<true> };
   [CH.accountsTest]: { args: [TestAccountInput]; res: Result<true> };
   [CH.accountsExport]: { args: [{ accountIds: string[]; password?: string }]; res: Result<string> };
-  [CH.accountsImport]: { args: [{ blob: string; password?: string }]; res: Result<Account[]> };
+  [CH.accountsImport]: { args: [{ blob: string; password?: string; onDuplicate?: 'skip' | 'copy' | 'replace' }]; res: Result<Account[]> };
   [CH.accountsImportPreview]: { args: [{ blob: string; password?: string }]; res: Result<ImportPreview> };
   [CH.encryptionAvailable]: { args: []; res: Result<boolean> };
   [CH.listBuckets]: { args: [string]; res: Result<string[]> };
