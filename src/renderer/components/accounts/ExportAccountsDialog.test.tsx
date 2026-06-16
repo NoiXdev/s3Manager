@@ -56,4 +56,12 @@ describe('ExportAccountsDialog', () => {
     await userEvent.click(screen.getByRole('button', { name: 'Generate export' }));
     expect(await screen.findByText(/Cannot read the secret\./)).toBeInTheDocument();
   });
+
+  it('hides the password field once the export string is shown', async () => {
+    wrap(<ExportAccountsDialog accountIds={['a']} onClose={() => {}} />);
+    expect(screen.getByLabelText('Password (optional)')).toBeInTheDocument();
+    await userEvent.click(screen.getByRole('button', { name: 'Generate export' }));
+    await screen.findByLabelText('Export string');
+    expect(screen.queryByLabelText('Password (optional)')).not.toBeInTheDocument();
+  });
 });
