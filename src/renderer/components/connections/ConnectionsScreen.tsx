@@ -1,10 +1,12 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { FiTrash2, FiEdit2 } from 'react-icons/fi';
+import { FiTrash2, FiEdit2, FiUpload } from 'react-icons/fi';
 import { useAccounts, useCreateAccount, useUpdateAccount, useRemoveAccount } from '../../hooks/useAccounts';
 import { ProviderBadge } from '../accounts/ProviderBadge';
 import { AccountForm } from '../accounts/AccountForm';
 import type { Account } from '../../../main/storage/accountsRepo';
+import { ExportAccountsDialog } from '../accounts/ExportAccountsDialog';
+import { ImportAccountsDialog } from '../accounts/ImportAccountsDialog';
 
 // null = list view; 'new' = add form; Account = edit form for that account
 type Editing = null | 'new' | Account;
@@ -17,18 +19,38 @@ export function ConnectionsScreen({ onAccountRemoved }: { onAccountRemoved?: (id
   const removeAccount = useRemoveAccount();
   const [editing, setEditing] = useState<Editing>(null);
 
+  // null = closed; export those ids; or the import dialog
+  const [transfer, setTransfer] = useState<null | { kind: 'export'; ids: string[] } | { kind: 'import' }>(null);
+
   return (
     <div className="h-full overflow-auto p-6">
       <div className="flex items-center justify-between pb-3">
         <h2 className="text-lg font-semibold">{t('connections.title')}</h2>
         {editing === null && (
-          <button
-            type="button"
-            className="rounded border border-slate-300 dark:border-slate-700 px-3 py-1 text-sm hover:bg-slate-50 dark:hover:bg-slate-800"
-            onClick={() => setEditing('new')}
-          >
-            {t('connections.addAccount')}
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              className="rounded border border-slate-300 dark:border-slate-700 px-3 py-1 text-sm hover:bg-slate-50 dark:hover:bg-slate-800"
+              onClick={() => setTransfer({ kind: 'import' })}
+            >
+              {t('transfer.importAccounts')}
+            </button>
+            <button
+              type="button"
+              disabled={!accounts.data || accounts.data.length === 0}
+              className="rounded border border-slate-300 dark:border-slate-700 px-3 py-1 text-sm hover:bg-slate-50 dark:hover:bg-slate-800 disabled:opacity-40"
+              onClick={() => setTransfer({ kind: 'export', ids: (accounts.data ?? []).map((a) => a.id) })}
+            >
+              {t('transfer.exportAll')}
+            </button>
+            <button
+              type="button"
+              className="rounded border border-slate-300 dark:border-slate-700 px-3 py-1 text-sm hover:bg-slate-50 dark:hover:bg-slate-800"
+              onClick={() => setEditing('new')}
+            >
+              {t('connections.addAccount')}
+            </button>
+          </div>
         )}
       </div>
 
@@ -70,6 +92,14 @@ export function ConnectionsScreen({ onAccountRemoved }: { onAccountRemoved?: (id
                 <div className="flex items-center gap-1">
                   <button
                     type="button"
+                    aria-label={t('transfer.exportAria', { label: acc.label })}
+                    className="rounded px-1 text-slate-400 dark:text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-700 dark:hover:text-slate-200"
+                    onClick={() => setTransfer({ kind: 'export', ids: [acc.id] })}
+                  >
+                    <FiUpload className="h-4 w-4" aria-hidden />
+                  </button>
+                  <button
+                    type="button"
                     aria-label={t('connections.editAria', { label: acc.label })}
                     className="rounded px-1 text-slate-400 dark:text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-700 dark:hover:text-slate-200"
                     onClick={() => setEditing(acc)}
@@ -93,6 +123,13 @@ export function ConnectionsScreen({ onAccountRemoved }: { onAccountRemoved?: (id
             ))}
           </ul>
         </>
+      )}
+
+      {transfer?.kind === 'export' && (
+        <ExportAccountsDialog accountIds={transfer.ids} onClose={() => setTransfer(null)} />
+      )}
+      {transfer?.kind === 'import' && (
+        <ImportAccountsDialog onClose={() => setTransfer(null)} onImported={() => undefined} />
       )}
     </div>
   );

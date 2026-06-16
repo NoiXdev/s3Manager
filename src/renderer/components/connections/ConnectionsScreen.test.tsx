@@ -87,4 +87,30 @@ describe('ConnectionsScreen', () => {
     wrap(<ConnectionsScreen />);
     expect(await screen.findByText('No accounts yet')).toBeInTheDocument();
   });
+
+  it('opens the export dialog from a row export button', async () => {
+    wrap(<ConnectionsScreen />);
+    await userEvent.click(await screen.findByRole('button', { name: 'Export AWS prod' }));
+    expect(screen.getByText('Export accounts', { selector: 'p' })).toBeInTheDocument();
+  });
+
+  it('opens the import dialog from the header', async () => {
+    wrap(<ConnectionsScreen />);
+    await userEvent.click(await screen.findByRole('button', { name: 'Import' }));
+    expect(screen.getByText('Import accounts', { selector: 'p' })).toBeInTheDocument();
+  });
+
+  it('opens the export-all dialog from the header', async () => {
+    wrap(<ConnectionsScreen />);
+    await userEvent.click(await screen.findByRole('button', { name: 'Export all' }));
+    expect(screen.getByText('Export accounts', { selector: 'p' })).toBeInTheDocument();
+  });
+
+  it('disables export-all when there are no accounts', async () => {
+    (window.s3 as unknown as { accounts: { list: ReturnType<typeof vi.fn> } }).accounts.list = vi
+      .fn()
+      .mockResolvedValue({ ok: true, data: [] });
+    wrap(<ConnectionsScreen />);
+    await waitFor(() => expect(screen.getByRole('button', { name: 'Export all' })).toBeDisabled());
+  });
 });
