@@ -15,6 +15,8 @@ const api = {
     update: (input: ApiMap[typeof CH.accountsUpdate]['args'][0]) => invoke(CH.accountsUpdate, input),
     remove: (id: string) => invoke(CH.accountsRemove, id),
     test: (input: ApiMap[typeof CH.accountsTest]['args'][0]) => invoke(CH.accountsTest, input),
+    export: (a: ApiMap[typeof CH.accountsExport]['args'][0]) => invoke(CH.accountsExport, a),
+    import: (a: ApiMap[typeof CH.accountsImport]['args'][0]) => invoke(CH.accountsImport, a),
   },
   encryptionAvailable: () => invoke(CH.encryptionAvailable),
   listBuckets: (accountId: string) => invoke(CH.listBuckets, accountId),

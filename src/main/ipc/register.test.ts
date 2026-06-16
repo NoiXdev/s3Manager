@@ -227,6 +227,43 @@ describe('registerIpc', () => {
     void deps;
   });
 
+  it('accounts:export returns a string that imports back to the account incl. secret', async () => {
+    const { handlers } = buildHarness();
+    const created = (await handlers.get(CH.accountsCreate)!({
+      label: 'AWS', provider: 'amazon-s3', region: 'eu-central-1', accessKeyId: 'AK', secretAccessKey: 'SECRET',
+    })) as { ok: true; data: { id: string } };
+    const res = (await handlers.get(CH.accountsExport)!({ accountIds: [created.data.id] })) as { ok: boolean; data: string };
+    expect(res.ok).toBe(true);
+    const { importAccounts } = await import('../accounts/accountTransfer');
+    expect(importAccounts(res.data)).toEqual([
+      { label: 'AWS', provider: 'amazon-s3', region: 'eu-central-1', accessKeyId: 'AK', secretAccessKey: 'SECRET', endpoint: undefined, forcePathStyle: false },
+    ]);
+  });
+
+  it('accounts:import creates the accounts and their secrets', async () => {
+    const { exportAccounts } = await import('../accounts/accountTransfer');
+    const blob = exportAccounts([
+      { label: 'Imported', provider: 'amazon-s3', region: 'us-east-1', accessKeyId: 'IK', secretAccessKey: 'IS' },
+    ]);
+    const { handlers, deps } = buildHarness();
+    const res = (await handlers.get(CH.accountsImport)!({ blob })) as { ok: boolean; data: { id: string }[] };
+    expect(res.ok).toBe(true);
+    expect(res.data).toHaveLength(1);
+    expect(deps.accounts.list().map((a) => a.label)).toContain('Imported');
+    expect(deps.secrets.get(res.data[0].id)).toBe('IS');
+  });
+
+  it('accounts:import rejects an unknown provider without creating anything', async () => {
+    const { exportAccounts } = await import('../accounts/accountTransfer');
+    const blob = exportAccounts([
+      { label: 'Bad', provider: 'not-a-provider' as never, region: 'x', accessKeyId: 'K', secretAccessKey: 'S' },
+    ]);
+    const { handlers, deps } = buildHarness();
+    const res = (await handlers.get(CH.accountsImport)!({ blob })) as { ok: boolean };
+    expect(res.ok).toBe(false);
+    expect(deps.accounts.list()).toHaveLength(0);
+  });
+
   it('accounts:create rejects an unknown provider and persists nothing', async () => {
     const { handlers, deps } = buildHarness();
     const res = (await handlers.get(CH.accountsCreate)!({
