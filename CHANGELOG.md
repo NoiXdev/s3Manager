@@ -1,3 +1,9 @@
+## [1.4.1](https://github.com/NoiXdev/s3Manager/compare/v1.4.0...v1.4.1) (2026-06-19)
+
+### Build System
+
+* **deps:** bump the minor-and-patch group with 5 updates ([69e76a1](https://github.com/NoiXdev/s3Manager/commit/69e76a13906c9ab3efd9b2758079b85d76a58581))
+
 ## [1.4.0](https://github.com/NoiXdev/s3Manager/compare/v1.3.0...v1.4.0) (2026-06-16)
 
 ### Features
