@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { FiTrash2, FiEdit2, FiUpload } from 'react-icons/fi';
+import { FiTrash2, FiEdit2, FiUpload, FiDownload } from 'react-icons/fi';
 import { useAccounts, useCreateAccount, useUpdateAccount, useRemoveAccount } from '../../hooks/useAccounts';
 import { ProviderBadge } from '../accounts/ProviderBadge';
 import { AccountForm } from '../accounts/AccountForm';
@@ -30,17 +30,19 @@ export function ConnectionsScreen({ onAccountRemoved }: { onAccountRemoved?: (id
           <div className="flex items-center gap-2">
             <button
               type="button"
-              className="rounded border border-slate-300 dark:border-slate-700 px-3 py-1 text-sm hover:bg-slate-50 dark:hover:bg-slate-800"
+              className="inline-flex items-center gap-1.5 rounded border border-slate-300 dark:border-slate-700 px-3 py-1 text-sm hover:bg-slate-50 dark:hover:bg-slate-800"
               onClick={() => setTransfer({ kind: 'import' })}
             >
+              <FiDownload className="h-4 w-4" aria-hidden />
               {t('transfer.importAccounts')}
             </button>
             <button
               type="button"
               disabled={!accounts.data || accounts.data.length === 0}
-              className="rounded border border-slate-300 dark:border-slate-700 px-3 py-1 text-sm hover:bg-slate-50 dark:hover:bg-slate-800 disabled:opacity-40"
+              className="inline-flex items-center gap-1.5 rounded border border-slate-300 dark:border-slate-700 px-3 py-1 text-sm hover:bg-slate-50 dark:hover:bg-slate-800 disabled:opacity-40"
               onClick={() => setTransfer({ kind: 'export', ids: (accounts.data ?? []).map((a) => a.id) })}
             >
+              <FiUpload className="h-4 w-4" aria-hidden />
               {t('transfer.exportAll')}
             </button>
             <button
