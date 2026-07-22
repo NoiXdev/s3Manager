@@ -10,7 +10,6 @@ interface ToastApi {
   show: (message: string, kind?: ToastKind) => void;
 }
 
-// eslint-disable-next-line @typescript-eslint/no-empty-function -- no-op default; a real provider always overrides this
 const ToastContext = createContext<ToastApi>({ show: () => {} });
 
 export function useToast(): ToastApi {

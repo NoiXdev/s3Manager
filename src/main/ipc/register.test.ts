@@ -187,7 +187,7 @@ describe('registerIpc', () => {
   });
 
   it('accounts:test uses the stored secret when given an id and no secret', async () => {
-    const { handlers, deps } = buildHarness();
+    const { handlers } = buildHarness();
     const created = (await handlers.get(CH.accountsCreate)!({
       label: 'AWS', provider: 'amazon-s3', region: 'eu-central-1', accessKeyId: 'AK', secretAccessKey: 'STORED',
     })) as { data: { id: string } };
