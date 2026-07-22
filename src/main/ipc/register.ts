@@ -30,6 +30,7 @@ import { createBucket } from '../s3/buckets';
 import { exportAccounts, importAccounts, TransferError, peekEnvelope } from '../accounts/accountTransfer';
 import type { ExportAccount, ImportPreview } from '../accounts/accountTransfer';
 import { checkForUpdate } from '../update/checkForUpdate';
+import { downloadInstaller } from '../update/downloadInstaller';
 import { planSync, runSync, type Endpoint } from '../s3/sync';
 import { planLocalSync, runLocalSync } from '../s3/localSync';
 import type { LocalSyncArgs } from '../s3/localSync';
@@ -65,6 +66,10 @@ export interface RegisterDeps {
   openExternal: (url: string) => Promise<void>;
   /** Fetch implementation for the update check; defaults to globalThis.fetch. Injectable for tests. */
   fetchImpl?: typeof fetch;
+  /** Absolute directory installers are downloaded into (app.getPath('downloads')), injected by main.ts. */
+  downloadsDir?: string;
+  /** Opens a downloaded file with the OS default handler (shell.openPath), injected by main.ts. */
+  openPath?: (filePath: string) => Promise<void>;
   /** Applies the chosen theme to native chrome (nativeTheme.themeSource), injected by main.ts. Optional so tests/headless can omit it. */
   applyTheme?: (theme: AppSettings['theme']) => void;
 }
@@ -500,4 +505,19 @@ export function registerIpc(ipcMain: IpcMainLike, deps: RegisterDeps): void {
   h(CH.checkForUpdate, () =>
     checkForUpdate({ fetchImpl: deps.fetchImpl ?? globalThis.fetch, currentVersion: deps.appVersion }),
   );
+
+  h(CH.downloadUpdate, async ({ url, fileName }: { url: string; fileName: string }) => {
+    if (!deps.downloadsDir || !deps.openPath) {
+      return err('UpdateDownloadFailed', 'Downloading updates is not available in this environment');
+    }
+    const res = await downloadInstaller({
+      url,
+      fileName,
+      destDir: deps.downloadsDir,
+      fetchImpl: deps.fetchImpl ?? globalThis.fetch,
+    });
+    if (!res.ok) return res;
+    await deps.openPath(res.data.path);
+    return res;
+  });
 }

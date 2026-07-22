@@ -54,6 +54,7 @@ const api = {
   setSettings: (a: ApiMap[typeof CH.setSettings]['args'][0]) => invoke(CH.setSettings, a),
   getAppInfo: () => invoke(CH.getAppInfo),
   checkForUpdate: () => invoke(CH.checkForUpdate),
+  downloadUpdate: (a: ApiMap[typeof CH.downloadUpdate]['args'][0]) => invoke(CH.downloadUpdate, a),
   getObjectAcl: (a: ApiMap[typeof CH.getObjectAcl]['args'][0]) => invoke(CH.getObjectAcl, a),
   putObjectAcl: (a: ApiMap[typeof CH.putObjectAcl]['args'][0]) => invoke(CH.putObjectAcl, a),
   getEditableMetadata: (a: ApiMap[typeof CH.getEditableMetadata]['args'][0]) => invoke(CH.getEditableMetadata, a),

@@ -53,7 +53,7 @@ function initBackend() {
     nativeTheme.themeSource = theme;
   };
   applyTheme(readSettings(settings).theme); // honor the persisted choice at launch
-  registerIpc(ipcMain, { accounts, settings, secrets, crypto: safeStorage, db, saveDialog, selectDirectory, saveTextFile, openTextFile, appVersion: app.getVersion(), openExternal: (url) => shell.openExternal(url), applyTheme });
+  registerIpc(ipcMain, { accounts, settings, secrets, crypto: safeStorage, db, saveDialog, selectDirectory, saveTextFile, openTextFile, appVersion: app.getVersion(), openExternal: (url) => shell.openExternal(url), downloadsDir: app.getPath('downloads'), openPath: async (filePath) => { await shell.openPath(filePath); }, applyTheme });
 }
 
 const createWindow = () => {

@@ -60,6 +60,10 @@
     "upToDate": "Folosești cea mai recentă versiune",
     "updateAvailable": "Versiunea {{version}} disponibilă",
     "updateDownload": "Descarcă",
+    "updateInstall": "Descarcă și instalează",
+    "updateDownloading": "Se descarcă…",
+    "updateInstallerOpened": "Programul de instalare a fost deschis — urmează pașii pentru a finaliza.",
+    "updateInstallFailed": "Descărcarea a eșuat",
     "updateCheckFailed": "Verificarea actualizărilor a eșuat",
     "autoCheck": "Caută actualizări la pornire",
     "autoCheckHelp": "Cel mult o dată pe zi."
