@@ -1,5 +1,6 @@
 import { useSettings } from '../../hooks/useSettings';
 import { useUpdateCheck } from '../../hooks/useUpdateCheck';
+import { useDownloadUpdate } from '../../hooks/useDownloadUpdate';
 import { useToast } from '../ui/ToastProvider';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -46,6 +47,7 @@ export function SettingsScreen() {
 
   const autoCheck = settings.data?.autoCheckUpdates ?? true;
   const check = useUpdateCheck();
+  const download = useDownloadUpdate();
 
   const onToggleAutoCheck = async (value: boolean) => {
     try {
@@ -164,16 +166,37 @@ export function SettingsScreen() {
             <span className="text-slate-600 dark:text-slate-300">{t('settings.upToDate')}</span>
           )}
           {check.isSuccess && check.data.updateAvailable && (
-            <span className="text-slate-800 dark:text-slate-100">
-              {t('settings.updateAvailable', { version: check.data.latestVersion })}{' '}
-              <button
-                type="button"
-                onClick={() => void window.s3.openExternal(check.data.releaseUrl)}
-                className="text-sky-700 hover:underline dark:text-sky-400"
-              >
-                {t('settings.updateDownload')}
-              </button>
-            </span>
+            <div className="flex flex-col gap-1 text-slate-800 dark:text-slate-100">
+              <span>{t('settings.updateAvailable', { version: check.data.latestVersion })}</span>
+              <div className="flex items-center gap-3">
+                {check.data.installer && (
+                  <button
+                    type="button"
+                    disabled={download.isPending}
+                    onClick={() => {
+                      const installer = check.data.installer;
+                      if (installer) download.mutate({ url: installer.downloadUrl, fileName: installer.name });
+                    }}
+                    className="rounded bg-sky-600 px-3 py-1 text-sm font-medium text-white hover:bg-sky-700 disabled:opacity-50"
+                  >
+                    {download.isPending ? t('settings.updateDownloading') : t('settings.updateInstall')}
+                  </button>
+                )}
+                <button
+                  type="button"
+                  onClick={() => void window.s3.openExternal(check.data.releaseUrl)}
+                  className="text-sky-700 hover:underline dark:text-sky-400"
+                >
+                  {t('settings.updateDownload')}
+                </button>
+              </div>
+              {download.isError && (
+                <span className="text-red-600 dark:text-red-400">{t('settings.updateInstallFailed')}</span>
+              )}
+              {download.isSuccess && (
+                <span className="text-slate-600 dark:text-slate-300">{t('settings.updateInstallerOpened')}</span>
+              )}
+            </div>
           )}
         </div>
         <label className="flex items-center gap-2 pt-3 text-sm">

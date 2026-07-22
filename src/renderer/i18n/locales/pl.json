@@ -62,6 +62,10 @@
     "upToDate": "Masz najnowszą wersję",
     "updateAvailable": "Dostępna wersja {{version}}",
     "updateDownload": "Pobierz",
+    "updateInstall": "Pobierz i zainstaluj",
+    "updateDownloading": "Pobieranie…",
+    "updateInstallerOpened": "Instalator otwarty — wykonaj kroki, aby zakończyć.",
+    "updateInstallFailed": "Pobieranie nie powiodło się",
     "updateCheckFailed": "Sprawdzanie aktualizacji nie powiodło się",
     "autoCheck": "Sprawdzaj aktualizacje przy starcie",
     "autoCheckHelp": "Najwyżej raz dziennie."

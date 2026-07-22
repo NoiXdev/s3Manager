@@ -61,6 +61,7 @@ export const CH = {
   saveTextFile: 'util:saveTextFile',
   openTextFile: 'util:openTextFile',
   checkForUpdate: 'app:checkForUpdate',
+  downloadUpdate: 'app:downloadUpdate',
   getObjectAcl: 's3:getObjectAcl',
   putObjectAcl: 's3:putObjectAcl',
   getEditableMetadata: 's3:getEditableMetadata',
@@ -151,6 +152,7 @@ export interface ApiMap {
   [CH.saveTextFile]: { args: [{ defaultName: string; contents: string }]; res: Result<{ saved: boolean }> };
   [CH.openTextFile]: { args: []; res: Result<string | null> };
   [CH.checkForUpdate]: { args: []; res: Result<UpdateInfo> };
+  [CH.downloadUpdate]: { args: [{ url: string; fileName: string }]; res: Result<{ path: string }> };
   [CH.getObjectAcl]: { args: [{ accountId: string; bucket: string; key: string }]; res: Result<ObjectAcl> };
   [CH.putObjectAcl]: { args: [{ accountId: string; bucket: string; key: string; acl: ObjectAcl }]; res: Result<true> };
   [CH.getEditableMetadata]: { args: [{ accountId: string; bucket: string; key: string }]; res: Result<EditableMetadata> };

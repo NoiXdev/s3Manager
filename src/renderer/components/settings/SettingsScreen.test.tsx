@@ -82,13 +82,40 @@ describe('SettingsScreen', () => {
       setSettings: vi.fn().mockResolvedValue({ ok: true, data: { presignExpirySeconds: 3600 } }),
       getAppInfo: vi.fn().mockResolvedValue({ ok: true, data: { version: '1.0.0', encryptionAvailable: true, accountCount: 0 } }),
       openExternal: vi.fn().mockResolvedValue({ ok: true, data: true }),
-      checkForUpdate: vi.fn().mockResolvedValue({ ok: true, data: { currentVersion: '1.0.0', latestVersion: '2.0.0', updateAvailable: true, releaseUrl: 'https://example/r' } }),
+      checkForUpdate: vi.fn().mockResolvedValue({ ok: true, data: { currentVersion: '1.0.0', latestVersion: '2.0.0', updateAvailable: true, releaseUrl: 'https://example/r', installer: null } }),
     };
     wrap(<SettingsScreen />);
     await userEvent.click(await screen.findByRole('button', { name: 'Check for updates' }));
     expect(await screen.findByText('Version 2.0.0 available')).toBeInTheDocument();
     await userEvent.click(screen.getByRole('button', { name: 'Download' }));
     expect(window.s3.openExternal).toHaveBeenCalledWith('https://example/r');
+  });
+
+  it('downloads and opens the installer when an asset is available', async () => {
+    (window as unknown as { s3: unknown }).s3 = {
+      getSettings: vi.fn().mockResolvedValue({ ok: true, data: { presignExpirySeconds: 3600, autoCheckUpdates: true } }),
+      setSettings: vi.fn().mockResolvedValue({ ok: true, data: { presignExpirySeconds: 3600 } }),
+      getAppInfo: vi.fn().mockResolvedValue({ ok: true, data: { version: '1.0.0', encryptionAvailable: true, accountCount: 0 } }),
+      openExternal: vi.fn().mockResolvedValue({ ok: true, data: true }),
+      checkForUpdate: vi.fn().mockResolvedValue({
+        ok: true,
+        data: {
+          currentVersion: '1.0.0',
+          latestVersion: '2.0.0',
+          updateAvailable: true,
+          releaseUrl: 'https://example/r',
+          installer: { name: 'app-2.0.0-arm64.dmg', downloadUrl: 'https://github.com/o/r/app.dmg', size: 10 },
+        },
+      }),
+      downloadUpdate: vi.fn().mockResolvedValue({ ok: true, data: { path: '/downloads/app-2.0.0-arm64.dmg' } }),
+    };
+    wrap(<SettingsScreen />);
+    await userEvent.click(await screen.findByRole('button', { name: 'Check for updates' }));
+    await userEvent.click(await screen.findByRole('button', { name: 'Download & install' }));
+    await waitFor(() =>
+      expect(window.s3.downloadUpdate).toHaveBeenCalledWith({ url: 'https://github.com/o/r/app.dmg', fileName: 'app-2.0.0-arm64.dmg' }),
+    );
+    expect(await screen.findByText('Installer opened — follow the steps to finish.')).toBeInTheDocument();
   });
 
   it('persists the auto-check toggle', async () => {

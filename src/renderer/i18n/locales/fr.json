@@ -58,6 +58,10 @@
     "upToDate": "Vous utilisez la dernière version",
     "updateAvailable": "Version {{version}} disponible",
     "updateDownload": "Télécharger",
+    "updateInstall": "Télécharger et installer",
+    "updateDownloading": "Téléchargement…",
+    "updateInstallerOpened": "Programme d'installation ouvert — suivez les étapes pour terminer.",
+    "updateInstallFailed": "Échec du téléchargement",
     "updateCheckFailed": "Échec de la vérification des mises à jour",
     "autoCheck": "Rechercher les mises à jour au démarrage",
     "autoCheckHelp": "Au maximum une fois par jour."

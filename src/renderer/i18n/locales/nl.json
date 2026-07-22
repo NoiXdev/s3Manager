@@ -58,6 +58,10 @@
     "upToDate": "Je gebruikt de nieuwste versie",
     "updateAvailable": "Versie {{version}} beschikbaar",
     "updateDownload": "Downloaden",
+    "updateInstall": "Downloaden en installeren",
+    "updateDownloading": "Downloaden…",
+    "updateInstallerOpened": "Installatieprogramma geopend — volg de stappen om te voltooien.",
+    "updateInstallFailed": "Downloaden mislukt",
     "updateCheckFailed": "Controle op updates mislukt",
     "autoCheck": "Bij opstarten op updates controleren",
     "autoCheckHelp": "Hooguit één keer per dag."
