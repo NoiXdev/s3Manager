@@ -135,6 +135,7 @@
       "move": "Verschieben",
       "permissions": "Berechtigungen…",
       "editMetadata": "Metadaten bearbeiten…",
+      "versions": "Versionen",
       "delete": "Löschen",
       "deleteConfirm": "{{key}} löschen?",
       "makePublicConfirm": "Dieses Objekt für alle öffentlich lesbar machen?",

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { FiX, FiDownload, FiLink, FiEdit3, FiMove, FiLock, FiTag, FiTrash2 } from 'react-icons/fi';
+import { FiX, FiDownload, FiLink, FiEdit3, FiMove, FiLock, FiTag, FiClock, FiTrash2 } from 'react-icons/fi';
 import { useObjectDetails } from '../../hooks/useObjectDetails';
 import { formatBytes, formatTimestamp } from '../../lib/format';
 import { useObjectActions } from '../../hooks/useObjectActions';
@@ -14,6 +14,7 @@ import { useObjectLock } from '../../hooks/useObjectLock';
 import { RetentionSection } from './RetentionSection';
 import { PermissionsDialog } from './PermissionsDialog';
 import { MetadataDialog } from './MetadataDialog';
+import { VersionsDialog } from './VersionsDialog';
 
 function Row({ label, value }: { label: string; value: string }) {
   return (
@@ -47,6 +48,7 @@ export function MetadataPanel({
   const [moving, setMoving] = useState(false);
   const [permissionsOpen, setPermissionsOpen] = useState(false);
   const [metadataOpen, setMetadataOpen] = useState(false);
+  const [versionsOpen, setVersionsOpen] = useState(false);
 
   return (
     <div className="flex h-full w-80 flex-col border-l border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900">
@@ -77,6 +79,9 @@ export function MetadataPanel({
         </button>
         <button type="button" aria-label={t('files.metadata.editMetadata')} title={t('files.metadata.editMetadata')} className="rounded border border-slate-300 dark:border-slate-700 p-1.5 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800" onClick={() => setMetadataOpen(true)}>
           <FiTag className="h-4 w-4" aria-hidden />
+        </button>
+        <button type="button" aria-label={t('files.metadata.versions')} title={t('files.metadata.versions')} className="rounded border border-slate-300 dark:border-slate-700 p-1.5 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800" onClick={() => setVersionsOpen(true)}>
+          <FiClock className="h-4 w-4" aria-hidden />
         </button>
         {!confirming && (
           <button type="button" aria-label={t('files.metadata.delete')} title={t('files.metadata.delete')} className="rounded border border-red-300 dark:border-red-800 p-1.5 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/50" onClick={() => setConfirming(true)}>
@@ -142,6 +147,15 @@ export function MetadataPanel({
           bucket={bucket ?? ''}
           objectKey={objectKey}
           onClose={() => setMetadataOpen(false)}
+        />
+      )}
+
+      {versionsOpen && (
+        <VersionsDialog
+          accountId={accountId}
+          bucket={bucket}
+          objectKey={objectKey}
+          onClose={() => setVersionsOpen(false)}
         />
       )}
 

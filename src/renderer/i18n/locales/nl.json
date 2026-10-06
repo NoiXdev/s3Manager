@@ -135,6 +135,7 @@
       "move": "Verplaatsen",
       "permissions": "Rechten…",
       "editMetadata": "Metadata bewerken…",
+      "versions": "Versies",
       "delete": "Verwijderen",
       "deleteConfirm": "{{key}} verwijderen?",
       "makePublicConfirm": "Dit object voor iedereen openbaar leesbaar maken?",

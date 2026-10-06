@@ -192,3 +192,20 @@ describe('MetadataPanel edit metadata', () => {
     expect(await screen.findByLabelText('Content-Type')).toBeInTheDocument();
   });
 });
+
+describe('MetadataPanel versions', () => {
+  it('opens the Versions dialog from the actions row', async () => {
+    (window as unknown as { s3: unknown }).s3 = {
+      headObject: vi.fn().mockResolvedValue({ ok: true, data: { size: 1, contentType: null, lastModified: null, storageClass: null, etag: null, metadata: {} } }),
+      objectVisibility: vi.fn().mockResolvedValue({ ok: true, data: 'private' }),
+      getObjectLockConfig: vi.fn().mockResolvedValue({ ok: true, data: { enabled: false, defaultRetention: null } }),
+      listObjectVersions: vi.fn().mockResolvedValue({ ok: true, data: [] }),
+    };
+    wrap(<MetadataPanel accountId="acc-1" bucket="assets" objectKey="images/logo.png" onClose={() => {}} />);
+    await userEvent.click(screen.getByRole('button', { name: 'Versions' }));
+    expect(await screen.findByText('Versions of logo.png')).toBeInTheDocument();
+    await waitFor(() =>
+      expect(window.s3.listObjectVersions).toHaveBeenCalledWith({ accountId: 'acc-1', bucket: 'assets', key: 'images/logo.png' }),
+    );
+  });
+});
