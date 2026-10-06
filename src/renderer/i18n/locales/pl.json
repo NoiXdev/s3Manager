@@ -15,6 +15,7 @@
     "files": "Pliki",
     "objectLock": "Object Lock",
     "cors": "CORS",
+    "versioning": "Wersje",
     "sync": "Synchronizacja",
     "dashboard": "Pulpit",
     "settings": "Ustawienia",

@@ -6,7 +6,7 @@ import { SectionNav, type Section } from './SectionNav';
 describe('SectionNav', () => {
   it('renders all sections including Accounts and marks the active one', () => {
     render(<SectionNav active="dashboard" onSelect={() => {}} />);
-    for (const label of ['Dashboard', 'Files', 'Object Lock', 'CORS', 'Sync', 'Settings', 'Accounts']) {
+    for (const label of ['Dashboard', 'Files', 'Object Lock', 'CORS', 'Versioning', 'Sync', 'Settings', 'Accounts']) {
       expect(screen.getByRole('button', { name: label })).toBeInTheDocument();
     }
     expect(screen.getByRole('button', { name: 'Dashboard' })).toHaveAttribute('aria-current', 'page');
@@ -15,7 +15,7 @@ describe('SectionNav', () => {
   it('orders items Dashboard first, then S3 tools, then Settings and Accounts', () => {
     render(<SectionNav active="dashboard" onSelect={() => {}} />);
     const labels = screen.getAllByRole('button').map((b) => b.textContent);
-    expect(labels).toEqual(['Dashboard', 'Files', 'Object Lock', 'CORS', 'Sync', 'Settings', 'Accounts']);
+    expect(labels).toEqual(['Dashboard', 'Files', 'Object Lock', 'CORS', 'Versioning', 'Sync', 'Settings', 'Accounts']);
   });
 
   it('renders a divider between the primary and secondary groups', () => {
@@ -35,5 +35,12 @@ describe('SectionNav', () => {
     render(<SectionNav active="dashboard" onSelect={onSelect} />);
     await userEvent.click(screen.getByRole('button', { name: 'Settings' }));
     expect(onSelect).toHaveBeenCalledWith('settings' satisfies Section);
+  });
+
+  it('renders a Versioning nav item and selects it', async () => {
+    const onSelect = vi.fn();
+    render(<SectionNav active="files" onSelect={onSelect} />);
+    await userEvent.click(screen.getByRole('button', { name: 'Versioning' }));
+    expect(onSelect).toHaveBeenCalledWith('versioning' satisfies Section);
   });
 });

@@ -15,6 +15,7 @@
     "files": "Files",
     "objectLock": "Object Lock",
     "cors": "CORS",
+    "versioning": "Versioning",
     "sync": "Sync",
     "dashboard": "Dashboard",
     "settings": "Settings",

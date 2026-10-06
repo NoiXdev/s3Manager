@@ -1,12 +1,13 @@
 import { useTranslation } from 'react-i18next';
 import type { IconType } from 'react-icons';
-import { FiGrid, FiFolder, FiLock, FiGlobe, FiRefreshCw, FiSettings, FiUsers } from 'react-icons/fi';
+import { FiGrid, FiFolder, FiLock, FiGlobe, FiClock, FiRefreshCw, FiSettings, FiUsers } from 'react-icons/fi';
 
 export type Section =
   | 'files'
   | 'dashboard'
   | 'objectLock'
   | 'cors'
+  | 'versioning'
   | 'sync'
   | 'settings'
   | 'connections';
@@ -18,6 +19,7 @@ const PRIMARY: NavItem[] = [
   { id: 'files', key: 'nav.files', icon: FiFolder },
   { id: 'objectLock', key: 'nav.objectLock', icon: FiLock },
   { id: 'cors', key: 'nav.cors', icon: FiGlobe },
+  { id: 'versioning', key: 'nav.versioning', icon: FiClock },
   { id: 'sync', key: 'nav.sync', icon: FiRefreshCw },
 ];
 
