@@ -4,6 +4,7 @@ import type { ListObjectsResult, ObjectMetadata } from '../s3/objects';
 import type { Visibility } from '../s3/visibility';
 import type { Account } from '../storage/accountsRepo';
 import type { CorsRule } from '../s3/cors';
+import type { VersioningStatus } from '../s3/versioning';
 import type { ObjectLockStatus, DefaultRetention } from '../s3/objectLock';
 import type { ObjectRetention, LegalHoldStatus } from '../s3/objectRetention';
 import type { Endpoint, SyncPlan, SyncResult } from '../s3/sync';
@@ -39,6 +40,8 @@ export const CH = {
   getBucketCors: 's3:getBucketCors',
   putBucketCors: 's3:putBucketCors',
   deleteBucketCors: 's3:deleteBucketCors',
+  getBucketVersioning: 's3:getBucketVersioning',
+  putBucketVersioning: 's3:putBucketVersioning',
   getObjectLockConfig: 's3:getObjectLockConfig',
   putObjectLockConfig: 's3:putObjectLockConfig',
   getObjectRetention: 's3:getObjectRetention',
@@ -130,6 +133,8 @@ export interface ApiMap {
   [CH.getBucketCors]: { args: [{ accountId: string; bucket: string }]; res: Result<CorsRule[]> };
   [CH.putBucketCors]: { args: [{ accountId: string; bucket: string; rules: CorsRule[] }]; res: Result<true> };
   [CH.deleteBucketCors]: { args: [{ accountId: string; bucket: string }]; res: Result<true> };
+  [CH.getBucketVersioning]: { args: [{ accountId: string; bucket: string }]; res: Result<{ status: VersioningStatus }> };
+  [CH.putBucketVersioning]: { args: [{ accountId: string; bucket: string; enabled: boolean }]; res: Result<true> };
   [CH.getObjectLockConfig]: { args: [{ accountId: string; bucket: string }]; res: Result<ObjectLockStatus> };
   [CH.putObjectLockConfig]: { args: [{ accountId: string; bucket: string; retention: DefaultRetention | null }]; res: Result<true> };
   [CH.getObjectRetention]: { args: [{ accountId: string; bucket: string; key: string }]; res: Result<ObjectRetention> };

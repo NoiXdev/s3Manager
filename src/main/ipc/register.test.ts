@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { mockClient } from 'aws-sdk-client-mock';
-import { S3Client, ListBucketsCommand, GetObjectCommand, GetBucketCorsCommand, GetObjectLockConfigurationCommand, ListObjectsV2Command, PutObjectAclCommand, GetObjectRetentionCommand, PutObjectLegalHoldCommand, GetObjectAclCommand, HeadObjectCommand, CopyObjectCommand, CreateBucketCommand } from '@aws-sdk/client-s3';
+import { S3Client, ListBucketsCommand, GetObjectCommand, GetBucketCorsCommand, GetObjectLockConfigurationCommand, ListObjectsV2Command, PutObjectAclCommand, GetObjectRetentionCommand, PutObjectLegalHoldCommand, GetObjectAclCommand, HeadObjectCommand, CopyObjectCommand, CreateBucketCommand, GetBucketVersioningCommand, PutBucketVersioningCommand } from '@aws-sdk/client-s3';
 import { writeFileSync, mkdtempSync, readFileSync } from 'node:fs';
 import { Readable } from 'node:stream';
 import { join } from 'node:path';
@@ -825,5 +825,26 @@ describe('custom provider', () => {
     expect(res.ok).toBe(false);
     expect(res.error?.code).toBe('InvalidEndpoint');
     expect(deps.accounts.list()).toHaveLength(0);
+  });
+});
+
+describe('bucket versioning channels', () => {
+  it('getBucketVersioning delegates to the client', async () => {
+    s3Mock.on(GetBucketVersioningCommand).resolves({ Status: 'Enabled' });
+    const { handlers, deps } = buildHarness();
+    const acc = deps.accounts.create({ label: 'a', provider: 'amazon-s3', endpoint: undefined, region: 'eu-central-1', accessKeyId: 'AK', forcePathStyle: false });
+    deps.secrets.set(acc.id, 'sk');
+    const res = (await handlers.get(CH.getBucketVersioning)!({ accountId: acc.id, bucket: 'b' })) as { ok: boolean; data: { status: string } };
+    expect(res).toEqual({ ok: true, data: { status: 'Enabled' } });
+  });
+
+  it('putBucketVersioning sends the chosen status', async () => {
+    s3Mock.on(PutBucketVersioningCommand).resolves({});
+    const { handlers, deps } = buildHarness();
+    const acc = deps.accounts.create({ label: 'a', provider: 'amazon-s3', endpoint: undefined, region: 'eu-central-1', accessKeyId: 'AK', forcePathStyle: false });
+    deps.secrets.set(acc.id, 'sk');
+    const res = (await handlers.get(CH.putBucketVersioning)!({ accountId: acc.id, bucket: 'b', enabled: false })) as { ok: boolean };
+    expect(res).toEqual({ ok: true, data: true });
+    expect(s3Mock.commandCalls(PutBucketVersioningCommand)[0].args[0].input.VersioningConfiguration).toEqual({ Status: 'Suspended' });
   });
 });
