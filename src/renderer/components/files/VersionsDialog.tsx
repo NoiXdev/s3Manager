@@ -24,6 +24,7 @@ export function VersionsDialog({
   const { query, restore, remove, removeMarker } = useObjectVersions(accountId, bucket, objectKey);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [removingMarkerId, setRemovingMarkerId] = useState<string | null>(null);
+  const [downloadingId, setDownloadingId] = useState<string | null>(null);
 
   const run = async (p: Promise<unknown>, okMsg: string) => {
     try {
@@ -36,16 +37,19 @@ export function VersionsDialog({
 
   const download = async (versionId: string) => {
     if (!accountId || !bucket) return;
+    setDownloadingId(versionId);
     try {
       const r = await window.s3.downloadObject({ accountId, bucket, key: objectKey, versionId });
       if (!r.ok) show(`${r.error.code}: ${r.error.message}`, 'error');
-      else if (r.data.path) show(t('versioning.download'));
+      else if (r.data.path) show(t('versioning.downloaded'));
     } catch (e) {
       show((e as Error).message, 'error');
+    } finally {
+      setDownloadingId(null);
     }
   };
 
-  const btn = 'rounded border border-slate-300 dark:border-slate-700 p-1.5 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800';
+  const btn = 'rounded border border-slate-300 dark:border-slate-700 p-1.5 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 disabled:opacity-40';
 
   return (
     <Modal onDismiss={onClose} className="max-h-[80vh] w-[34rem] overflow-auto rounded bg-white p-4 shadow-lg dark:bg-slate-900">
@@ -77,16 +81,16 @@ export function VersionsDialog({
                 </div>
               </div>
               {v.isDeleteMarker ? (
-                <button type="button" className={btn} onClick={() => setRemovingMarkerId(v.versionId)}>{t('versioning.removeMarker')}</button>
+                <button type="button" disabled={removeMarker.isPending} className={btn} onClick={() => setRemovingMarkerId(v.versionId)}>{t('versioning.removeMarker')}</button>
               ) : (
                 <>
-                  <button type="button" aria-label={t('versioning.download')} title={t('versioning.download')} className={btn} onClick={() => void download(v.versionId)}>
+                  <button type="button" aria-label={t('versioning.download')} title={t('versioning.download')} disabled={downloadingId !== null} className={btn} onClick={() => void download(v.versionId)}>
                     <FiDownload className="h-4 w-4" aria-hidden />
                   </button>
                   {!v.isLatest && (
-                    <button type="button" className={btn} onClick={() => void run(restore.mutateAsync(v.versionId), t('versioning.restored'))}>{t('versioning.restore')}</button>
+                    <button type="button" disabled={restore.isPending} className={btn} onClick={() => void run(restore.mutateAsync(v.versionId), t('versioning.restored'))}>{t('versioning.restore')}</button>
                   )}
-                  <button type="button" className="rounded border border-red-300 dark:border-red-800 px-2 py-1 text-xs text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/50" onClick={() => setDeletingId(v.versionId)}>{t('versioning.deleteVersion')}</button>
+                  <button type="button" disabled={remove.isPending} className="rounded border border-red-300 dark:border-red-800 px-2 py-1 text-xs text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/50 disabled:opacity-40" onClick={() => setDeletingId(v.versionId)}>{t('versioning.deleteVersion')}</button>
                 </>
               )}
             </li>

@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import type { ReactNode } from 'react';
@@ -63,6 +63,35 @@ describe('VersionsDialog', () => {
     // The row button and the confirm button share the English label; the confirm one is rendered last.
     await userEvent.click(screen.getAllByRole('button', { name: 'Remove marker' }).at(-1)!);
     expect(window.s3.removeDeleteMarker).toHaveBeenCalledWith({ accountId: 'acc-1', bucket: 'b', key: 'a.txt', versionId: 'dm1' });
+  });
+
+  it('disables Restore while the restore is pending, so a double click restores only once', async () => {
+    (window.s3.restoreObjectVersion as ReturnType<typeof vi.fn>).mockReturnValue(new Promise(() => {}));
+    wrap(<VersionsDialog accountId="acc-1" bucket="b" objectKey="a.txt" onClose={vi.fn()} />);
+    await screen.findByText('latest');
+    const restore = screen.getByRole('button', { name: 'Restore' });
+    await userEvent.click(restore);
+    await waitFor(() => expect(restore).toBeDisabled());
+    await userEvent.click(restore);
+    expect(window.s3.restoreObjectVersion).toHaveBeenCalledTimes(1);
+  });
+
+  it('downloads a version, disables Download while it runs, and toasts "Downloaded"', async () => {
+    let finish!: (v: unknown) => void;
+    (window.s3.downloadObject as ReturnType<typeof vi.fn>).mockReturnValue(new Promise((resolve) => { finish = resolve; }));
+    wrap(<VersionsDialog accountId="acc-1" bucket="b" objectKey="a.txt" onClose={vi.fn()} />);
+    await screen.findByText('latest');
+    const [first, second] = screen.getAllByRole('button', { name: 'Download' });
+    await userEvent.click(first);
+    expect(window.s3.downloadObject).toHaveBeenCalledWith({ accountId: 'acc-1', bucket: 'b', key: 'a.txt', versionId: 'v2' });
+    await waitFor(() => expect(first).toBeDisabled());
+    expect(second).toBeDisabled();
+    await userEvent.click(first);
+    expect(window.s3.downloadObject).toHaveBeenCalledTimes(1);
+
+    finish({ ok: true, data: { path: '/tmp/x' } });
+    expect(await screen.findByText('Downloaded')).toBeInTheDocument();
+    expect(first).toBeEnabled();
   });
 
   it('closes on Escape (shared Modal)', async () => {
