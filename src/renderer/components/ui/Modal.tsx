@@ -41,7 +41,14 @@ export function Modal({
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape' && modalStack[modalStack.length - 1] === rootRef) onDismiss();
+      if (e.key !== 'Escape') return;
+      // Every modal has its own listener and their order is not guaranteed. A modal that dismisses
+      // itself unmounts synchronously and leaves the stack, which would make the modal below it the
+      // top-most one for the next listener. Claiming the event keeps that one from reacting too.
+      if (e.defaultPrevented) return;
+      if (modalStack[modalStack.length - 1] !== rootRef) return;
+      e.preventDefault();
+      onDismiss();
     };
     document.addEventListener('keydown', onKey);
     return () => document.removeEventListener('keydown', onKey);
