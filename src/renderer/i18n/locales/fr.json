@@ -15,6 +15,7 @@
     "files": "Fichiers",
     "objectLock": "Object Lock",
     "cors": "CORS",
+    "versioning": "Versions",
     "sync": "Sync",
     "dashboard": "Tableau de bord",
     "settings": "Paramètres",

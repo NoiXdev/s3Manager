@@ -14,6 +14,7 @@ import { ToastProvider } from './components/ui/ToastProvider';
 import { Dashboard } from './components/dashboard/Dashboard';
 import { CorsEditor } from './components/cors/CorsEditor';
 import { ObjectLockEditor } from './components/objectlock/ObjectLockEditor';
+import { VersioningEditor } from './components/versioning/VersioningEditor';
 import { SyncSection } from './components/sync/SyncSection';
 import { SyncRunProvider } from './components/sync/SyncRunProvider';
 import { SyncStatus } from './components/sync/SyncStatus';
@@ -21,7 +22,7 @@ import { SettingsScreen } from './components/settings/SettingsScreen';
 import { StartupUpdateCheck } from './components/StartupUpdateCheck';
 
 // Sections whose work targets the single account/bucket chosen in the sidebar.
-const SELECTOR_SECTIONS: Section[] = ['files', 'cors', 'objectLock'];
+const SELECTOR_SECTIONS: Section[] = ['files', 'cors', 'objectLock', 'versioning'];
 
 export function App() {
   const { t } = useTranslation();
@@ -140,6 +141,8 @@ export function App() {
             <CorsEditor accountId={accountId} bucket={bucket} />
           ) : section === 'objectLock' ? (
             <ObjectLockEditor accountId={accountId} bucket={bucket} />
+          ) : section === 'versioning' ? (
+            <VersioningEditor accountId={accountId} bucket={bucket} />
           ) : section === 'sync' ? null : section === 'settings' ? (
             <SettingsScreen />
           ) : (

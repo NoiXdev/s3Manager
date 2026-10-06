@@ -22,6 +22,8 @@ beforeEach(() => {
     deleteBucketCors: vi.fn().mockResolvedValue({ ok: true, data: true }),
     getObjectLockConfig: vi.fn().mockResolvedValue({ ok: true, data: { enabled: false, defaultRetention: null } }),
     putObjectLockConfig: vi.fn().mockResolvedValue({ ok: true, data: true }),
+    getBucketVersioning: vi.fn().mockResolvedValue({ ok: true, data: { status: 'Unversioned' } }),
+    putBucketVersioning: vi.fn().mockResolvedValue({ ok: true, data: true }),
     onSyncProgress: vi.fn(() => () => {}),
     getSettings: vi.fn().mockResolvedValue({ ok: true, data: { presignExpirySeconds: 3600, theme: 'system' } }),
     setSettings: vi.fn().mockResolvedValue({ ok: true, data: { presignExpirySeconds: 3600, theme: 'system' } }),
@@ -100,6 +102,25 @@ describe('App — Object Lock', () => {
     await userEvent.click(screen.getByRole('button', { name: 'Object Lock' }));
     expect(await screen.findByRole('heading', { name: 'Object Lock' })).toBeInTheDocument();
     expect(screen.getByLabelText('Account')).toBeInTheDocument();
+  });
+});
+
+describe('App — Versioning', () => {
+  it('renders the Versioning editor for the Versioning section', async () => {
+    renderApp();
+    await userEvent.click(screen.getByRole('button', { name: 'Versioning' }));
+    expect(await screen.findByRole('heading', { name: 'Versioning' })).toBeInTheDocument();
+    // Versioning is a selector section: the sidebar account selector is active.
+    expect(screen.getByLabelText('Account')).toBeEnabled();
+  });
+
+  it('loads the versioning status of the account/bucket chosen in the sidebar', async () => {
+    renderApp();
+    await userEvent.click(screen.getByRole('button', { name: 'Versioning' }));
+    await pick('Account', 'AWS prod (Amazon S3)');
+    await pick('Bucket', 'assets');
+    expect(await screen.findByText('Not enabled')).toBeInTheDocument();
+    expect(window.s3.getBucketVersioning).toHaveBeenCalledWith({ accountId: 'a', bucket: 'assets' });
   });
 });
 
