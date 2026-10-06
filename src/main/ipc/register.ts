@@ -20,6 +20,7 @@ import { getObjectVisibility, setObjectVisibility } from '../s3/visibility';
 import { getBucketCors, putBucketCors, deleteBucketCors } from '../s3/cors';
 import type { CorsRule } from '../s3/cors';
 import { getBucketVersioning, putBucketVersioning } from '../s3/versioning';
+import { listObjectVersions, restoreObjectVersion, deleteObjectVersion, removeDeleteMarker } from '../s3/objectVersions';
 import { getObjectLockConfig, putObjectLockConfig } from '../s3/objectLock';
 import { getObjectRetention, putObjectRetention, getObjectLegalHold, putObjectLegalHold } from '../s3/objectRetention';
 import type { LegalHoldStatus } from '../s3/objectRetention';
@@ -403,6 +404,22 @@ export function registerIpc(ipcMain: IpcMainLike, deps: RegisterDeps): void {
 
   h(CH.putBucketVersioning, (a: { accountId: string; bucket: string; enabled: boolean }) =>
     putBucketVersioning(clientFor(a.accountId), a.bucket, a.enabled),
+  );
+
+  h(CH.listObjectVersions, (a: { accountId: string; bucket: string; key: string }) =>
+    listObjectVersions(clientFor(a.accountId), { bucket: a.bucket, key: a.key }),
+  );
+
+  h(CH.restoreObjectVersion, (a: { accountId: string; bucket: string; key: string; versionId: string }) =>
+    restoreObjectVersion(clientFor(a.accountId), { bucket: a.bucket, key: a.key, versionId: a.versionId }),
+  );
+
+  h(CH.deleteObjectVersion, (a: { accountId: string; bucket: string; key: string; versionId: string }) =>
+    deleteObjectVersion(clientFor(a.accountId), { bucket: a.bucket, key: a.key, versionId: a.versionId }),
+  );
+
+  h(CH.removeDeleteMarker, (a: { accountId: string; bucket: string; key: string; versionId: string }) =>
+    removeDeleteMarker(clientFor(a.accountId), { bucket: a.bucket, key: a.key, versionId: a.versionId }),
   );
 
   h(CH.getObjectLockConfig, (a: { accountId: string; bucket: string }) =>

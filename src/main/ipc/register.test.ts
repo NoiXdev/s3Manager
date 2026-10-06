@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { mockClient } from 'aws-sdk-client-mock';
-import { S3Client, ListBucketsCommand, GetObjectCommand, GetBucketCorsCommand, GetObjectLockConfigurationCommand, ListObjectsV2Command, PutObjectAclCommand, GetObjectRetentionCommand, PutObjectLegalHoldCommand, GetObjectAclCommand, HeadObjectCommand, CopyObjectCommand, CreateBucketCommand, GetBucketVersioningCommand, PutBucketVersioningCommand } from '@aws-sdk/client-s3';
+import { S3Client, ListBucketsCommand, GetObjectCommand, GetBucketCorsCommand, GetObjectLockConfigurationCommand, ListObjectsV2Command, PutObjectAclCommand, GetObjectRetentionCommand, PutObjectLegalHoldCommand, GetObjectAclCommand, HeadObjectCommand, CopyObjectCommand, CreateBucketCommand, GetBucketVersioningCommand, PutBucketVersioningCommand, ListObjectVersionsCommand, DeleteObjectCommand } from '@aws-sdk/client-s3';
 import { writeFileSync, mkdtempSync, readFileSync } from 'node:fs';
 import { Readable } from 'node:stream';
 import { join } from 'node:path';
@@ -863,5 +863,30 @@ describe('bucket versioning channels', () => {
     const res = (await handlers.get(CH.putBucketVersioning)!({ accountId: acc.id, bucket: 'b', enabled: false })) as { ok: boolean };
     expect(res).toEqual({ ok: true, data: true });
     expect(s3Mock.commandCalls(PutBucketVersioningCommand)[0].args[0].input.VersioningConfiguration).toEqual({ Status: 'Suspended' });
+  });
+});
+
+describe('object versions channels', () => {
+  function withAccount() {
+    const { handlers, deps } = buildHarness();
+    const acc = deps.accounts.create({ label: 'a', provider: 'amazon-s3', endpoint: undefined, region: 'eu-central-1', accessKeyId: 'AK', forcePathStyle: false });
+    deps.secrets.set(acc.id, 'sk');
+    return { handlers, accountId: acc.id };
+  }
+
+  it('listObjectVersions returns mapped versions', async () => {
+    s3Mock.on(ListObjectVersionsCommand).resolves({ Versions: [{ Key: 'a.txt', VersionId: 'v1', IsLatest: true, LastModified: new Date('2024-01-01T00:00:00Z'), Size: 3, ETag: '"e"' }], IsTruncated: false });
+    const { handlers, accountId } = withAccount();
+    const res = (await handlers.get(CH.listObjectVersions)!({ accountId, bucket: 'b', key: 'a.txt' })) as { ok: boolean; data: unknown[] };
+    expect(res.ok).toBe(true);
+    expect(res.data).toHaveLength(1);
+  });
+
+  it('deleteObjectVersion sends a versioned delete', async () => {
+    s3Mock.on(DeleteObjectCommand).resolves({});
+    const { handlers, accountId } = withAccount();
+    const res = (await handlers.get(CH.deleteObjectVersion)!({ accountId, bucket: 'b', key: 'a.txt', versionId: 'v1' })) as { ok: boolean };
+    expect(res).toEqual({ ok: true, data: true });
+    expect(s3Mock.commandCalls(DeleteObjectCommand)[0].args[0].input).toMatchObject({ VersionId: 'v1' });
   });
 });
