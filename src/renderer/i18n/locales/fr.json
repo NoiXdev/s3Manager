@@ -135,6 +135,7 @@
       "move": "Déplacer",
       "permissions": "Autorisations…",
       "editMetadata": "Modifier les métadonnées…",
+      "versions": "Versions",
       "delete": "Supprimer",
       "deleteConfirm": "Supprimer {{key}} ?",
       "makePublicConfirm": "Rendre cet objet lisible publiquement par tout le monde ?",

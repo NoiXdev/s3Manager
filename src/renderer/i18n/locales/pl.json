@@ -139,6 +139,7 @@
       "move": "Przenieś",
       "permissions": "Uprawnienia…",
       "editMetadata": "Edytuj metadane…",
+      "versions": "Wersje",
       "delete": "Usuń",
       "deleteConfirm": "Usunąć {{key}}?",
       "makePublicConfirm": "Udostępnić ten obiekt do publicznego odczytu dla każdego?",

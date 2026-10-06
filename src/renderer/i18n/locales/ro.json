@@ -137,6 +137,7 @@
       "move": "Mută",
       "permissions": "Permisiuni…",
       "editMetadata": "Editează metadatele…",
+      "versions": "Versiuni",
       "delete": "Șterge",
       "deleteConfirm": "Ștergi {{key}}?",
       "makePublicConfirm": "Faci acest obiect accesibil public oricui pentru citire?",

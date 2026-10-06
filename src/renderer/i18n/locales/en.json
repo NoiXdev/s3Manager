@@ -135,6 +135,7 @@
       "move": "Move",
       "permissions": "Permissions…",
       "editMetadata": "Edit metadata…",
+      "versions": "Versions",
       "delete": "Delete",
       "deleteConfirm": "Delete {{key}}?",
       "makePublicConfirm": "Make this object publicly readable by anyone?",
