@@ -36,9 +36,13 @@ export function VersionsDialog({
 
   const download = async (versionId: string) => {
     if (!accountId || !bucket) return;
-    const r = await window.s3.downloadObject({ accountId, bucket, key: objectKey, versionId });
-    if (!r.ok) show(`${r.error.code}: ${r.error.message}`, 'error');
-    else if (r.data.path) show(t('versioning.download'));
+    try {
+      const r = await window.s3.downloadObject({ accountId, bucket, key: objectKey, versionId });
+      if (!r.ok) show(`${r.error.code}: ${r.error.message}`, 'error');
+      else if (r.data.path) show(t('versioning.download'));
+    } catch (e) {
+      show((e as Error).message, 'error');
+    }
   };
 
   const btn = 'rounded border border-slate-300 dark:border-slate-700 p-1.5 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800';
@@ -64,7 +68,7 @@ export function VersionsDialog({
             <li key={v.versionId} className="flex items-center gap-2 border-b border-slate-100 dark:border-slate-800 py-2 text-sm">
               <div className="flex-1 overflow-hidden">
                 <div className="flex items-center gap-2">
-                  <span className="truncate font-mono text-xs">{v.versionId}</span>
+                  <span className="truncate font-mono text-xs" title={v.versionId}>{v.versionId}</span>
                   {v.isLatest && <span className="rounded bg-green-100 px-1.5 py-0.5 text-xs text-green-700 dark:bg-green-900/40 dark:text-green-400">{t('versioning.latest')}</span>}
                   {v.isDeleteMarker && <span className="rounded bg-red-100 px-1.5 py-0.5 text-xs text-red-700 dark:bg-red-900/40 dark:text-red-400">{t('versioning.deleteMarker')}</span>}
                 </div>
