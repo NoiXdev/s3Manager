@@ -343,8 +343,8 @@ export function registerIpc(ipcMain: IpcMainLike, deps: RegisterDeps): void {
     updateObjectMetadata(clientFor(a.accountId), { bucket: a.bucket, key: a.key, contentType: a.contentType, cacheControl: a.cacheControl, contentDisposition: a.contentDisposition, metadata: a.metadata }),
   );
 
-  h(CH.presignGet, (a: { accountId: string; bucket: string; key: string; expiresIn: number }) =>
-    presignGetUrl(clientFor(a.accountId), { bucket: a.bucket, key: a.key, expiresIn: a.expiresIn }),
+  h(CH.presignGet, (a: { accountId: string; bucket: string; key: string; expiresIn: number; versionId?: string }) =>
+    presignGetUrl(clientFor(a.accountId), { bucket: a.bucket, key: a.key, expiresIn: a.expiresIn, versionId: a.versionId }),
   );
 
   h(CH.presignPut, (a: { accountId: string; bucket: string; key: string; expiresIn: number }) =>
@@ -378,10 +378,10 @@ export function registerIpc(ipcMain: IpcMainLike, deps: RegisterDeps): void {
     }
   });
 
-  h(CH.downloadObject, async (a: { accountId: string; bucket: string; key: string }) => {
+  h(CH.downloadObject, async (a: { accountId: string; bucket: string; key: string; versionId?: string }) => {
     const dest = await deps.saveDialog(basename(a.key));
     if (!dest) return ok({ path: null });
-    const r = await downloadObject(clientFor(a.accountId), { bucket: a.bucket, key: a.key, destPath: dest });
+    const r = await downloadObject(clientFor(a.accountId), { bucket: a.bucket, key: a.key, destPath: dest, versionId: a.versionId });
     return r.ok ? ok({ path: dest as string | null }) : r;
   });
 
