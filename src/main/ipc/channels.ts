@@ -6,6 +6,7 @@ import type { Account } from '../storage/accountsRepo';
 import type { CorsRule } from '../s3/cors';
 import type { VersioningStatus } from '../s3/versioning';
 import type { ObjectLockStatus, DefaultRetention } from '../s3/objectLock';
+import type { ObjectVersion } from '../s3/objectVersions';
 import type { ObjectRetention, LegalHoldStatus } from '../s3/objectRetention';
 import type { Endpoint, SyncPlan, SyncResult } from '../s3/sync';
 import type { LocalSyncArgs } from '../s3/localSync';
@@ -42,6 +43,10 @@ export const CH = {
   deleteBucketCors: 's3:deleteBucketCors',
   getBucketVersioning: 's3:getBucketVersioning',
   putBucketVersioning: 's3:putBucketVersioning',
+  listObjectVersions: 's3:listObjectVersions',
+  restoreObjectVersion: 's3:restoreObjectVersion',
+  deleteObjectVersion: 's3:deleteObjectVersion',
+  removeDeleteMarker: 's3:removeDeleteMarker',
   getObjectLockConfig: 's3:getObjectLockConfig',
   putObjectLockConfig: 's3:putObjectLockConfig',
   getObjectRetention: 's3:getObjectRetention',
@@ -135,6 +140,10 @@ export interface ApiMap {
   [CH.deleteBucketCors]: { args: [{ accountId: string; bucket: string }]; res: Result<true> };
   [CH.getBucketVersioning]: { args: [{ accountId: string; bucket: string }]; res: Result<{ status: VersioningStatus }> };
   [CH.putBucketVersioning]: { args: [{ accountId: string; bucket: string; enabled: boolean }]; res: Result<true> };
+  [CH.listObjectVersions]: { args: [{ accountId: string; bucket: string; key: string }]; res: Result<ObjectVersion[]> };
+  [CH.restoreObjectVersion]: { args: [{ accountId: string; bucket: string; key: string; versionId: string }]; res: Result<true> };
+  [CH.deleteObjectVersion]: { args: [{ accountId: string; bucket: string; key: string; versionId: string }]; res: Result<true> };
+  [CH.removeDeleteMarker]: { args: [{ accountId: string; bucket: string; key: string; versionId: string }]; res: Result<true> };
   [CH.getObjectLockConfig]: { args: [{ accountId: string; bucket: string }]; res: Result<ObjectLockStatus> };
   [CH.putObjectLockConfig]: { args: [{ accountId: string; bucket: string; retention: DefaultRetention | null }]; res: Result<true> };
   [CH.getObjectRetention]: { args: [{ accountId: string; bucket: string; key: string }]; res: Result<ObjectRetention> };
