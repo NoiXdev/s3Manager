@@ -4,8 +4,9 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import type { ReactNode } from 'react';
 import { useObjectVersions } from './useObjectVersions';
 
+let client: QueryClient;
 function wrapper() {
-  const client = new QueryClient({ defaultOptions: { queries: { retry: false }, mutations: { retry: false } } });
+  client = new QueryClient({ defaultOptions: { queries: { retry: false }, mutations: { retry: false } } });
   return ({ children }: { children: ReactNode }) => (
     <QueryClientProvider client={client}>{children}</QueryClientProvider>
   );
@@ -39,11 +40,22 @@ describe('useObjectVersions', () => {
 
   it('restore/remove/removeMarker send the version id', async () => {
     const { result } = renderHook(() => useObjectVersions('acc-1', 'b', 'a.txt'), { wrapper: wrapper() });
-    await result.current.restore.mutateAsync('v1');
+    await result.current.restore.mutateAsync('v-restore');
+    await result.current.remove.mutateAsync('v-remove');
+    await result.current.removeMarker.mutateAsync('v-marker');
+    expect(window.s3.restoreObjectVersion).toHaveBeenCalledWith({ accountId: 'acc-1', bucket: 'b', key: 'a.txt', versionId: 'v-restore' });
+    expect(window.s3.restoreObjectVersion).toHaveBeenCalledTimes(1);
+    expect(window.s3.deleteObjectVersion).toHaveBeenCalledWith({ accountId: 'acc-1', bucket: 'b', key: 'a.txt', versionId: 'v-remove' });
+    expect(window.s3.deleteObjectVersion).toHaveBeenCalledTimes(1);
+    expect(window.s3.removeDeleteMarker).toHaveBeenCalledWith({ accountId: 'acc-1', bucket: 'b', key: 'a.txt', versionId: 'v-marker' });
+    expect(window.s3.removeDeleteMarker).toHaveBeenCalledTimes(1);
+  });
+
+  it('remove mutation invalidates both versions and objects query keys', async () => {
+    const { result } = renderHook(() => useObjectVersions('acc-1', 'b', 'a.txt'), { wrapper: wrapper() });
+    const spy = vi.spyOn(client, 'invalidateQueries');
     await result.current.remove.mutateAsync('v1');
-    await result.current.removeMarker.mutateAsync('dm1');
-    expect(window.s3.restoreObjectVersion).toHaveBeenCalledWith({ accountId: 'acc-1', bucket: 'b', key: 'a.txt', versionId: 'v1' });
-    expect(window.s3.deleteObjectVersion).toHaveBeenCalledWith({ accountId: 'acc-1', bucket: 'b', key: 'a.txt', versionId: 'v1' });
-    expect(window.s3.removeDeleteMarker).toHaveBeenCalledWith({ accountId: 'acc-1', bucket: 'b', key: 'a.txt', versionId: 'dm1' });
+    expect(spy).toHaveBeenCalledWith({ queryKey: ['objectVersions', 'acc-1', 'b', 'a.txt'] });
+    expect(spy).toHaveBeenCalledWith({ queryKey: ['objects', 'acc-1', 'b'] });
   });
 });
