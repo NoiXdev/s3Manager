@@ -1,7 +1,8 @@
 import { describe, it, expect, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import type { ReactNode } from 'react';
+import { useState, type ReactNode } from 'react';
+import { flushSync } from 'react-dom';
 import { Modal } from './Modal';
 
 describe('Modal', () => {
@@ -68,15 +69,30 @@ describe('Modal', () => {
       expect(outer).not.toHaveBeenCalled();
     });
 
-    it('keeps the stack order when the outer modal gets a new onDismiss while the inner one is open', async () => {
+    it('does not dismiss the outer modal too when the inner one unmounts itself on Escape', async () => {
+      // The inner modal's own Escape listener unmounts it synchronously, which pops it off the stack
+      // before the outer modal's listener runs. The outer one must still see that Escape as handled.
       const outer = vi.fn();
-      const inner = vi.fn();
-      const { rerender } = render(<Nested showInner outerDismiss={() => outer()} innerDismiss={inner} />);
-      rerender(<Nested showInner outerDismiss={() => outer()} innerDismiss={inner} />);
+      function Stateful({ outerDismiss }: { outerDismiss: () => void }) {
+        const [showInner, setShowInner] = useState(true);
+        return (
+          <Modal onDismiss={outerDismiss}>
+            outer
+            {showInner && <Modal onDismiss={() => flushSync(() => setShowInner(false))}>inner</Modal>}
+          </Modal>
+        );
+      }
+      // A fresh onDismiss re-subscribes the outer listener after the inner one, so it runs second.
+      const { rerender } = render(<Stateful outerDismiss={() => outer()} />);
+      rerender(<Stateful outerDismiss={() => outer()} />);
+      expect(screen.getByText('inner')).toBeInTheDocument();
 
       await userEvent.keyboard('{Escape}');
-      expect(inner).toHaveBeenCalledTimes(1);
+      expect(screen.queryByText('inner')).not.toBeInTheDocument();
       expect(outer).not.toHaveBeenCalled();
+
+      await userEvent.keyboard('{Escape}');
+      expect(outer).toHaveBeenCalledTimes(1);
     });
   });
 });
