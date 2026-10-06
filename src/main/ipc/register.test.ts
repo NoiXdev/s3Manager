@@ -431,6 +431,23 @@ describe('downloadObject handler', () => {
     expect(readFileSync(dest, 'utf8')).toBe('payload');
     expect(deps.saveDialog).toHaveBeenCalledWith('out.txt');
   });
+
+  it('threads versionId into the GetObject request', async () => {
+    const { handlers, deps } = buildHarness();
+    const dir = mkdtempSync(join(tmpdir(), 's3m-dl-'));
+    const dest = join(dir, 'v.txt');
+    (deps.saveDialog as ReturnType<typeof vi.fn>).mockResolvedValue(dest);
+    s3Mock.on(GetObjectCommand).resolves({ Body: Readable.from([Buffer.from('old')]) as never });
+    const created = (await handlers.get(CH.accountsCreate)!({
+      label: 'AWS', provider: 'amazon-s3', region: 'us-east-1', accessKeyId: 'AK', secretAccessKey: 'SK',
+    })) as { data: { id: string } };
+
+    const res = (await handlers.get(CH.downloadObject)!({
+      accountId: created.data.id, bucket: 'b', key: 'v.txt', versionId: 'v7',
+    })) as { ok: boolean };
+    expect(res.ok).toBe(true);
+    expect(s3Mock.commandCalls(GetObjectCommand)[0].args[0].input).toMatchObject({ Key: 'v.txt', VersionId: 'v7' });
+  });
 });
 
 describe('CORS handlers', () => {

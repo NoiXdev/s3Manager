@@ -20,4 +20,27 @@ describe('downloadObject', () => {
     expect(r).toEqual({ ok: true, data: { path: dest } });
     expect(readFileSync(dest, 'utf8')).toBe('file bytes');
   });
+
+  it('includes VersionId in the GetObject request when provided', async () => {
+    s3Mock.on(GetObjectCommand).resolves({ Body: Readable.from([Buffer.from('hi')]) as never });
+    const dir = mkdtempSync(join(tmpdir(), 's3m-'));
+    const dest = join(dir, 'out.bin');
+
+    const r = await downloadObject(new S3Client({}), { bucket: 'b', key: 'a.txt', destPath: dest, versionId: 'v1' });
+    expect(r).toEqual({ ok: true, data: { path: dest } });
+    expect(s3Mock.commandCalls(GetObjectCommand)[0].args[0].input).toMatchObject({
+      Bucket: 'b',
+      Key: 'a.txt',
+      VersionId: 'v1',
+    });
+  });
+
+  it('omits VersionId from the GetObject request when not provided', async () => {
+    s3Mock.on(GetObjectCommand).resolves({ Body: Readable.from([Buffer.from('hi')]) as never });
+    const dir = mkdtempSync(join(tmpdir(), 's3m-'));
+    const dest = join(dir, 'out2.bin');
+
+    await downloadObject(new S3Client({}), { bucket: 'b', key: 'a.txt', destPath: dest });
+    expect(s3Mock.commandCalls(GetObjectCommand)[0].args[0].input.VersionId).toBeUndefined();
+  });
 });

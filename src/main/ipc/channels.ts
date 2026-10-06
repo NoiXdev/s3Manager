@@ -124,12 +124,12 @@ export interface ApiMap {
   [CH.headObject]: { args: [{ accountId: string; bucket: string; key: string }]; res: Result<ObjectMetadata> };
   [CH.objectVisibility]: { args: [{ accountId: string; bucket: string; key: string }]; res: Result<Visibility> };
   [CH.setObjectVisibility]: { args: [{ accountId: string; bucket: string; key: string; visibility: 'public' | 'private' }]; res: Result<Visibility> };
-  [CH.presignGet]: { args: [{ accountId: string; bucket: string; key: string; expiresIn: number }]; res: Result<string> };
+  [CH.presignGet]: { args: [{ accountId: string; bucket: string; key: string; expiresIn: number; versionId?: string }]; res: Result<string> };
   [CH.presignPut]: { args: [{ accountId: string; bucket: string; key: string; expiresIn: number }]; res: Result<string> };
   [CH.deleteObject]: { args: [{ accountId: string; bucket: string; key: string }]; res: Result<number> };
   [CH.deleteFolder]: { args: [{ accountId: string; bucket: string; prefix: string }]; res: Result<number> };
   [CH.uploadObject]: { args: [{ accountId: string; bucket: string; key: string; filePath: string; contentType?: string; uploadId: string }]; res: Result<{ key: string }> };
-  [CH.downloadObject]: { args: [{ accountId: string; bucket: string; key: string }]; res: Result<{ path: string | null }> };
+  [CH.downloadObject]: { args: [{ accountId: string; bucket: string; key: string; versionId?: string }]; res: Result<{ path: string | null }> };
   [CH.getBucketCors]: { args: [{ accountId: string; bucket: string }]; res: Result<CorsRule[]> };
   [CH.putBucketCors]: { args: [{ accountId: string; bucket: string; rules: CorsRule[] }]; res: Result<true> };
   [CH.deleteBucketCors]: { args: [{ accountId: string; bucket: string }]; res: Result<true> };

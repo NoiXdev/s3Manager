@@ -93,12 +93,12 @@ export async function headObject(
 
 export async function presignGetUrl(
   client: S3Client,
-  args: { bucket: string; key: string; expiresIn: number },
+  args: { bucket: string; key: string; expiresIn: number; versionId?: string },
 ): Promise<Result<string>> {
   try {
     const url = await getSignedUrl(
       client,
-      new GetObjectCommand({ Bucket: args.bucket, Key: args.key }),
+      new GetObjectCommand({ Bucket: args.bucket, Key: args.key, VersionId: args.versionId }),
       { expiresIn: args.expiresIn },
     );
     return ok(url);
@@ -206,11 +206,11 @@ export async function uploadObject(
 
 export async function downloadObject(
   client: S3Client,
-  args: { bucket: string; key: string; destPath: string },
+  args: { bucket: string; key: string; destPath: string; versionId?: string },
 ): Promise<Result<{ path: string }>> {
   try {
     const out = await client.send(
-      new GetObjectCommand({ Bucket: args.bucket, Key: args.key }),
+      new GetObjectCommand({ Bucket: args.bucket, Key: args.key, VersionId: args.versionId }),
     );
     if (!out.Body) return err('EmptyBody', 'Object has no body');
     await pipeline(out.Body as Readable, createWriteStream(args.destPath));
