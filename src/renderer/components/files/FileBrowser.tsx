@@ -1,6 +1,6 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { FiEdit3, FiMove, FiTrash2 } from 'react-icons/fi';
+import { FiChevronDown, FiChevronUp, FiEdit3, FiMove, FiTrash2 } from 'react-icons/fi';
 import { useObjects } from '../../hooks/useObjects';
 import { formatBytes, formatTimestamp } from '../../lib/format';
 import { Breadcrumb } from './Breadcrumb';
@@ -15,6 +15,42 @@ import { NameDialog } from '../transfer/NameDialog';
 import { MoveDialog, type MoveItem } from '../transfer/MoveDialog';
 import { useToast } from '../ui/ToastProvider';
 import { UploadLinkDialog } from './UploadLinkDialog';
+import { DEFAULT_SORT, nextSort, sortEntries, type SortKey, type SortState } from '../../lib/sortEntries';
+
+function SortableHeader({
+  label,
+  column,
+  sort,
+  onSort,
+  align = 'left',
+}: {
+  label: string;
+  column: SortKey;
+  sort: SortState;
+  onSort: (column: SortKey) => void;
+  align?: 'left' | 'right';
+}) {
+  const active = sort.key === column;
+  const Icon = sort.direction === 'asc' ? FiChevronUp : FiChevronDown;
+  return (
+    <th
+      scope="col"
+      aria-sort={active ? (sort.direction === 'asc' ? 'ascending' : 'descending') : 'none'}
+      className={`px-3 py-1.5 font-medium ${align === 'right' ? 'text-right' : 'text-left'}`}
+    >
+      <button
+        type="button"
+        onClick={() => onSort(column)}
+        className={`inline-flex items-center gap-1 hover:text-slate-900 dark:hover:text-slate-100 ${
+          active ? 'text-slate-900 dark:text-slate-100' : ''
+        }`}
+      >
+        {label}
+        <Icon className={`h-3.5 w-3.5 ${active ? '' : 'invisible'}`} aria-hidden />
+      </button>
+    </th>
+  );
+}
 
 export function FileBrowser({
   accountId,
@@ -32,7 +68,13 @@ export function FileBrowser({
   onSelectFile: (key: string) => void;
 }) {
   const { t } = useTranslation();
-  const { query, folders, files } = useObjects(accountId, bucket, prefix);
+  const objects = useObjects(accountId, bucket, prefix);
+  const { query } = objects;
+  const [sort, setSort] = useState<SortState>(DEFAULT_SORT);
+  const { folders, files } = useMemo(
+    () => sortEntries(objects.folders, objects.files, sort),
+    [objects.folders, objects.files, sort],
+  );
   const uploads = useUploads(accountId, bucket);
   const actions = useObjectActions(accountId ?? '', bucket ?? '');
   const [folderToDelete, setFolderToDelete] = useState<{ name: string; prefix: string } | null>(null);
@@ -78,6 +120,18 @@ export function FileBrowser({
       <DropZone onDropFiles={(droppedFiles) => void uploads.upload(droppedFiles, prefix)}>
         <div className="h-full overflow-auto">
           <table className="w-full border-collapse text-left">
+            {(folders.length > 0 || files.length > 0) && (
+              <thead className="sticky top-0 z-10 bg-white text-xs text-slate-500 shadow-[inset_0_-1px_0_var(--color-slate-200)] dark:bg-slate-900 dark:text-slate-400 dark:shadow-[inset_0_-1px_0_var(--color-slate-700)]">
+                <tr>
+                  <SortableHeader label={t('files.columnName')} column="name" sort={sort} onSort={(c) => setSort((s) => nextSort(s, c))} />
+                  <SortableHeader label={t('files.columnSize')} column="size" sort={sort} onSort={(c) => setSort((s) => nextSort(s, c))} align="right" />
+                  <SortableHeader label={t('files.columnLastModified')} column="lastModified" sort={sort} onSort={(c) => setSort((s) => nextSort(s, c))} />
+                  <th scope="col" className="px-3 py-1.5">
+                    <span className="sr-only">{t('files.columnActions')}</span>
+                  </th>
+                </tr>
+              </thead>
+            )}
             <tbody>
               {folders.map((folder) => (
                 <tr
@@ -87,7 +141,8 @@ export function FileBrowser({
                 >
                   <td className="px-3 py-1.5">📁 <span>{folder.name}</span></td>
                   <td className="px-3 py-1.5 text-right text-slate-400 dark:text-slate-500">—</td>
-                  <td className="px-3 py-1.5">
+                  <td className="px-3 py-1.5" />
+                  <td className="whitespace-nowrap px-3 py-1.5 text-right">
                     <button
                       type="button"
                       aria-label={t('files.renameFolderAria', { name: folder.name })}
@@ -135,6 +190,7 @@ export function FileBrowser({
                   <td className="px-3 py-1.5">📄 <span>{file.name}</span></td>
                   <td className="px-3 py-1.5 text-right tabular-nums">{formatBytes(file.size)}</td>
                   <td className="px-3 py-1.5 text-slate-500 dark:text-slate-400">{formatTimestamp(file.lastModified)}</td>
+                  <td className="px-3 py-1.5" />
                 </tr>
               ))}
             </tbody>
