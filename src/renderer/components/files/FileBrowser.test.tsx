@@ -69,6 +69,64 @@ describe('FileBrowser', () => {
   });
 });
 
+describe('FileBrowser sorting', () => {
+  beforeEach(() => {
+    (window as unknown as { s3: unknown }).s3 = {
+      listObjects: vi.fn().mockResolvedValue({
+        ok: true,
+        data: {
+          folders: [{ name: 'thumbs', prefix: 'images/thumbs/' }],
+          files: [
+            { name: 'b.png', key: 'images/b.png', size: 100, lastModified: '2024-01-03T00:00:00.000Z', storageClass: null, etag: null },
+            { name: 'a.png', key: 'images/a.png', size: 300, lastModified: '2024-01-01T00:00:00.000Z', storageClass: null, etag: null },
+            { name: 'c.png', key: 'images/c.png', size: 200, lastModified: '2024-01-02T00:00:00.000Z', storageClass: null, etag: null },
+          ],
+          nextToken: null,
+        },
+      }),
+      getDropPath: vi.fn(),
+      uploadObject: vi.fn().mockResolvedValue({ ok: true, data: {} }),
+      onUploadProgress: vi.fn(() => () => {}),
+    };
+  });
+
+  const rowNames = () =>
+    screen
+      .getAllByRole('row')
+      .slice(1) // header row
+      .map((row) => row.querySelector('td span')?.textContent);
+
+  it('sorts by name ascending by default, folders first', async () => {
+    wrap(<FileBrowser {...baseProps} />);
+    await screen.findByText('a.png');
+    expect(rowNames()).toEqual(['thumbs', 'a.png', 'b.png', 'c.png']);
+    expect(screen.getByRole('columnheader', { name: 'Name' })).toHaveAttribute('aria-sort', 'ascending');
+  });
+
+  it('toggles name direction when the active header is clicked again', async () => {
+    wrap(<FileBrowser {...baseProps} />);
+    await screen.findByText('a.png');
+    await userEvent.click(screen.getByRole('button', { name: 'Name' }));
+    expect(rowNames()).toEqual(['thumbs', 'c.png', 'b.png', 'a.png']);
+    expect(screen.getByRole('columnheader', { name: 'Name' })).toHaveAttribute('aria-sort', 'descending');
+  });
+
+  it('sorts files by size and by last modified', async () => {
+    wrap(<FileBrowser {...baseProps} />);
+    await screen.findByText('a.png');
+
+    await userEvent.click(screen.getByRole('button', { name: 'Size' }));
+    expect(rowNames()).toEqual(['thumbs', 'b.png', 'c.png', 'a.png']);
+    expect(screen.getByRole('columnheader', { name: 'Size' })).toHaveAttribute('aria-sort', 'ascending');
+    expect(screen.getByRole('columnheader', { name: 'Name' })).toHaveAttribute('aria-sort', 'none');
+
+    await userEvent.click(screen.getByRole('button', { name: 'Last modified' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Last modified' }));
+    expect(rowNames()).toEqual(['thumbs', 'b.png', 'c.png', 'a.png']);
+    expect(screen.getByRole('columnheader', { name: 'Last modified' })).toHaveAttribute('aria-sort', 'descending');
+  });
+});
+
 describe('FileBrowser operations', () => {
   it('uploads dropped files to the current prefix', async () => {
     const uploadObject = vi.fn().mockResolvedValue({ ok: true, data: { key: 'images/a.txt' } });
