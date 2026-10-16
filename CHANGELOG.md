@@ -1,3 +1,5 @@
+## [1.6.0](https://github.com/NoiXdev/s3Manager/compare/v1.5.0...v1.6.0) (2026-10-15)
+
 ## [1.5.0](https://github.com/NoiXdev/s3Manager/compare/v1.4.1...v1.5.0) (2026-07-22)
 
 ## [1.4.1](https://github.com/NoiXdev/s3Manager/compare/v1.4.0...v1.4.1) (2026-06-19)
