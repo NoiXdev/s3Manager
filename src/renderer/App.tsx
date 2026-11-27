@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { useSettings } from './hooks/useSettings';
 import { useTheme } from './hooks/useTheme';
 import { useLanguage } from './hooks/useLanguage';
+import { useF5Refresh } from './hooks/useF5Refresh';
 import { SectionNav, type Section } from './components/SectionNav';
 import { AppLogo } from './components/AppLogo';
 import { AccountSelect } from './components/accounts/AccountSelect';
@@ -38,6 +39,8 @@ export function App() {
   // Once Sync is opened, keep it mounted (hidden when inactive) so an in-flight
   // sync's progress/result and active sub-tab survive navigating to other sections.
   const [syncVisited, setSyncVisited] = useState(false);
+
+  useF5Refresh({ section, accountId, bucket, prefix, selectedKey });
 
   const goToSection = (s: Section) => {
     setSection(s);

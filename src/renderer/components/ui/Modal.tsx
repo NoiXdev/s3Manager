@@ -20,6 +20,10 @@ function removeModal(ref: ModalRef) {
   if (i !== -1) modalStack.splice(i, 1);
 }
 
+export function hasOpenModal() {
+  return modalStack.length > 0;
+}
+
 export function Modal({
   onDismiss,
   className,
