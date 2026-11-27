@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { App } from './App';
@@ -53,6 +53,23 @@ describe('App — Files browsing', () => {
     await userEvent.click(await screen.findByText('logo.png'));
     expect(await screen.findByText('Details')).toBeInTheDocument();
     expect(await screen.findByText('private')).toBeInTheDocument();
+  });
+
+  it('refreshes the current files view on F5 without losing selection', async () => {
+    renderApp();
+    await pick('Account', 'AWS prod (Amazon S3)');
+    await pick('Bucket', 'assets');
+    await userEvent.click(await screen.findByText('logo.png'));
+    expect(await screen.findByText('Details')).toBeInTheDocument();
+
+    const listObjects = (window as unknown as { s3: { listObjects: ReturnType<typeof vi.fn> } }).s3.listObjects;
+    const callsBefore = listObjects.mock.calls.length;
+    const event = new KeyboardEvent('keydown', { key: 'F5', bubbles: true, cancelable: true });
+    document.dispatchEvent(event);
+
+    expect(event.defaultPrevented).toBe(true);
+    await waitFor(() => expect(listObjects).toHaveBeenCalledTimes(callsBefore + 1));
+    expect(screen.getByText('Details')).toBeInTheDocument();
   });
 
   it('renders the Settings screen for the Settings section', async () => {
